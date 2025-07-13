@@ -1,0 +1,737 @@
+Restaurant ID,Name,Cuisine Type,Specialty Dishes,Price Range,Dietary Options,User Rating,Reviews,Google Maps Link,City
+1,Zooba,Street food,"Koshari, Taameya",Affordable,"Halal, Vegan",4.5,Very authentic and affordable street food,https://www.google.com/maps/search/?api=1&query=Zooba,Cairo
+2,Abou El Sid,Fine dining,"Molokhia, Fattah",Mid-range,Halal,4.2,Great ambiance and traditional Egyptian taste,https://www.google.com/maps/search/?api=1&query=Abou+El+Sid,Cairo
+3,Fish Market,Seafood,"Grilled shrimp, Sayadiya rice",Luxury,Halal,4.3,Fresh seafood with Nile view,https://www.google.com/maps/search/?api=1&query=Fish+Market,Cairo
+4,Kazouza,Street food,"Shawarma, Hawawshi",Affordable,Halal,4,Popular Egyptian fast food spot,https://www.google.com/maps/search/?api=1&query=Kazouza,Cairo
+5,Sequoia,Mediterranean,"Mezze, Grilled meats",Luxury,"Halal, Vegetarian",4.4,Great view and ambiance on the Nile,https://www.google.com/maps/search/?api=1&query=Sequoia,Cairo
+6,Taboula,Lebanese,"Kebbeh, Tabbouleh",Mid-range,"Halal, Vegetarian",4.6,Cozy place with authentic Lebanese cuisine,https://www.google.com/maps/search/?api=1&query=Taboula,Cairo
+7,Koshary Abou Tarek,Street food,Koshari,Affordable,"Halal, Vegan",4.5,Legendary koshary spot,https://www.google.com/maps/search/?api=1&query=Koshary+Abou+Tarek,Cairo
+8,Carlo’s,International,"Steak, Pasta",Luxury,Halal,4.3,Classy place with a variety of cuisines,https://www.google.com/maps/search/?api=1&query=Carlo’s,Cairo
+9,Baladina,Egyptian traditional,"Stuffed pigeons, Fattah",Mid-range,Halal,4.1,Home-style Egyptian cooking,https://www.google.com/maps/search/?api=1&query=Baladina,Cairo
+10,Nişantaşi,Turkish,"Kebab, Baklava",Mid-range,Halal,4.2,Chic spot for Turkish food lovers,https://www.google.com/maps/search/?api=1&query=Nişantaşi,Cairo
+11,Sachi,"Japanese, International","Sushi, Wagyu sliders",Luxury,"Halal, Gluten-free",4.7,Award-winning fine dining experience,https://www.google.com/maps/search/?api=1&query=Sachi,Cairo
+12,Maison Thomas,Italian,"Pizza, Pasta",Mid-range,"Halal, Vegetarian",4.3,Classic pizzeria with long history,https://www.google.com/maps/search/?api=1&query=Maison+Thomas,Cairo
+13,Tamara,Lebanese,"Grilled meats, Hummus",Mid-range,"Halal, Vegan",4.4,Modern Lebanese cuisine with a twist,https://www.google.com/maps/search/?api=1&query=Tamara,Cairo
+14,The Smokery,International,"Smoked salmon, Beef tartare",Luxury,"Halal, Gluten-free",4.6,Upscale dining with a view,https://www.google.com/maps/search/?api=1&query=The+Smokery,Cairo
+15,Felfela,Egyptian traditional,"Foul, Taameya, Kebab",Affordable,"Halal, Vegetarian",4.1,Authentic Egyptian food in downtown Cairo,https://www.google.com/maps/search/?api=1&query=Felfela,Cairo
+16,Left Bank,"Cafe, Mediterranean","Quiche, Salads",Mid-range,"Vegetarian, Gluten-free",4.2,Trendy spot with Nile view,https://www.google.com/maps/search/?api=1&query=Left+Bank,Cairo
+17,Crave,International,"Sliders, Chicken Parmesan",Mid-range,Halal,4.3,Tasty and consistent quality,https://www.google.com/maps/search/?api=1&query=Crave,Cairo
+18,Pier 88,"Italian, Seafood","Risotto, Seafood platter",Luxury,Halal,4.5,Trendy hotspot with live music,https://www.google.com/maps/search/?api=1&query=Pier+88,Cairo
+19,Maharaja,Indian,"Butter Chicken, Biryani",Mid-range,"Halal, Vegetarian",4,Delicious Indian dishes in a cozy setting,https://www.google.com/maps/search/?api=1&query=Maharaja,Cairo
+20,O's Pasta,Italian,"Pasta Alfredo, Lasagna",Affordable,Vegetarian,4.4,Homemade pasta with rich flavors,https://www.google.com/maps/search/?api=1&query=O's+Pasta,Cairo
+21,Zo Italian Restaurant,Italian,"Pizza, Pasta",Mid-range,"Halal, Vegetarian",4.1,Good vibes and fresh ingredients,https://www.google.com/maps/search/?api=1&query=Zo+Italian+Restaurant,Cairo
+22,Lucille's,American,"Burgers, Pancakes",Mid-range,Halal,4.3,Top-rated burgers in town,https://www.google.com/maps/search/?api=1&query=Lucille's,Cairo
+23,Aroma Lounge,"International, Cafe","Steaks, Desserts",Mid-range,Halal,4.2,Relaxed setting with great variety,https://www.google.com/maps/search/?api=1&query=Aroma+Lounge,Cairo
+24,El Tabei El Domyati,Egyptian,"Foul, Falafel",Affordable,Halal,4.6,Authentic Egyptian breakfast in a local setting,https://www.google.com/maps/search/?api=1&query=El+Tabei+El+Domyati,Cairo
+25,Sufi Bookstore Cafe,Cafe,"Coffee, Cakes",Affordable,Vegetarian,4.7,Peaceful cafe with books and art,https://www.google.com/maps/search/?api=1&query=Sufi+Bookstore+Cafe,Cairo
+26,Khan El Khalili Restaurant,Egyptian,"Grilled meats, Tagines",Mid-range,Halal,4.5,Hidden gem in the heart of old Cairo,https://www.google.com/maps/search/?api=1&query=Khan+El+Khalili+Restaurant,Cairo
+27,El Prince,Egyptian,"Kebda, Molokhia",Affordable,Halal,4.3,Crowded but delicious – a must-try!,https://www.google.com/maps/search/?api=1&query=El+Prince,Cairo
+28,Buhayrat,Levantine,"Shish Tawook, Hummus",Mid-range,Halal,4.4,Tucked-away gem with a Levantine flair,https://www.google.com/maps/search/?api=1&query=Buhayrat,Cairo
+29,Zo Restaurant,Fusion,"Duck rolls, Mango salad",Mid-range,"Halal, Vegetarian",4.5,Modern twist on classics in a cozy spot,https://www.google.com/maps/search/?api=1&query=Zo+Restaurant,Cairo
+30,Ovio Maadi,European,"Pasta, Bruschetta",Luxury,Vegetarian,4.6,Gourmet flavors in a quiet neighborhood,https://www.google.com/maps/search/?api=1&query=Ovio+Maadi,Cairo
+31,Kazlak,Middle Eastern,"Mansaf, Kofta",Affordable,Halal,4.2,No-frills gem with authentic flavors,https://www.google.com/maps/search/?api=1&query=Kazlak,Cairo
+32,Takosan,Japanese Fusion,"Tacos, Sushi Rolls",Mid-range,"Vegetarian, Halal",4.5,Unique blend of Japanese and Latin,https://www.google.com/maps/search/?api=1&query=Takosan,Cairo
+33,Eish + Malh,Italian-Egyptian,"Pizza, Fattah",Mid-range,Vegetarian,4.6,Great spot for fusion and art vibes,https://www.google.com/maps/search/?api=1&query=Eish+++Malh,Cairo
+34,Naguib Mahfouz Cafe,Egyptian,"Tagine, Molokhia",Mid-range,Halal,4.7,Historic ambiance in Khan El Khalili,https://www.google.com/maps/search/?api=1&query=Naguib+Mahfouz+Cafe,Cairo
+35,Birdcage,Thai,"Green Curry, Tom Yum Soup",Luxury,Halal,4.8,Top-rated Thai cuisine in Cairo,https://www.google.com/maps/search/?api=1&query=Birdcage,Cairo
+36,Maison Thomas,Italian,"Pizza, Pasta",Mid-range,Vegetarian,4.6,One of the oldest and most loved pizza places,https://www.google.com/maps/search/?api=1&query=Maison+Thomas,Cairo
+37,Andrea Mariouteya,Grill,"Grilled Chicken, Mezzes",Mid-range,Halal,4.6,Iconic place for grilled Egyptian dishes,https://www.google.com/maps/search/?api=1&query=Andrea+Mariouteya,Cairo
+38,Crave,International,"Pasta, Steak",Luxury,Vegetarian,4.5,Modern international menu with strong flavors,https://www.google.com/maps/search/?api=1&query=Crave,Cairo
+39,Tamara Lebanese Bistro,Lebanese,"Fattoush, Grilled Lamb",Mid-range,Halal,4.5,Stylish Lebanese eatery loved by many,https://www.google.com/maps/search/?api=1&query=Tamara+Lebanese+Bistro,Cairo
+40,Left Bank,French Fusion,"Crepes, Duck Breast",Luxury,Vegetarian,4.4,Elegant spot on the Nile with French vibes,https://www.google.com/maps/search/?api=1&query=Left+Bank,Cairo
+41,Kazlak Zamalek,Middle Eastern,"Mixed Grill, Kofta",Mid-range,Halal,4.3,Popular local chain with Zamalek charm,https://www.google.com/maps/search/?api=1&query=Kazlak+Zamalek,Cairo
+42,Sabaya,Levantine,"Kibbeh, Hummus",Luxury,"Halal, Vegetarian",4.7,Fine Levantine dining at InterContinental,https://www.google.com/maps/search/?api=1&query=Sabaya,Cairo
+43,Zooba Zamalek,Street Food,"Koshari, Taameya",Affordable,"Halal, Vegan",4.6,Trendy take on Egyptian classics,https://www.google.com/maps/search/?api=1&query=Zooba+Zamalek,Cairo
+44,Mori Sushi,Japanese,"Sushi, Sashimi",Luxury,"Halal, Vegetarian",4.6,Top destination for sushi lovers,https://www.google.com/maps/search/?api=1&query=Mori+Sushi,Cairo
+45,Mince,American,"Burgers, Fries",Mid-range,Halal,4.4,Popular burger spot with juicy patties,https://www.google.com/maps/search/?api=1&query=Mince,Cairo
+46,Taboula,Lebanese,"Tabbouleh, Grilled Meat",Mid-range,"Halal, Vegetarian",4.7,Authentic Lebanese flavors in a warm setting,https://www.google.com/maps/search/?api=1&query=Taboula,Cairo
+47,Fasahet Somaya,Egyptian,"Daily specials, Mahshi",Affordable,Halal,4.8,Tiny hidden gem serving home-cooked meals,https://www.google.com/maps/search/?api=1&query=Fasahet+Somaya,Cairo
+48,Osmanly,Turkish,"Kebabs, Baklava",Luxury,Halal,4.6,Elegant Turkish dining experience,https://www.google.com/maps/search/?api=1&query=Osmanly,Cairo
+49,Eish wa Malh,Italian-Egyptian,"Risotto, Fattah",Mid-range,Vegetarian,4.5,Fusion flavors and artistic atmosphere,https://www.google.com/maps/search/?api=1&query=Eish+wa+Malh,Cairo
+50,Gringo’s,Mexican,"Tacos, Nachos",Mid-range,Halal,4.3,Lively spot with great Mexican bites,https://www.google.com/maps/search/?api=1&query=Gringo’s,Cairo
+51,CaiRoma,Italian,"Pasta, Tiramisu",Mid-range,Vegetarian,4.5,Authentic Italian experience in the heart of Cairo,https://www.google.com/maps/search/?api=1&query=CaiRoma,Cairo
+52,Gaya,Korean,"Bibimbap, Bulgogi",Mid-range,Halal,4.4,Cozy spot for Korean cuisine lovers,https://www.google.com/maps/search/?api=1&query=Gaya,Cairo
+53,Caracas,Venezuelan,"Arepas, Empanadas",Affordable,Vegetarian,4.6,Tasty Latin American flavors in the city,https://www.google.com/maps/search/?api=1&query=Caracas,Cairo
+54,Koshary Abou Tarek,Street Food,Koshary,Affordable,"Halal, Vegan",4.7,Legendary koshary spot in downtown Cairo,https://www.google.com/maps/search/?api=1&query=Koshary+Abou+Tarek,Cairo
+55,El Zaeem,Street Food,"Shawarma, Fries Sandwich",Affordable,Halal,4.5,A local favorite for quick bites,https://www.google.com/maps/search/?api=1&query=El+Zaeem,Cairo
+56,El Dahan Express,Street Food,"Grilled Chicken, Kofta Sandwich",Affordable,Halal,4.4,Delicious street-style grills,https://www.google.com/maps/search/?api=1&query=El+Dahan+Express,Cairo
+57,El Malky Sandwiches,Street Food,"Kebda Eskandrany, Sausage",Affordable,Halal,4.2,Tasty and spicy Alexandrian sandwiches,https://www.google.com/maps/search/?api=1&query=El+Malky+Sandwiches,Cairo
+58,El Shawerma El Sory,Street Food,Syrian Shawarma,Affordable,Halal,4.5,Top Syrian shawarma joint,https://www.google.com/maps/search/?api=1&query=El+Shawerma+El+Sory,Cairo
+59,Abo Haidar,Street Food,"Shawarma, Fries",Affordable,Halal,4.6,Classic street shawarma with cult following,https://www.google.com/maps/search/?api=1&query=Abo+Haidar,Cairo
+60,Sobhy Kaber Express,Street Food,"Kofta, Liver Sandwich",Affordable,Halal,4.3,Mini branch of the famous grill master,https://www.google.com/maps/search/?api=1&query=Sobhy+Kaber+Express,Cairo
+61,Felfela Takeaway,Street Food,"Taameya, Foul",Affordable,"Halal, Vegan",4.4,Fast Egyptian classics for takeaway,https://www.google.com/maps/search/?api=1&query=Felfela+Takeaway,Cairo
+62,El Mo2men Express,Street Food,"Burger, Chicken Fillet",Affordable,Halal,4.2,Popular fast food chain with street outlets,https://www.google.com/maps/search/?api=1&query=El+Mo2men+Express,Cairo
+63,3amo Hosny,Street Food,"Grilled Kofta, Sausage",Affordable,Halal,4.3,Grill master with quick service,https://www.google.com/maps/search/?api=1&query=3amo+Hosny,Cairo
+64,Balbaa Village,Grill,"Mixed Grill, Kofta",Mid-range,Halal,4.7,Famous for grilled meats and large portions,https://www.google.com/maps/search/?api=1&query=Balbaa+Village,Alexandria
+65,Taverna,Mediterranean,"Seafood Platter, Mezzes",Luxury,"Halal, Vegetarian",4.6,Beautiful sea view and fine food,https://www.google.com/maps/search/?api=1&query=Taverna,Alexandria
+66,Ibrahim Pastry,Egyptian,Feteer Meshaltet,Affordable,Vegetarian,4.5,Hidden gem for traditional pies,https://www.google.com/maps/search/?api=1&query=Ibrahim+Pastry,Alexandria
+67,Hosny,Grill,"Kebda, Kofta",Mid-range,Halal,4.4,Well-known for grilled meats,https://www.google.com/maps/search/?api=1&query=Hosny,Alexandria
+68,White and Blue (Greek Club),Greek,"Calamari, Greek Salad",Luxury,"Seafood, Vegetarian",4.7,Iconic restaurant with Mediterranean vibe,https://www.google.com/maps/search/?api=1&query=White+and+Blue+(Greek+Club),Alexandria
+69,El Safwa,Seafood,"Grilled Fish, Shrimp",Mid-range,Seafood,4.5,Fresh catch and great prices,https://www.google.com/maps/search/?api=1&query=El+Safwa,Alexandria
+70,Sheikh Ali,Traditional,"Mahshi, Kebda",Affordable,Halal,4.6,Home-style Egyptian food,https://www.google.com/maps/search/?api=1&query=Sheikh+Ali,Alexandria
+71,Delices,French-Egyptian,"Patisserie, Gratin",Mid-range,Vegetarian,4.5,Historical café with elegant vibes,https://www.google.com/maps/search/?api=1&query=Delices,Alexandria
+72,Chez Gaby,Italian,"Pasta, Lasagna",Mid-range,Vegetarian,4.6,Family-run Italian treasure,https://www.google.com/maps/search/?api=1&query=Chez+Gaby,Alexandria
+73,Fish Market,Seafood,"Grilled Fish, Calamari",Luxury,Seafood,4.6,Scenic spot for seafood on the corniche,https://www.google.com/maps/search/?api=1&query=Fish+Market,Alexandria
+74,Arous El Bahr,Seafood,"Shrimp, Clams",Mid-range,Seafood,4.4,"Affordable, high-quality seafood",https://www.google.com/maps/search/?api=1&query=Arous+El+Bahr,Alexandria
+75,La Poire,Cafe,"Croissants, Desserts",Mid-range,Vegetarian,4.3,French-inspired desserts,https://www.google.com/maps/search/?api=1&query=La+Poire,Alexandria
+76,Cilantro Alexandria,Cafe,"Coffee, Sandwiches",Affordable,Vegetarian,4.2,Chill café by the sea,https://www.google.com/maps/search/?api=1&query=Cilantro+Alexandria,Alexandria
+77,Teatro Eskendria,Fusion,Daily Specials,Mid-range,Halal,4.4,Cultural hub with good food,https://www.google.com/maps/search/?api=1&query=Teatro+Eskendria,Alexandria
+78,Sea Gull,Seafood,Mixed seafood grill,Luxury,Seafood,4.5,Premium seaside dining,https://www.google.com/maps/search/?api=1&query=Sea+Gull,Alexandria
+79,Barista,Cafe,"Coffee, Cheesecake",Affordable,Vegetarian,4.3,Trendy coffeehouse with cozy vibes,https://www.google.com/maps/search/?api=1&query=Barista,Alexandria
+80,Chicken Tikka,Grill,"Tikka, Grilled Chicken",Mid-range,Halal,4.2,Family-friendly grill option,https://www.google.com/maps/search/?api=1&query=Chicken+Tikka,Alexandria
+81,Kebdet El Prince - Alex Branch,Street Food,"Liver Sandwich, Sausage",Affordable,Halal,4.3,"Famous Cairo chain, now in Alex",https://www.google.com/maps/search/?api=1&query=Kebdet+El+Prince+-+Alex+Branch,Alexandria
+82,Roastery,International,"Steak, Burgers",Luxury,Halal,4.4,Upscale restaurant with a great variety,https://www.google.com/maps/search/?api=1&query=Roastery,Alexandria
+83,Costa Coffee - Alexandria,Cafe,"Coffee, Pastries",Mid-range,Vegetarian,4.2,Well-known chain café,https://www.google.com/maps/search/?api=1&query=Costa+Coffee+-+Alexandria,Alexandria
+84,Fratelli,Italian,"Pizza, Risotto",Mid-range,Vegetarian,4.5,Cozy Italian spot with authentic flavors,https://www.google.com/maps/search/?api=1&query=Fratelli,Alexandria
+85,Borg El Arab Restaurant,Egyptian,"Koshary, Mahshi",Affordable,Halal,4.3,Tasty traditional food near the stadium,https://www.google.com/maps/search/?api=1&query=Borg+El+Arab+Restaurant,Alexandria
+86,Samakmak,Seafood,"Fried Fish, Shrimp Tajine",Mid-range,Seafood,4.4,Local favorite for seafood dishes,https://www.google.com/maps/search/?api=1&query=Samakmak,Alexandria
+87,Tikka Grill,Grill,"Mixed Grill, Kebda",Luxury,Halal,4.6,Chic spot with great grill variety,https://www.google.com/maps/search/?api=1&query=Tikka+Grill,Alexandria
+88,El Sheikh Wafiq,Traditional,"Stuffed Pigeon, Molokhia",Mid-range,Halal,4.3,Family-run with authentic taste,https://www.google.com/maps/search/?api=1&query=El+Sheikh+Wafiq,Alexandria
+89,Sweet Center,Desserts,"Basbousa, Kunafa",Affordable,Vegetarian,4.7,Famous for oriental sweets,https://www.google.com/maps/search/?api=1&query=Sweet+Center,Alexandria
+90,Zahran City,Fast Food,"Burgers, Chicken",Affordable,Halal,4.2,Popular for fast service and good taste,https://www.google.com/maps/search/?api=1&query=Zahran+City,Alexandria
+91,El Forn,Bakery,"Feteer, Sambousak",Affordable,Vegetarian,4.4,Famous for fresh baked Egyptian goodies,https://www.google.com/maps/search/?api=1&query=El+Forn,Alexandria
+92,Studio Misr - Alex,Grill,"Grilled Kofta, Rice",Mid-range,Halal,4.3,Good food with cinema-themed décor,https://www.google.com/maps/search/?api=1&query=Studio+Misr+-+Alex,Alexandria
+93,Sabaya Express,Levantine,"Manakeesh, Shawarma",Mid-range,Halal,4.5,Quick and flavorful Middle Eastern bites,https://www.google.com/maps/search/?api=1&query=Sabaya+Express,Alexandria
+94,Farouk El Fishawy,Egyptian,"Foul, Falafel",Affordable,"Halal, Vegan",4.6,Local breakfast gem with traditional vibes,https://www.google.com/maps/search/?api=1&query=Farouk+El+Fishawy,Alexandria
+95,Kaddoura Station,Seafood,"Grilled Fish, Rice",Affordable,Seafood,4.5,Small hidden spot with delicious seafood,https://www.google.com/maps/search/?api=1&query=Kaddoura+Station,Alexandria
+96,Trianon,Cafe,"Desserts, Coffee",Mid-range,Vegetarian,4.4,Old-world charm café known by locals,https://www.google.com/maps/search/?api=1&query=Trianon,Alexandria
+97,El Fanar,Mediterranean,"Seafood Pasta, Mezzes",Mid-range,Seafood,4.5,Quiet seafood spot with a stunning view,https://www.google.com/maps/search/?api=1&query=El+Fanar,Alexandria
+98,Selsela Restaurant,Grill,"Mixed Grill, Mahshi",Affordable,Halal,4.4,Friendly neighborhood grill joint,https://www.google.com/maps/search/?api=1&query=Selsela+Restaurant,Alexandria
+99,Karkadeh Cafe,Cafe,"Herbal Drinks, Oriental Sweets",Affordable,Vegetarian,4.3,Artistic cafe with a relaxing atmosphere,https://www.google.com/maps/search/?api=1&query=Karkadeh+Cafe,Alexandria
+100,Bakarat,Seafood,"Grilled Shrimp, Calamari",Affordable,Seafood,4.4,Underrated place with amazing fresh seafood,https://www.google.com/maps/search/?api=1&query=Bakarat,Alexandria
+101,El Set Hosn,Home-style Egyptian,"Mahshi, Tagines",Mid-range,Halal,4.6,Feels like your grandmother's kitchen,https://www.google.com/maps/search/?api=1&query=El+Set+Hosn,Alexandria
+102,Zephyrion,Greek Fusion,"Grilled Octopus, Greek Mezze",Luxury,"Seafood, Vegetarian",4.7,Secluded luxury with an authentic Greek taste,https://www.google.com/maps/search/?api=1&query=Zephyrion,Alexandria
+103,El Taklia,Egyptian,"Kofta, Okra Stew",Affordable,Halal,4.5,Tiny traditional spot with big flavors,https://www.google.com/maps/search/?api=1&query=El+Taklia,Alexandria
+104,La Veranda,French,"Quiche, Escargot",Luxury,Vegetarian,4.6,Fine French dining with sea breeze,https://www.google.com/maps/search/?api=1&query=La+Veranda,Alexandria
+105,China House,Chinese,"Dim Sum, Sweet & Sour Chicken",Mid-range,Halal,4.3,Authentic Chinese experience in Alexandria,https://www.google.com/maps/search/?api=1&query=China+House,Alexandria
+106,Rasheed Kebab,Grill,"Shish Kebab, Tawook",Affordable,Halal,4.4,Simple grill joint with big flavors,https://www.google.com/maps/search/?api=1&query=Rasheed+Kebab,Alexandria
+107,Sultan Café & Lounge,Middle Eastern,"Hookah, Mixed Mezzes",Mid-range,Vegetarian,4.5,Lounge vibes with traditional food,https://www.google.com/maps/search/?api=1&query=Sultan+Café+&+Lounge,Alexandria
+108,Burger Joint,American,"Cheeseburger, Fries",Mid-range,Halal,4.2,Trendy burger spot for meat lovers,https://www.google.com/maps/search/?api=1&query=Burger+Joint,Alexandria
+109,Pita Wraps,Mediterranean,"Falafel Wraps, Grilled Chicken Wraps",Affordable,"Halal, Vegetarian",4.3,Light bites and fresh ingredients,https://www.google.com/maps/search/?api=1&query=Pita+Wraps,Alexandria
+110,Java Lounge,Cafe,"Coffee, Cakes",Mid-range,Vegetarian,4.4,Modern café perfect for remote work,https://www.google.com/maps/search/?api=1&query=Java+Lounge,Alexandria
+111,Oasis Tandoori,Indian,"Butter Chicken, Naan",Mid-range,"Halal, Vegetarian",4.5,Hidden gem for spicy Indian cuisine,https://www.google.com/maps/search/?api=1&query=Oasis+Tandoori,Alexandria
+112,Bake & Shake,Bakery & Cafe,"Cupcakes, Milkshakes",Affordable,Vegetarian,4.3,Colorful spot for desserts and drinks,https://www.google.com/maps/search/?api=1&query=Bake+&+Shake,Alexandria
+113,Casa Pizza,Italian,"Wood-fired Pizza, Cannoli",Mid-range,Vegetarian,4.4,Great authentic pizza in a cozy corner,https://www.google.com/maps/search/?api=1&query=Casa+Pizza,Alexandria
+114,Jardino,International,"Steaks, Risotto",Luxury,"Halal, Vegetarian",4.7,Modern fine dining with a cozy atmosphere,https://www.google.com/maps/search/?api=1&query=Jardino,Alexandria
+115,Abo Kir Seafood,Seafood,"Shrimp, Calamari",Mid-range,Seafood,4.6,"Classic seafood joint, always busy",https://www.google.com/maps/search/?api=1&query=Abo+Kir+Seafood,Alexandria
+116,L Passage,Cafe & Bistro,"Coffee, Brunch Plates",Mid-range,Vegetarian,4.5,Trendy Instagram-friendly café,https://www.google.com/maps/search/?api=1&query=L+Passage,Alexandria
+117,Zanilli's,International,"Pizza, Salads, Steaks",Mid-range,Vegetarian,4.4,One of the most popular hangout spots,https://www.google.com/maps/search/?api=1&query=Zanilli's,Alexandria
+118,Club 33,Fusion,"Asian Noodles, Sliders",Luxury,"Halal, Vegetarian",4.6,Chic and stylish restaurant,https://www.google.com/maps/search/?api=1&query=Club+33,Alexandria
+119,Makani,Asian Fusion,"Sushi, Noodles",Mid-range,Halal,4.5,One of the go-to sushi spots in Alex,https://www.google.com/maps/search/?api=1&query=Makani,Alexandria
+120,Skyroof,International,"Cocktails, Tapas",Luxury,Vegetarian,4.6,Rooftop dining with great ambiance,https://www.google.com/maps/search/?api=1&query=Skyroof,Alexandria
+121,Antonio’s,Italian,"Lasagna, Ravioli",Mid-range,Vegetarian,4.5,Authentic Italian with great service,https://www.google.com/maps/search/?api=1&query=Antonio’s,Alexandria
+122,The Cakery,Desserts,"Cakes, Cupcakes",Affordable,Vegetarian,4.4,Most loved cake shop in town,https://www.google.com/maps/search/?api=1&query=The+Cakery,Alexandria
+123,Seafood House - Stanley,Seafood,"Grilled Fish, Crab Soup",Mid-range,Seafood,4.6,Iconic seafood by Stanley Bridge,https://www.google.com/maps/search/?api=1&query=Seafood+House+-+Stanley,Alexandria
+124,Al Dokka,Egyptian,"Grilled Meats, Mahshi",Luxury,Halal,4.7,Island dining experience with Nile view,https://www.google.com/maps/search/?api=1&query=Al+Dokka,Aswan
+125,Nubian Dream,Nubian,"Tagines, Grilled Fish",Mid-range,Halal,4.6,Cozy setting with authentic Nubian food,https://www.google.com/maps/search/?api=1&query=Nubian+Dream,Aswan
+126,1902 Restaurant,French-Egyptian,"Duck, Mezzes",Luxury,"Halal, Vegetarian",4.8,Historic fine dining at the Old Cataract,https://www.google.com/maps/search/?api=1&query=1902+Restaurant,Aswan
+127,Ashry Aswan,Egyptian,"Koshari, Liver Sandwich",Affordable,Halal,4.4,Popular spot for local street food,https://www.google.com/maps/search/?api=1&query=Ashry+Aswan,Aswan
+128,Makani,International,"Pizza, Chicken Wrap",Mid-range,Halal,4.5,Modern eatery with Nile view,https://www.google.com/maps/search/?api=1&query=Makani,Aswan
+129,Salah El Din,Seafood,"Grilled Fish, Shrimp",Mid-range,Seafood,4.5,Seafood with local charm,https://www.google.com/maps/search/?api=1&query=Salah+El+Din,Aswan
+130,Kato Dool,Nubian,"Stuffed Pigeon, Tagines",Mid-range,Halal,4.6,Charming colorful Nubian atmosphere,https://www.google.com/maps/search/?api=1&query=Kato+Dool,Aswan
+131,Biti Pizza,Italian,"Pizza, Pasta",Affordable,Vegetarian,4.2,Simple Italian with local fans,https://www.google.com/maps/search/?api=1&query=Biti+Pizza,Aswan
+132,Ferial Garden Café,Cafe,"Juices, Desserts",Mid-range,Vegetarian,4.3,Great sunset spot,https://www.google.com/maps/search/?api=1&query=Ferial+Garden+Café,Aswan
+133,Nubian House Restaurant,Nubian,"Grilled Chicken, Okra Stew",Mid-range,Halal,4.5,Family-run authentic spot,https://www.google.com/maps/search/?api=1&query=Nubian+House+Restaurant,Aswan
+134,El Dokka Terrace,Egyptian,"Tagines, Kofta",Luxury,Halal,4.6,Terrace views over the Nile,https://www.google.com/maps/search/?api=1&query=El+Dokka+Terrace,Aswan
+135,Habibi Restaurant,International,"Steak, Pasta",Mid-range,Halal,4.3,Popular with tourists,https://www.google.com/maps/search/?api=1&query=Habibi+Restaurant,Aswan
+136,Chef Khalil,Seafood,"Fried Fish, Shrimp Tajine",Mid-range,Seafood,4.4,Local seafood master,https://www.google.com/maps/search/?api=1&query=Chef+Khalil,Aswan
+137,Aswan Moon,Cafe,"Snacks, Tea",Affordable,Vegetarian,4.2,Floating café with chill vibes,https://www.google.com/maps/search/?api=1&query=Aswan+Moon,Aswan
+138,Nubian Palace,Nubian,"Mahshi, Eggplant Stew",Mid-range,Halal,4.5,Hidden gem on the west bank,https://www.google.com/maps/search/?api=1&query=Nubian+Palace,Aswan
+139,Panorama Restaurant,Grill,"Kofta, Chicken",Luxury,Halal,4.6,Top views and great food,https://www.google.com/maps/search/?api=1&query=Panorama+Restaurant,Aswan
+140,Basma Hotel Restaurant,International,"Buffet, Grilled Fish",Luxury,Halal,4.5,Hotel dining done right,https://www.google.com/maps/search/?api=1&query=Basma+Hotel+Restaurant,Aswan
+141,Hanafi,Street Food,"Foul, Taameya",Affordable,"Halal, Vegan",4.3,Morning breakfast favorite,https://www.google.com/maps/search/?api=1&query=Hanafi,Aswan
+142,El Masry,Egyptian,"Molokhia, Mahshi",Mid-range,Halal,4.4,Classic Egyptian flavors,https://www.google.com/maps/search/?api=1&query=El+Masry,Aswan
+143,Sofitel Old Cataract Lounge,French,"Pastries, Cheese Platters",Luxury,Vegetarian,4.8,Elegance with a colonial touch,https://www.google.com/maps/search/?api=1&query=Sofitel+Old+Cataract+Lounge,Aswan
+144,Africa Restaurant,Nubian,"Tagines, Rice Dishes",Mid-range,Halal,4.4,Cultural vibe with local music,https://www.google.com/maps/search/?api=1&query=Africa+Restaurant,Aswan
+145,El Tekkia,Grill,"Mixed Grill, Stuffed Peppers",Mid-range,Halal,4.5,Traditional decor and food,https://www.google.com/maps/search/?api=1&query=El+Tekkia,Aswan
+146,Kababgy Abo Ahmed,Grill,"Kebab, Kofta",Affordable,Halal,4.2,Busy spot for meat lovers,https://www.google.com/maps/search/?api=1&query=Kababgy+Abo+Ahmed,Aswan
+147,Dolce Vita,Cafe,"Coffee, Ice Cream",Mid-range,Vegetarian,4.3,Sweet treats in Aswan,https://www.google.com/maps/search/?api=1&query=Dolce+Vita,Aswan
+148,Aswan Gallery Café,Art Café,"Desserts, Juices",Mid-range,Vegetarian,4.4,Artistic corner in the city,https://www.google.com/maps/search/?api=1&query=Aswan+Gallery+Café,Aswan
+149,El Prince Aswan,Street Food,Sausage Sandwiches,Affordable,Halal,4.3,Extension of Cairo's favorite,https://www.google.com/maps/search/?api=1&query=El+Prince+Aswan,Aswan
+150,El Moudira Terrace,Mediterranean,"Seafood Grill, Mezzes",Luxury,Halal,4.6,Elegant terrace by the Nile,https://www.google.com/maps/search/?api=1&query=El+Moudira+Terrace,Aswan
+151,Al Marsam Restaurant,Nubian,Slow-cooked Tagines,Mid-range,Halal,4.5,Rustic charm with great taste,https://www.google.com/maps/search/?api=1&query=Al+Marsam+Restaurant,Aswan
+152,Garden View Café,Cafe,"Smoothies, Salads",Mid-range,Vegetarian,4.4,Quiet and lush green setting,https://www.google.com/maps/search/?api=1&query=Garden+View+Café,Aswan
+153,Mishrabya,Fusion,"Pasta, Grilled Chicken",Mid-range,Halal,4.4,Modern restaurant with traditional touch,https://www.google.com/maps/search/?api=1&query=Mishrabya,Aswan
+154,Bayt El Set,Nubian,"Okra Stew, Tagines",Mid-range,Halal,4.6,Feels like eating at grandma's,https://www.google.com/maps/search/?api=1&query=Bayt+El+Set,Aswan
+155,El Qobba Garden,Grill,"Stuffed Pigeon, Rice",Mid-range,Halal,4.4,Tucked away spot with peaceful vibes,https://www.google.com/maps/search/?api=1&query=El+Qobba+Garden,Aswan
+156,Layaly Aswan,Egyptian,"Molokhia, Mahshi",Affordable,Halal,4.3,"Simple, local favorite",https://www.google.com/maps/search/?api=1&query=Layaly+Aswan,Aswan
+157,Nuba Koshary,Street Food,Koshari,Affordable,Vegan,4.2,Tiny place with huge flavors,https://www.google.com/maps/search/?api=1&query=Nuba+Koshary,Aswan
+158,HodHod’s Kitchen,Nubian,"Grilled Chicken, Beans",Mid-range,Halal,4.5,"Family-run, local charm",https://www.google.com/maps/search/?api=1&query=HodHod’s+Kitchen,Aswan
+159,Zeinab’s Terrace,Nubian,"Lentil Soup, Eggplant Stew",Mid-range,Vegetarian,4.4,Homestyle cooking with a view,https://www.google.com/maps/search/?api=1&query=Zeinab’s+Terrace,Aswan
+160,Koko’s Falafel,Street Food,"Falafel, Foul",Affordable,Vegan,4.3,Small stand with loyal fans,https://www.google.com/maps/search/?api=1&query=Koko’s+Falafel,Aswan
+161,El Bahr El Azraq,Seafood,"Shrimp, Fried Fish",Affordable,Seafood,4.4,Hidden near the fisherman docks,https://www.google.com/maps/search/?api=1&query=El+Bahr+El+Azraq,Aswan
+162,Tebesty View Café,Cafe,"Tea, Dates",Affordable,Vegetarian,4.2,Overlooks the desert cliffs,https://www.google.com/maps/search/?api=1&query=Tebesty+View+Café,Aswan
+163,El Hanout,Fusion,"Chicken Fatteh, Fries",Mid-range,Halal,4.4,Fusion of Egyptian and Nubian spices,https://www.google.com/maps/search/?api=1&query=El+Hanout,Aswan
+164,Safari Restaurant,Grill,"Mixed Grill, Fattah",Mid-range,Halal,4.4,Desert-themed eatery with strong flavors,https://www.google.com/maps/search/?api=1&query=Safari+Restaurant,Aswan
+165,Sunset Deck,Cafe,"Mocktails, Snacks",Mid-range,Vegetarian,4.5,Scenic Nile view with chill vibe,https://www.google.com/maps/search/?api=1&query=Sunset+Deck,Aswan
+166,Koshari Planet,Street Food,"Koshari, Spicy Sauce",Affordable,Vegan,4.2,Quick and clean with lots of spice,https://www.google.com/maps/search/?api=1&query=Koshari+Planet,Aswan
+167,Oasis Diner,International,"Burgers, Pasta",Mid-range,Halal,4.3,Modern interior and friendly staff,https://www.google.com/maps/search/?api=1&query=Oasis+Diner,Aswan
+168,Nubian Street Café,Cafe,"Tea, Oriental Desserts",Affordable,Vegetarian,4.4,"Colorful décor, Nubian hospitality",https://www.google.com/maps/search/?api=1&query=Nubian+Street+Café,Aswan
+169,The Rice House,Egyptian,"White Rice Dishes, Lentil Soup",Affordable,Vegetarian,4.2,Minimalist menu with perfect execution,https://www.google.com/maps/search/?api=1&query=The+Rice+House,Aswan
+170,Tambo Lounge,Fusion,"Grilled Chicken, Fries",Mid-range,Halal,4.3,Local youth favorite with music nights,https://www.google.com/maps/search/?api=1&query=Tambo+Lounge,Aswan
+171,Wadi El Arab,Levantine,"Shawarma, Tabouleh",Mid-range,Halal,4.5,Authentic flavors in a cozy spot,https://www.google.com/maps/search/?api=1&query=Wadi+El+Arab,Aswan
+172,El Maleka,Nubian,"Eggplant Fatteh, Rice Dishes",Mid-range,Halal,4.4,Decorated with Nubian art pieces,https://www.google.com/maps/search/?api=1&query=El+Maleka,Aswan
+173,Upper Egypt Corner,Traditional,"Molokhia, Taameya",Affordable,Halal,4.3,"Simple, nostalgic taste of Upper Egypt",https://www.google.com/maps/search/?api=1&query=Upper+Egypt+Corner,Aswan
+174,Nubian Nights Café,Cafe,"Herbal Tea, Local Desserts",Affordable,Vegetarian,4.3,Quiet riverside spot for relaxing evenings,https://www.google.com/maps/search/?api=1&query=Nubian+Nights+Café,Aswan
+175,Villa Nile,International,"Pizza, Chicken Curry",Mid-range,Halal,4.4,Spacious villa turned restaurant,https://www.google.com/maps/search/?api=1&query=Villa+Nile,Aswan
+176,Zahret El Nil,Egyptian,"Stuffed Vine Leaves, Grilled Chicken",Mid-range,Halal,4.5,Garden seating with local taste,https://www.google.com/maps/search/?api=1&query=Zahret+El+Nil,Aswan
+177,El Hadaba Grill,Grill,"Lamb Chops, Shish Tawook",Mid-range,Halal,4.4,Hidden meat-lover's haven,https://www.google.com/maps/search/?api=1&query=El+Hadaba+Grill,Aswan
+178,Kasr El Wadi,Nubian,"Vegetable Tagines, Couscous",Affordable,"Halal, Vegetarian",4.5,Feels like a home-cooked Nubian meal,https://www.google.com/maps/search/?api=1&query=Kasr+El+Wadi,Aswan
+179,Shark Restaurant,Seafood,Seafood Platter,Luxury,Seafood,4.7,Fresh seafood with a sea view,https://www.google.com/maps/search/?api=1&query=Shark+Restaurant,Dahab
+180,Ali Baba Restaurant,Seafood,Grilled Fish,Luxury,Halal,4.6,Popular spot on the waterfront,https://www.google.com/maps/search/?api=1&query=Ali+Baba+Restaurant,Dahab
+181,Friends Restaurant,Seafood,Mixed Seafood Grill,Mid-range,Seafood,4.5,Chill vibe and fresh fish,https://www.google.com/maps/search/?api=1&query=Friends+Restaurant,Dahab
+182,The Caves,Seafood,Grilled Calamari,Mid-range,Seafood,4.4,Underground feel and rich flavors,https://www.google.com/maps/search/?api=1&query=The+Caves,Dahab
+183,Green Valley Restaurant,Seafood,"Shrimp, Grilled Fish",Mid-range,Halal,4.4,Family-style Egyptian seafood,https://www.google.com/maps/search/?api=1&query=Green+Valley+Restaurant,Dahab
+184,Nemo Fish Restaurant,Seafood,Fried Fish Platter,Affordable,Seafood,4.3,Tasty portions and quick service,https://www.google.com/maps/search/?api=1&query=Nemo+Fish+Restaurant,Dahab
+185,Sea Bride Restaurant,Seafood,"Crab, Shrimp, Calamari",Mid-range,Seafood,4.5,Excellent fresh seafood,https://www.google.com/maps/search/?api=1&query=Sea+Bride+Restaurant,Dahab
+186,King Chicken,Grill,Grilled Chicken,Affordable,Halal,4.3,Go-to for grilled meats in Dahab,https://www.google.com/maps/search/?api=1&query=King+Chicken,Dahab
+187,Si Omar Restaurant,Egyptian,"Kofta, Rice",Affordable,Halal,4.4,Locally popular grill spot,https://www.google.com/maps/search/?api=1&query=Si+Omar+Restaurant,Dahab
+188,Karkour Restaurant,Grill,Mixed Grill,Mid-range,Halal,4.4,Authentic grilled meat dishes,https://www.google.com/maps/search/?api=1&query=Karkour+Restaurant,Dahab
+189,El Masry Restaurant,Egyptian,"Molokhia, Mahshi",Affordable,Halal,4.3,Egyptian homemade-style meals,https://www.google.com/maps/search/?api=1&query=El+Masry+Restaurant,Dahab
+190,El Fanar Restaurant,Egyptian,"Tagines, Rice",Affordable,Halal,4.2,Simple and satisfying,https://www.google.com/maps/search/?api=1&query=El+Fanar+Restaurant,Dahab
+191,El Tekkia Restaurant,Grill,Chicken and Kofta,Mid-range,Halal,4.3,Good portions and flavor,https://www.google.com/maps/search/?api=1&query=El+Tekkia+Restaurant,Dahab
+192,Zanooba Slow Cooking,Fusion,"Tagine, Lamb Stew",Mid-range,Halal,4.6,Slow-cooked with care,https://www.google.com/maps/search/?api=1&query=Zanooba+Slow+Cooking,Dahab
+193,Lindy's Dahab Restaurant,International,"Burgers, Pasta",Mid-range,Halal,4.5,Diverse options and nice setting,https://www.google.com/maps/search/?api=1&query=Lindy's+Dahab+Restaurant,Dahab
+194,Athanor Pizzeria,Italian,"Pizza, Pasta",Mid-range,Vegetarian,4.6,Italian comfort food in Dahab,https://www.google.com/maps/search/?api=1&query=Athanor+Pizzeria,Dahab
+195,Red Cat Restaurant,Russian,"Borscht, Dumplings",Mid-range,Halal,4.4,Eastern European favorites,https://www.google.com/maps/search/?api=1&query=Red+Cat+Restaurant,Dahab
+196,Everyday Café,Cafe,"Pizza, Coffee",Mid-range,Vegetarian,4.3,Fun vibe with live music,https://www.google.com/maps/search/?api=1&query=Everyday+Café,Dahab
+197,Lakhbatita Ramez & Paola,Italian,Wood-fired Pizza,Mid-range,Vegetarian,4.5,Italian duo cooking great food,https://www.google.com/maps/search/?api=1&query=Lakhbatita+Ramez+&+Paola,Dahab
+198,German Bakery,Bakery,"Breads, Pastries",Affordable,Vegetarian,4.4,Authentic European bakery,https://www.google.com/maps/search/?api=1&query=German+Bakery,Dahab
+199,King Falafel,Street Food,"Falafel, Hummus",Affordable,Vegan,4.5,"Cheap, quick, and tasty",https://www.google.com/maps/search/?api=1&query=King+Falafel,Dahab
+200,Koshary Alhamdulillah,Egyptian,Koshary,Affordable,Vegan,4.4,Best koshary in town,https://www.google.com/maps/search/?api=1&query=Koshary+Alhamdulillah,Dahab
+201,Yum Yum Restaurant,Fast Food,"Fried Chicken, Sandwiches",Affordable,Halal,4.2,Local favorite fast food,https://www.google.com/maps/search/?api=1&query=Yum+Yum+Restaurant,Dahab
+202,Fresca Restaurant,Italian,"Pizza, Pasta",Mid-range,Vegetarian,4.4,Tasty and fresh meals,https://www.google.com/maps/search/?api=1&query=Fresca+Restaurant,Dahab
+203,11:11 Avenue Café,Cafe,"Coffee, Smoothies",Affordable,Vegetarian,4.3,Trendy café with a view,https://www.google.com/maps/search/?api=1&query=11:11+Avenue+Café,Dahab
+204,Coffee Corner,Cafe,"Espresso, Croissants",Affordable,Vegetarian,4.2,Chill vibe and quality coffee,https://www.google.com/maps/search/?api=1&query=Coffee+Corner,Dahab
+205,Penguin Village Café,Cafe,"Juice, Breakfast",Affordable,Vegetarian,4.4,Seaside café with views,https://www.google.com/maps/search/?api=1&query=Penguin+Village+Café,Dahab
+206,Everyday Café,Cafe,"Pizza, Drinks",Mid-range,Vegetarian,4.3,Lively café with events,https://www.google.com/maps/search/?api=1&query=Everyday+Café,Dahab
+207,Ralph's German Bakery,Bakery,"Cakes, Bread",Affordable,Vegetarian,4.6,Legendary bakery in Dahab,https://www.google.com/maps/search/?api=1&query=Ralph's+German+Bakery,Dahab
+208,Blue House Restaurant,Seafood,Seafood Platter,Mid-range,Seafood,4.5,"Beautiful view, tasty dishes",https://www.google.com/maps/search/?api=1&query=Blue+House+Restaurant,Dahab
+209,Yalla Bar,Mediterranean,"Seafood Pasta, Tapas",Mid-range,Vegetarian,4.5,Cozy hangout with good music,https://www.google.com/maps/search/?api=1&query=Yalla+Bar,Dahab
+210,Tota Downtown,Grill,"Steak, Chicken BBQ",Mid-range,Halal,4.4,Relaxed atmosphere with great food,https://www.google.com/maps/search/?api=1&query=Tota+Downtown,Dahab
+211,Namaste India,Indian,"Butter Chicken, Naan",Mid-range,Halal,4.6,Authentic Indian spices in Dahab,https://www.google.com/maps/search/?api=1&query=Namaste+India,Dahab
+212,Aloevera Café,Cafe,"Juices, Smoothies",Affordable,Vegan,4.3,Healthy options with chill vibes,https://www.google.com/maps/search/?api=1&query=Aloevera+Café,Dahab
+213,Ali Baba Grill,Grill,Mixed Grill Platter,Mid-range,Halal,4.4,Popular meat lover's spot,https://www.google.com/maps/search/?api=1&query=Ali+Baba+Grill,Dahab
+214,Crazy Camel Bar,Bar,"Snacks, Drinks",Mid-range,Vegetarian,4.2,Lively bar with beach views,https://www.google.com/maps/search/?api=1&query=Crazy+Camel+Bar,Dahab
+215,Leila’s Bakery,Bakery,"Cakes, Brownies",Affordable,Vegetarian,4.5,Charming bakery with sweet options,https://www.google.com/maps/search/?api=1&query=Leila’s+Bakery,Dahab
+216,Laziz Resto Café,International,"Burgers, Pizza",Mid-range,Halal,4.3,Casual dining for all tastes,https://www.google.com/maps/search/?api=1&query=Laziz+Resto+Café,Dahab
+217,Blue Beach Restaurant,Seafood,"Calamari, Grilled Fish",Mid-range,Seafood,4.5,Dining on the beach,https://www.google.com/maps/search/?api=1&query=Blue+Beach+Restaurant,Dahab
+218,El Dorado,Mexican,"Burritos, Tacos",Mid-range,Vegetarian,4.4,Best tacos in Dahab,https://www.google.com/maps/search/?api=1&query=El+Dorado,Dahab
+219,El Wekala Restaurant,Egyptian,"Stuffed Pigeon, Fattah",Mid-range,Halal,4.3,Classic Egyptian atmosphere,https://www.google.com/maps/search/?api=1&query=El+Wekala+Restaurant,Dahab
+220,Yummy Mummy,International,"Breakfast, Sandwiches",Affordable,Vegetarian,4.5,Breakfast with a view,https://www.google.com/maps/search/?api=1&query=Yummy+Mummy,Dahab
+221,Baba Ali,Grill,"Shish Tawook, Lamb Chops",Mid-range,Halal,4.4,No-nonsense grill food,https://www.google.com/maps/search/?api=1&query=Baba+Ali,Dahab
+222,Eel Garden View Café,Cafe,"Juices, Salads",Mid-range,Vegetarian,4.4,Beachside view and healthy bites,https://www.google.com/maps/search/?api=1&query=Eel+Garden+View+Café,Dahab
+223,Baraka Restaurant,Middle Eastern,"Kebabs, Hummus",Mid-range,Halal,4.3,Tasty Arabic food,https://www.google.com/maps/search/?api=1&query=Baraka+Restaurant,Dahab
+224,Oasis Grill,Grill,"Kofta, Chicken Wings",Affordable,Halal,4.2,Basic but delicious,https://www.google.com/maps/search/?api=1&query=Oasis+Grill,Dahab
+225,Oum Kalthoum Restaurant,Egyptian,"Mahshi, Kebda",Mid-range,Halal,4.3,Retro atmosphere and good food,https://www.google.com/maps/search/?api=1&query=Oum+Kalthoum+Restaurant,Dahab
+226,Puddleduck Restaurant,European,"Steak, Pasta",Luxury,Halal,4.5,Great for romantic dinners,https://www.google.com/maps/search/?api=1&query=Puddleduck+Restaurant,Dahab
+227,Shams Restaurant,Seafood,Shrimp Pasta,Mid-range,Seafood,4.4,Attached to Shams Hotel,https://www.google.com/maps/search/?api=1&query=Shams+Restaurant,Dahab
+228,Zanooba Garden,Fusion,"Stew, Curry",Mid-range,Halal,4.5,Garden dining experience,https://www.google.com/maps/search/?api=1&query=Zanooba+Garden,Dahab
+229,Bamboo House,Asian,"Noodles, Spring Rolls",Mid-range,Halal,4.3,Asian cuisine with local touch,https://www.google.com/maps/search/?api=1&query=Bamboo+House,Dahab
+230,Sultan's Table,Middle Eastern,"Kebabs, Mezze",Luxury,Halal,4.6,Elevated Levantine dishes,https://www.google.com/maps/search/?api=1&query=Sultan's+Table,Dahab
+231,Little Buddha Dahab,Japanese,"Sushi, Ramen",Luxury,Halal,4.6,Stylish sushi spot,https://www.google.com/maps/search/?api=1&query=Little+Buddha+Dahab,Dahab
+232,Veggie Garden,Vegetarian,"Salads, Lentil Soup",Affordable,Vegetarian,4.4,Vegan friendly and healthy,https://www.google.com/maps/search/?api=1&query=Veggie+Garden,Dahab
+233,Chill Out Café,Cafe,"Smoothies, Wraps",Affordable,Vegan,4.3,Perfect place to relax,https://www.google.com/maps/search/?api=1&query=Chill+Out+Café,Dahab
+234,Al Capone Restaurant,Italian,"Pizza, Pasta",Mid-range,Vegetarian,4.3,Classic Italian dishes,https://www.google.com/maps/search/?api=1&query=Al+Capone+Restaurant,Dahab
+235,Sandfish Café,Seafood,"Fried Fish, Fries",Affordable,Seafood,4.4,Simple and tasty,https://www.google.com/maps/search/?api=1&query=Sandfish+Café,Dahab
+236,Mazaj Dahab,Middle Eastern,"Shawarma, Tabouleh",Mid-range,Halal,4.4,Aromatic and satisfying,https://www.google.com/maps/search/?api=1&query=Mazaj+Dahab,Dahab
+237,The Vegan Table,Vegan,"Plant-Based Wraps, Smoothies",Affordable,Vegan,4.5,Delicious and healthy,https://www.google.com/maps/search/?api=1&query=The+Vegan+Table,Dahab
+238,Bedouin Star Kitchen,Traditional,"Bedouin Chicken, Tea",Affordable,Halal,4.5,Traditional setting and flavors,https://www.google.com/maps/search/?api=1&query=Bedouin+Star+Kitchen,Dahab
+239,Lazib Inn Restaurant,International,"Duck Breast, Lamb Chops",Luxury,Halal,4.8,Fine dining with Lake Qarun view,https://www.google.com/maps/search/?api=1&query=Lazib+Inn+Restaurant,Fayoum
+240,Ibis Restaurant,Egyptian,"Molokhia, Grilled Meats",Mid-range,Halal,4.6,Local charm and authentic taste,https://www.google.com/maps/search/?api=1&query=Ibis+Restaurant,Fayoum
+241,Kom El Dikka Agri Lodge,Farm-to-Table,Organic Tagines,Luxury,Halal,4.7,Fresh ingredients and great scenery,https://www.google.com/maps/search/?api=1&query=Kom+El+Dikka+Agri+Lodge,Fayoum
+242,Fish Boat Restaurant,Seafood,"Grilled Fish, Shrimp",Mid-range,Seafood,4.5,Floating boat dining,https://www.google.com/maps/search/?api=1&query=Fish+Boat+Restaurant,Fayoum
+243,El Malky Restaurant,Grill,"Kofta, Kebab",Mid-range,Halal,4.3,Classic Egyptian grill spot,https://www.google.com/maps/search/?api=1&query=El+Malky+Restaurant,Fayoum
+244,Qaroun View Café,Cafe,"Coffee, Oriental Desserts",Affordable,Vegetarian,4.2,Overlooking Lake Qarun,https://www.google.com/maps/search/?api=1&query=Qaroun+View+Café,Fayoum
+245,Tunis Village Café,Cafe,"Tea, Sandwiches",Affordable,Vegetarian,4.4,Peaceful setting in Tunis Village,https://www.google.com/maps/search/?api=1&query=Tunis+Village+Café,Fayoum
+246,Villa 55 Restaurant,International,"Pasta, Chicken Curry",Luxury,Halal,4.6,Modern menu with cozy seating,https://www.google.com/maps/search/?api=1&query=Villa+55+Restaurant,Fayoum
+247,Qaroun Palace Restaurant,Egyptian,"Stuffed Pigeon, Rice",Mid-range,Halal,4.4,Traditional flavors,https://www.google.com/maps/search/?api=1&query=Qaroun+Palace+Restaurant,Fayoum
+248,Oasis Garden Restaurant,Egyptian,"Grilled Chicken, Rice",Mid-range,Halal,4.3,Spacious family-friendly place,https://www.google.com/maps/search/?api=1&query=Oasis+Garden+Restaurant,Fayoum
+249,Habiba Organic Farm Café,Vegan,"Salads, Lentil Soup",Affordable,Vegan,4.5,Organic farm-to-table meals,https://www.google.com/maps/search/?api=1&query=Habiba+Organic+Farm+Café,Fayoum
+250,Tunis Pottery Café,Cafe,"Pastries, Coffee",Affordable,Vegetarian,4.2,Attached to local pottery shops,https://www.google.com/maps/search/?api=1&query=Tunis+Pottery+Café,Fayoum
+251,El Safwa Restaurant,Seafood,"Fried Fish, Calamari",Mid-range,Seafood,4.4,Fresh catch daily,https://www.google.com/maps/search/?api=1&query=El+Safwa+Restaurant,Fayoum
+252,New Cairo Restaurant,Grill,Meat Mix Grill,Mid-range,Halal,4.3,Good service and quality meat,https://www.google.com/maps/search/?api=1&query=New+Cairo+Restaurant,Fayoum
+253,Moon Lake Café,Cafe,"Hot Drinks, Crepes",Affordable,Vegetarian,4.2,Great views and ambiance,https://www.google.com/maps/search/?api=1&query=Moon+Lake+Café,Fayoum
+254,Basata Restaurant,Fusion,"Tagine, Wraps",Mid-range,Halal,4.5,Local flavors with modern twist,https://www.google.com/maps/search/?api=1&query=Basata+Restaurant,Fayoum
+255,Tunis Panorama,Egyptian,"Mahshi, Chicken",Mid-range,Halal,4.4,Great lake views,https://www.google.com/maps/search/?api=1&query=Tunis+Panorama,Fayoum
+256,El Shabrawy Fayoum,Fast Food,"Shawarma, Fries",Affordable,Halal,4.1,Quick bites and consistent taste,https://www.google.com/maps/search/?api=1&query=El+Shabrawy+Fayoum,Fayoum
+257,Al Masry Restaurant,Egyptian,"Molokhia, Macarona",Affordable,Halal,4.3,Tasty home-style food,https://www.google.com/maps/search/?api=1&query=Al+Masry+Restaurant,Fayoum
+258,Sultan Restaurant,Middle Eastern,"Kofta, Hummus",Mid-range,Halal,4.4,Popular for gatherings,https://www.google.com/maps/search/?api=1&query=Sultan+Restaurant,Fayoum
+259,La Terrasse,French,"Duck, Croissants",Luxury,Vegetarian,4.6,Upscale dining with beautiful décor,https://www.google.com/maps/search/?api=1&query=La+Terrasse,Fayoum
+260,Fish House,Seafood,"Grilled Tilapia, Shrimp",Mid-range,Seafood,4.5,Clean and flavorful dishes,https://www.google.com/maps/search/?api=1&query=Fish+House,Fayoum
+261,Qasr Al Fayoum,Egyptian,Stuffed Vine Leaves,Mid-range,Halal,4.4,Elegant setup for traditional food,https://www.google.com/maps/search/?api=1&query=Qasr+Al+Fayoum,Fayoum
+262,Pottery House Café,Cafe,"Tea, Cakes",Affordable,Vegetarian,4.3,Peaceful artistic vibes,https://www.google.com/maps/search/?api=1&query=Pottery+House+Café,Fayoum
+263,Magic Lake Spot Café,Cafe,"Drinks, Pastries",Affordable,Vegetarian,4.2,Right by the water,https://www.google.com/maps/search/?api=1&query=Magic+Lake+Spot+Café,Fayoum
+264,Koshary El Tahrir,Street Food,Koshary,Affordable,Vegan,4.3,Popular Egyptian staple,https://www.google.com/maps/search/?api=1&query=Koshary+El+Tahrir,Fayoum
+265,Al Omda Grill,Grill,"Lamb Chops, Kofta",Mid-range,Halal,4.3,Authentic and hearty,https://www.google.com/maps/search/?api=1&query=Al+Omda+Grill,Fayoum
+266,Villa Tunis Restaurant,Egyptian,"Rice Dishes, Grilled Chicken",Mid-range,Halal,4.5,Charming countryside restaurant,https://www.google.com/maps/search/?api=1&query=Villa+Tunis+Restaurant,Fayoum
+267,Tunis Art Café,Cafe,"Coffee, Sandwiches",Affordable,Vegetarian,4.4,Art-themed café in the village,https://www.google.com/maps/search/?api=1&query=Tunis+Art+Café,Fayoum
+268,Bayt El Kheir Restaurant,Traditional,"Mahshi, Mombar",Mid-range,Halal,4.4,Tasty authentic dishes,https://www.google.com/maps/search/?api=1&query=Bayt+El+Kheir+Restaurant,Fayoum
+269,Kababgy El Eisawy,Grill,"Kofta, Kebab",Mid-range,Halal,4.4,High-quality meat and local flavor,https://www.google.com/maps/search/?api=1&query=Kababgy+El+Eisawy,Fayoum
+270,Tunis Village Restaurant,Egyptian,"Tagines, Mahshi",Mid-range,Halal,4.5,Rural charm with traditional food,https://www.google.com/maps/search/?api=1&query=Tunis+Village+Restaurant,Fayoum
+271,Set El Beet,Traditional,"Stuffed Vegetables, Rice",Affordable,Halal,4.4,Like eating at home,https://www.google.com/maps/search/?api=1&query=Set+El+Beet,Fayoum
+272,Kazoza Mix,Fast Food,"Burgers, Fries",Affordable,Halal,4.3,Quick meals with great taste,https://www.google.com/maps/search/?api=1&query=Kazoza+Mix,Fayoum
+273,Shawarma El Reem,Middle Eastern,"Shawarma, Falafel",Affordable,Halal,4.3,Famous for unique shawarma,https://www.google.com/maps/search/?api=1&query=Shawarma+El+Reem,Fayoum
+274,Pizza Land,Italian,"Pizza, Pasta",Affordable,Vegetarian,4.2,Crispy pizza with a local twist,https://www.google.com/maps/search/?api=1&query=Pizza+Land,Fayoum
+275,Oasis Atallah,Egyptian,"Grilled Chicken, Fattah",Mid-range,Halal,4.4,Bedouin style with desert view,https://www.google.com/maps/search/?api=1&query=Oasis+Atallah,Fayoum
+276,Qasr El Sham,Levantine,"Mixed Grill, Hummus",Mid-range,Halal,4.5,Levant flavors in Fayoum,https://www.google.com/maps/search/?api=1&query=Qasr+El+Sham,Fayoum
+277,Haty Gaber,Grill,"Lamb Skewers, Rice",Mid-range,Halal,4.3,Strong meat options,https://www.google.com/maps/search/?api=1&query=Haty+Gaber,Fayoum
+278,Qasr Shads,Egyptian,"Stuffed Pigeon, Molokhia",Luxury,Halal,4.6,Elegant setting and traditional food,https://www.google.com/maps/search/?api=1&query=Qasr+Shads,Fayoum
+279,El-Kababgy Luxor,Grill,"Mixed Grill, Kofta",Mid-range,Halal,4.6,Great view of the Nile with delicious grills,https://www.google.com/maps/search/?api=1&query=El-Kababgy+Luxor,Luxor
+280,El Tarboush,Middle Eastern,"Stuffed Pigeon, Mahshi",Mid-range,Halal,4.5,Elegant setting and traditional flavors,https://www.google.com/maps/search/?api=1&query=El+Tarboush,Luxor
+281,Casa Di Napoli,Italian,"Pizza, Pasta",Mid-range,Vegetarian,4.4,Authentic Italian food in Luxor,https://www.google.com/maps/search/?api=1&query=Casa+Di+Napoli,Luxor
+282,Sofra Restaurant & Cafe,Egyptian,"Molokhia, Fattah",Mid-range,Halal,4.7,Top-rated for traditional Egyptian dishes,https://www.google.com/maps/search/?api=1&query=Sofra+Restaurant+&+Cafe,Luxor
+283,1886 Restaurant,French-Egyptian,"Duck, Lamb",Luxury,Halal,4.8,Luxury dining inside Sofitel hotel,https://www.google.com/maps/search/?api=1&query=1886+Restaurant,Luxor
+284,The Kings Head Pub and Restaurant,British,"Fish & Chips, Burgers",Mid-range,Vegetarian,4.4,Classic British pub experience,https://www.google.com/maps/search/?api=1&query=The+Kings+Head+Pub+and+Restaurant,Luxor
+285,Ali Baba Restaurant,Egyptian,"Tagines, Mezzes",Mid-range,Halal,4.5,Cozy local gem with great service,https://www.google.com/maps/search/?api=1&query=Ali+Baba+Restaurant,Luxor
+286,Metro Restaurant,Egyptian,"Grilled Chicken, Rice",Affordable,Halal,4.3,Affordable and tasty traditional food,https://www.google.com/maps/search/?api=1&query=Metro+Restaurant,Luxor
+287,El Hussein Restaurant,Street Food,"Koshary, Foul",Affordable,Vegan,4.2,Authentic Egyptian fast food,https://www.google.com/maps/search/?api=1&query=El+Hussein+Restaurant,Luxor
+288,Tuthmosis Restaurant,International,"Steak, Grilled Fish",Mid-range,Halal,4.5,Nice location by the Nile with variety,https://www.google.com/maps/search/?api=1&query=Tuthmosis+Restaurant,Luxor
+289,Sunflower Restaurant,Vegetarian,"Lentil Soup, Falafel",Affordable,Vegan,4.5,Best vegetarian food with local touch,https://www.google.com/maps/search/?api=1&query=Sunflower+Restaurant,Luxor
+290,Cleopatra Restaurant,Egyptian,"Mahshi, Kofta",Mid-range,Halal,4.4,Family-friendly with great local dishes,https://www.google.com/maps/search/?api=1&query=Cleopatra+Restaurant,Luxor
+291,Africa Restaurant Luxor,African,"Beef Stew, Couscous",Mid-range,Halal,4.5,Warm vibes with unique African flavors,https://www.google.com/maps/search/?api=1&query=Africa+Restaurant+Luxor,Luxor
+292,Aisha Restaurant,Egyptian,"Fattah, Okra Stew",Mid-range,Halal,4.6,Elegant yet traditional Egyptian dining,https://www.google.com/maps/search/?api=1&query=Aisha+Restaurant,Luxor
+293,Sunflower Cafe,Cafe,"Smoothies, Cakes",Affordable,Vegetarian,4.3,Charming cafe with relaxing ambiance,https://www.google.com/maps/search/?api=1&query=Sunflower+Cafe,Luxor
+294,JJ’s Restaurant,International,"Burger, Pizza",Mid-range,Halal,4.4,Tasty comfort food in West Bank,https://www.google.com/maps/search/?api=1&query=JJ’s+Restaurant,Luxor
+295,Luxor Garden,Middle Eastern,"Mixed Grill, Hummus",Mid-range,Halal,4.3,Spacious and good for families,https://www.google.com/maps/search/?api=1&query=Luxor+Garden,Luxor
+296,Gezira Garden Hotel Restaurant,International,"Breakfast, Chicken Curry",Mid-range,Vegetarian,4.5,Quiet spot with garden view,https://www.google.com/maps/search/?api=1&query=Gezira+Garden+Hotel+Restaurant,Luxor
+297,Snobs Restaurant,European,"Steak, Pasta",Mid-range,Halal,4.5,Refined dining in Luxor center,https://www.google.com/maps/search/?api=1&query=Snobs+Restaurant,Luxor
+298,Taste of India,Indian,"Butter Chicken, Naan",Mid-range,Halal,4.6,Delicious Indian food with spices,https://www.google.com/maps/search/?api=1&query=Taste+of+India,Luxor
+299,The Lantern Room,British,"Steak Pie, Mashed Potatoes",Mid-range,Vegetarian,4.6,Popular with locals and tourists,https://www.google.com/maps/search/?api=1&query=The+Lantern+Room,Luxor
+300,Pizza Roma,Italian,"Pizza, Tiramisu",Affordable,Vegetarian,4.4,Italian comfort food at its best,https://www.google.com/maps/search/?api=1&query=Pizza+Roma,Luxor
+301,King's Garden Restaurant,Egyptian,"Stuffed Pigeon, Rice",Mid-range,Halal,4.3,Classic Egyptian meals,https://www.google.com/maps/search/?api=1&query=King's+Garden+Restaurant,Luxor
+302,Beit Al Wadi,Traditional,"Lamb Tagine, Couscous",Luxury,Halal,4.7,Rustic charm and great food,https://www.google.com/maps/search/?api=1&query=Beit+Al+Wadi,Luxor
+303,Nile View Restaurant,Seafood,"Grilled Fish, Calamari",Mid-range,Seafood,4.5,Views of the Nile with fresh seafood,https://www.google.com/maps/search/?api=1&query=Nile+View+Restaurant,Luxor
+304,Chez Omar,French-Egyptian,"Duck Confit, Mezzes",Luxury,Halal,4.6,Charming and cozy with gourmet menu,https://www.google.com/maps/search/?api=1&query=Chez+Omar,Luxor
+305,Banana Island Restaurant,Egyptian,"Tagines, Fried Aubergine",Affordable,Halal,4.4,"Accessible by boat, peaceful atmosphere",https://www.google.com/maps/search/?api=1&query=Banana+Island+Restaurant,Luxor
+306,Crocodile Restaurant,Grill,"Chicken Grill, Molokhia",Mid-range,Halal,4.2,Fun theme with strong local flavor,https://www.google.com/maps/search/?api=1&query=Crocodile+Restaurant,Luxor
+307,Moon Valley Restaurant,International,"Pasta, Wraps",Mid-range,Halal,4.3,Modern dishes in chill setting,https://www.google.com/maps/search/?api=1&query=Moon+Valley+Restaurant,Luxor
+308,Blue Sky Restaurant,Cafe,"Crepes, Fresh Juices",Affordable,Vegetarian,4.2,Light food and calm atmosphere,https://www.google.com/maps/search/?api=1&query=Blue+Sky+Restaurant,Luxor
+309,البيت النوبي المصري,Nubian-Egyptian,طاجن بامية، كفتة نوبية، محشي,Mid-range,Halal,4.7,مطعم بتصميم نوبي رائع وأكل بيتي بطعم أصيل. أجواء مريحة وخدمة ممتازة.,https://www.google.com/maps/search/?api=1&query=البيت+النوبي+المصري,Luxor
+310,Pharaoh’s Delight,Egyptian,"Grilled Pigeon, Molokhia",Mid-range,Halal,4.5,Cultural décor with local dishes,https://www.google.com/maps/search/?api=1&query=Pharaoh’s+Delight,Luxor
+311,The Pharaoh Cafe,Cafe,"Espresso, Desserts",Affordable,Vegetarian,4.3,Relaxing vibe near Luxor temple,https://www.google.com/maps/search/?api=1&query=The+Pharaoh+Cafe,Luxor
+312,East Bank Bistro,Fusion,"Burger, Pasta",Mid-range,Halal,4.4,Trendy mix of cuisines,https://www.google.com/maps/search/?api=1&query=East+Bank+Bistro,Luxor
+313,Zeytoun Restaurant,Middle Eastern,"Lamb Kofta, Mezze",Mid-range,Halal,4.5,Elegant and flavorful meals,https://www.google.com/maps/search/?api=1&query=Zeytoun+Restaurant,Luxor
+314,Camelia Garden,French,"Duck Breast, Pastries",Luxury,Vegetarian,4.6,Stylish setting and gourmet experience,https://www.google.com/maps/search/?api=1&query=Camelia+Garden,Luxor
+315,Sunset Terrace,Seafood,"Fried Fish, Shrimp",Mid-range,Seafood,4.4,Views and fresh dishes,https://www.google.com/maps/search/?api=1&query=Sunset+Terrace,Luxor
+316,Habiba Lounge,Nubian,"Okra Tagine, Grilled Chicken",Mid-range,Halal,4.5,Friendly service and Nubian décor,https://www.google.com/maps/search/?api=1&query=Habiba+Lounge,Luxor
+317,Anubis Restaurant,International,"Steaks, Salads",Luxury,Halal,4.7,Chic environment with global menu,https://www.google.com/maps/search/?api=1&query=Anubis+Restaurant,Luxor
+318,Luxor Street Bites,Fast Food,"Shawarma, Fries",Affordable,Halal,4.2,Quick and tasty options,https://www.google.com/maps/search/?api=1&query=Luxor+Street+Bites,Luxor
+319,Garden Breeze,Grill,"Chicken Skewers, Grilled Veggies",Mid-range,Halal,4.4,Casual dining in green setting,https://www.google.com/maps/search/?api=1&query=Garden+Breeze,Luxor
+320,Temple View Diner,Egyptian,"Fattah, Stuffed Vine Leaves",Mid-range,Halal,4.3,Right across Luxor Temple,https://www.google.com/maps/search/?api=1&query=Temple+View+Diner,Luxor
+321,Lotus Café & Bar,Cafe,"Mocktails, Sandwiches",Mid-range,Vegetarian,4.3,Stylish and good music,https://www.google.com/maps/search/?api=1&query=Lotus+Café+&+Bar,Luxor
+322,Horus House,Egyptian,"Liver Sandwiches, Rice Dishes",Affordable,Halal,4.2,Hidden gem with home flavors,https://www.google.com/maps/search/?api=1&query=Horus+House,Luxor
+323,Beyti Luxor,Turkish,"Kebab, Baklava",Mid-range,Halal,4.5,Middle Eastern excellence,https://www.google.com/maps/search/?api=1&query=Beyti+Luxor,Luxor
+324,Bella Napoli,Italian,"Pizza Margherita, Lasagna",Mid-range,Vegetarian,4.4,Traditional Italian touch,https://www.google.com/maps/search/?api=1&query=Bella+Napoli,Luxor
+325,Mango Tree Rooftop,Asian Fusion,"Noodles, Stir Fry",Mid-range,Halal,4.4,Pan-Asian with rooftop ambiance,https://www.google.com/maps/search/?api=1&query=Mango+Tree+Rooftop,Luxor
+326,Sphinx Dining,Fine Dining,"Seafood, Grilled Beef",Luxury,Halal,4.6,Premium service and ambiance,https://www.google.com/maps/search/?api=1&query=Sphinx+Dining,Luxor
+327,Luxor Spices,Indian,"Biryani, Paneer",Mid-range,Halal,4.5,Flavors from India in Luxor,https://www.google.com/maps/search/?api=1&query=Luxor+Spices,Luxor
+328,Felouka Flavors,Seafood,"Fish Tagine, Calamari",Mid-range,Seafood,4.4,On a felucca boat over the Nile,https://www.google.com/maps/search/?api=1&query=Felouka+Flavors,Luxor
+329,Golden Nile Restaurant,Egyptian,"Roasted Duck, Couscous",Mid-range,Halal,4.5,Heritage cuisine by the river,https://www.google.com/maps/search/?api=1&query=Golden+Nile+Restaurant,Luxor
+330,Zayna Garden Café,Cafe,"Tea, Vegan Snacks",Affordable,Vegan,4.3,Serene garden café for light meals,https://www.google.com/maps/search/?api=1&query=Zayna+Garden+Café,Luxor
+331,Upper Egypt House,Traditional,"Molokhia, Grilled Sausage",Mid-range,Halal,4.4,Authentic Sa’idi dishes with history,https://www.google.com/maps/search/?api=1&query=Upper+Egypt+House,Luxor
+332,Luxor Lounge,International,"Steak, Pasta",Mid-range,Halal,4.5,Modern lounge dining experience,https://www.google.com/maps/search/?api=1&query=Luxor+Lounge,Luxor
+333,Cafe Africa,African Fusion,"Spicy Stews, Couscous",Affordable,Halal,4.3,Warm and cultural ambiance,https://www.google.com/maps/search/?api=1&query=Cafe+Africa,Luxor
+334,Wadi El Nil Restaurant,Egyptian,"Fattah, Grilled Chicken",Mid-range,Halal,4.4,Home-style food with Nile view,https://www.google.com/maps/search/?api=1&query=Wadi+El+Nil+Restaurant,Luxor
+335,Nile Shadow Café,Cafe,"Smoothies, Waffles",Affordable,Vegetarian,4.2,Cozy and youthful café,https://www.google.com/maps/search/?api=1&query=Nile+Shadow+Café,Luxor
+336,Aliya's Rooftop Kitchen,Fusion,"Noodles, Kofta Wraps",Mid-range,Halal,4.5,Fusion menu with rooftop vibe,https://www.google.com/maps/search/?api=1&query=Aliya's+Rooftop+Kitchen,Luxor
+337,Kemet Kitchen,Egyptian,"Tagines, Mahshi",Mid-range,Halal,4.4,Named after ancient Egypt with delicious meals,https://www.google.com/maps/search/?api=1&query=Kemet+Kitchen,Luxor
+338,The Garden Dome,Healthy,"Bowls, Grilled Veggies",Mid-range,Vegetarian,4.3,Eco-friendly and refreshing,https://www.google.com/maps/search/?api=1&query=The+Garden+Dome,Luxor
+339,Cairo Street Food Luxor,Fast Food,"Shawarma, Koshary",Affordable,Halal,4.2,Authentic Cairo street bites,https://www.google.com/maps/search/?api=1&query=Cairo+Street+Food+Luxor,Luxor
+340,Bongoyo Restobar,International,Mixed Platters,Mid-range,Halal,4.5,Great beach view and vibe,https://www.google.com/maps/search/?api=1&query=Bongoyo+Restobar,Hurghada
+341,Felucca Seafood Restaurant & Bar,Seafood,Grilled Shrimp,Luxury,Halal,4.6,Sea breeze and fresh seafood,https://www.google.com/maps/search/?api=1&query=Felucca+Seafood+Restaurant+&+Bar,Hurghada
+342,Granada,Egyptian,"Feteer, Falafel",Affordable,Halal,4.4,Modern twist on traditional meals,https://www.google.com/maps/search/?api=1&query=Granada,Hurghada
+343,Red Sea Prince,Egyptian,"Grill, Tagine",Affordable,Halal,4.3,Home-style Egyptian meals,https://www.google.com/maps/search/?api=1&query=Red+Sea+Prince,Hurghada
+344,King Grill,Grill,"Kofta, Chicken",Mid-range,Halal,4.4,Great service and flavor,https://www.google.com/maps/search/?api=1&query=King+Grill,Hurghada
+345,Moby Dick,Grill,Camel Meat Dishes,Mid-range,Halal,4.3,"Unique dishes, good portions",https://www.google.com/maps/search/?api=1&query=Moby+Dick,Hurghada
+346,GAD,Fast Food,"Koshary, Falafel",Affordable,Halal,4.2,Classic Egyptian fast food,https://www.google.com/maps/search/?api=1&query=GAD,Hurghada
+347,Syake Sushi Hurghada,Japanese,"Sushi, Sashimi",Mid-range,Halal,4.5,Authentic sushi experience,https://www.google.com/maps/search/?api=1&query=Syake+Sushi+Hurghada,Hurghada
+348,City Pub Hurghada,Bar & Grill,"Burgers, Wings",Mid-range,Halal,4.2,Live music and drinks,https://www.google.com/maps/search/?api=1&query=City+Pub+Hurghada,Hurghada
+349,Almustafa Fish Restaurant,Seafood,Grilled Fish,Affordable,Halal,4.4,Local favorite for seafood,https://www.google.com/maps/search/?api=1&query=Almustafa+Fish+Restaurant,Hurghada
+350,Coastalita,Fusion,"Brunch, Pasta",Mid-range,Halal,4.4,Family-friendly and diverse menu,https://www.google.com/maps/search/?api=1&query=Coastalita,Hurghada
+351,Bulls,Fast Food,"Burger, Pizza",Affordable,Halal,4.3,Tasty variety and quick service,https://www.google.com/maps/search/?api=1&query=Bulls,Hurghada
+352,Abou Aya,Egyptian,"Beans, Falafel",Affordable,Halal,4.3,Traditional breakfasts,https://www.google.com/maps/search/?api=1&query=Abou+Aya,Hurghada
+353,Hadramout,Yemeni,"Mandi, Rice",Mid-range,Halal,4.4,Authentic Hadramout flavors,https://www.google.com/maps/search/?api=1&query=Hadramout,Hurghada
+354,Asmak,Seafood,"Shrimp, Fish",Mid-range,Halal,4.3,Fresh catch with good seasoning,https://www.google.com/maps/search/?api=1&query=Asmak,Hurghada
+355,Grill House,Grill,"Steaks, Chicken",Mid-range,Halal,4.4,Spacious and nice view,https://www.google.com/maps/search/?api=1&query=Grill+House,Hurghada
+356,Garnata,Egyptian,"Grills, Tagine",Luxury,Halal,4.5,Excellent food and ambiance,https://www.google.com/maps/search/?api=1&query=Garnata,Hurghada
+357,Namlah,Egyptian,Traditional Dishes,Affordable,Halal,4.3,Great place for families,https://www.google.com/maps/search/?api=1&query=Namlah,Hurghada
+358,White Elephant,Grill,Mixed Grill,Mid-range,Halal,4.2,Local favorite grill spot,https://www.google.com/maps/search/?api=1&query=White+Elephant,Hurghada
+359,El Aseel,Egyptian,"Tagines, Chicken",Mid-range,Halal,4.3,Simple and authentic,https://www.google.com/maps/search/?api=1&query=El+Aseel,Hurghada
+360,Si Sayyed,Egyptian,"Grills, Mahshi",Mid-range,Halal,4.4,"Great taste, traditional décor",https://www.google.com/maps/search/?api=1&query=Si+Sayyed,Hurghada
+361,The Egyptian House,Egyptian,"Mahshi, Birds",Mid-range,Halal,4.4,Feels like home cooking,https://www.google.com/maps/search/?api=1&query=The+Egyptian+House,Hurghada
+362,The Lodge,European,"Steak, Salad",Mid-range,Halal,4.5,Elegant setting,https://www.google.com/maps/search/?api=1&query=The+Lodge,Hurghada
+363,Grand Fish,Seafood,"Fish Grill, Shrimp",Mid-range,Halal,4.4,Fresh seafood near beach,https://www.google.com/maps/search/?api=1&query=Grand+Fish,Hurghada
+364,Divino,Italian,"Pizza, Pasta",Mid-range,Halal,4.4,Romantic and Italian,https://www.google.com/maps/search/?api=1&query=Divino,Hurghada
+365,Aquarium Restaurant,Seafood,Seafood Platter,Luxury,Halal,4.5,Decorated like underwater world,https://www.google.com/maps/search/?api=1&query=Aquarium+Restaurant,Hurghada
+366,Al Qamar,Middle Eastern,"Shawarma, Mix Grill",Mid-range,Halal,4.3,Variety and good value,https://www.google.com/maps/search/?api=1&query=Al+Qamar,Hurghada
+367,Hadramout Palace,Yemeni,"Mandi, Lamb",Mid-range,Halal,4.4,Flavorful Yemeni meals,https://www.google.com/maps/search/?api=1&query=Hadramout+Palace,Hurghada
+368,Solo Hurghada,Italian,"Pizza, Calzone",Mid-range,Halal,4.3,Classic Italian bites,https://www.google.com/maps/search/?api=1&query=Solo+Hurghada,Hurghada
+369,Family Fish,Seafood,"Fish Soup, Grilled Fish",Mid-range,Halal,4.3,Good for groups,https://www.google.com/maps/search/?api=1&query=Family+Fish,Hurghada
+370,Fino Al Soury,Syrian,"Shawarma, Fattoush",Mid-range,Halal,4.4,Well known Syrian spot,https://www.google.com/maps/search/?api=1&query=Fino+Al+Soury,Hurghada
+371,Syrian Broast,Syrian,"Fried Chicken, Garlic Sauce",Affordable,Halal,4.3,Spicy and crunchy,https://www.google.com/maps/search/?api=1&query=Syrian+Broast,Hurghada
+372,Damascus Gate,Syrian,"Grills, Mezze",Mid-range,Halal,4.3,Shami atmosphere and food,https://www.google.com/maps/search/?api=1&query=Damascus+Gate,Hurghada
+373,Portofino,Italian,"Pizza, Spaghetti",Mid-range,Halal,4.4,Cozy Italian family style,https://www.google.com/maps/search/?api=1&query=Portofino,Hurghada
+374,Haga Restaurant,Egyptian,Stuffed Vegetables,Affordable,Halal,4.3,Simple and warm service,https://www.google.com/maps/search/?api=1&query=Haga+Restaurant,Hurghada
+375,Bourdain,Oriental,"Tagines, Mixed Grill",Mid-range,Halal,4.3,Nice spices and setup,https://www.google.com/maps/search/?api=1&query=Bourdain,Hurghada
+376,Grand Café Hurghada,Cafe,"Desserts, Coffee",Affordable,Halal,4.2,Relaxing café with sweets,https://www.google.com/maps/search/?api=1&query=Grand+Café+Hurghada,Hurghada
+377,El Motawali Café,Cafe,"Tea, Snacks",Affordable,Halal,4.1,Quiet for gatherings,https://www.google.com/maps/search/?api=1&query=El+Motawali+Café,Hurghada
+378,Mocha Café,Cafe,"Coffee, Croissants",Affordable,Halal,4.2,Smooth drinks and cakes,https://www.google.com/maps/search/?api=1&query=Mocha+Café,Hurghada
+379,Blue Moon Café,Cafe,"Juices, Cakes",Affordable,Halal,4.2,Quiet spot for coffee lovers,https://www.google.com/maps/search/?api=1&query=Blue+Moon+Café,Hurghada
+380,Fish Island Hurghada,Seafood,"Grilled Calamari, Shrimp",Mid-range,Halal,4.4,Nice place for seafood by the water,https://www.google.com/maps/search/?api=1&query=Fish+Island+Hurghada,Hurghada
+381,El Demerdash,Egyptian,"Fattah, Mombar",Affordable,Halal,4.3,Tasty and simple,https://www.google.com/maps/search/?api=1&query=El+Demerdash,Hurghada
+382,El Sayad,Seafood,Mixed Fish Platter,Mid-range,Halal,4.4,Known for fresh grilled fish,https://www.google.com/maps/search/?api=1&query=El+Sayad,Hurghada
+383,Captain Restaurant,Grill,"Chicken, Kebda",Affordable,Halal,4.2,Quick service and good taste,https://www.google.com/maps/search/?api=1&query=Captain+Restaurant,Hurghada
+384,Sahl Hasheesh Lounge,Fusion,"Grills, Pasta",Luxury,Halal,4.6,Fine dining by the beach,https://www.google.com/maps/search/?api=1&query=Sahl+Hasheesh+Lounge,Hurghada
+385,El Wekala Grill,Grill,"Kofta, Rice",Mid-range,Halal,4.3,Clean and friendly atmosphere,https://www.google.com/maps/search/?api=1&query=El+Wekala+Grill,Hurghada
+386,Farsha View,Middle Eastern,"Shawarma, Hummus",Mid-range,Halal,4.3,Modern menu with view,https://www.google.com/maps/search/?api=1&query=Farsha+View,Hurghada
+387,Tamr Henna Restaurant,Egyptian,"Mahshi, Grilled Chicken",Mid-range,Halal,4.4,Rich flavors and generous plates,https://www.google.com/maps/search/?api=1&query=Tamr+Henna+Restaurant,Hurghada
+388,Aroos El Bahr,Seafood,"Seafood Soup, Grilled Fish",Mid-range,Halal,4.4,Popular local seafood spot,https://www.google.com/maps/search/?api=1&query=Aroos+El+Bahr,Hurghada
+389,Pier 88 El Gouna,Italian,"Risotto, Grilled Seafood",Luxury,Halal,4.7,Elegant dining on the marina,https://www.google.com/maps/search/?api=1&query=Pier+88+El+Gouna,El Gouna
+390,Zia Amelia,Italian,"Pizza, Pasta",Mid-range,Vegetarian,4.6,Cozy and family-friendly Italian,https://www.google.com/maps/search/?api=1&query=Zia+Amelia,El Gouna
+391,Barten,Japanese,"Sushi, Miso Soup",Mid-range,Halal,4.5,Stylish sushi bar,https://www.google.com/maps/search/?api=1&query=Barten,El Gouna
+392,La Playa,Seafood,"Grilled Shrimp, Calamari",Mid-range,Seafood,4.5,Beachside and fresh dishes,https://www.google.com/maps/search/?api=1&query=La+Playa,El Gouna
+393,El Sayadin,Seafood,"Fish Tagine, Fried Calamari",Luxury,Seafood,4.6,Fine dining with sea view,https://www.google.com/maps/search/?api=1&query=El+Sayadin,El Gouna
+394,Chicha Restaurant & Bar,Mexican,"Tacos, Quesadilla",Mid-range,Vegetarian,4.4,Colorful and energetic atmosphere,https://www.google.com/maps/search/?api=1&query=Chicha+Restaurant+&+Bar,El Gouna
+395,Malu’s Deli,Deli,"Sandwiches, Salads",Affordable,Vegetarian,4.4,Healthy and tasty brunch,https://www.google.com/maps/search/?api=1&query=Malu’s+Deli,El Gouna
+396,Zomba,Egyptian,"Koshary, Falafel",Affordable,Vegan,4.3,Simple Egyptian classics,https://www.google.com/maps/search/?api=1&query=Zomba,El Gouna
+397,Kan Zaman,Egyptian,"Grilled Chicken, Mahshi",Mid-range,Halal,4.5,Traditional atmosphere,https://www.google.com/maps/search/?api=1&query=Kan+Zaman,El Gouna
+398,Snack Shack,Fast Food,"Burgers, Fries",Affordable,Halal,4.3,Tasty bites on the go,https://www.google.com/maps/search/?api=1&query=Snack+Shack,El Gouna
+399,MOODS Restaurant & Beach Club,International,"Steak, Pasta",Luxury,Halal,4.6,Elegant spot on the beach,https://www.google.com/maps/search/?api=1&query=MOODS+Restaurant+&+Beach+Club,El Gouna
+400,Le Garage Gourmet Burger,Burger,"Cheeseburgers, Fries",Mid-range,Halal,4.5,Best gourmet burgers in town,https://www.google.com/maps/search/?api=1&query=Le+Garage+Gourmet+Burger,El Gouna
+401,Pasta e Basta,Italian,"Spaghetti, Lasagna",Mid-range,Vegetarian,4.4,Casual Italian vibe,https://www.google.com/maps/search/?api=1&query=Pasta+e+Basta,El Gouna
+402,Fish Market,Seafood,Seafood Grill,Mid-range,Seafood,4.4,Catch of the day specialties,https://www.google.com/maps/search/?api=1&query=Fish+Market,El Gouna
+403,Chuchichäschtli - Swiss House,Swiss,"Fondue, Rosti",Mid-range,Halal,4.5,Unique Swiss experience,https://www.google.com/maps/search/?api=1&query=Chuchichäschtli+-+Swiss+House,El Gouna
+404,The Smokery El Gouna,Seafood,"Smoked Salmon, Sushi",Luxury,Halal,4.7,Yacht club elegance,https://www.google.com/maps/search/?api=1&query=The+Smokery+El+Gouna,El Gouna
+405,Nicole’s Greenhouse,Vegetarian,Plant-Based Bowls,Mid-range,Vegan,4.4,Healthy modern vibes,https://www.google.com/maps/search/?api=1&query=Nicole’s+Greenhouse,El Gouna
+406,Mazagouna,Lebanese,"Kebabs, Mezze",Mid-range,Halal,4.5,Tasty Lebanese food,https://www.google.com/maps/search/?api=1&query=Mazagouna,El Gouna
+407,Karibu,Fusion,"Burgers, Shakshouka",Mid-range,Halal,4.4,Fusion done right,https://www.google.com/maps/search/?api=1&query=Karibu,El Gouna
+408,Chez Chantal,French,"Duck Confit, Crêpes",Luxury,Halal,4.6,Romantic and refined,https://www.google.com/maps/search/?api=1&query=Chez+Chantal,El Gouna
+409,Athena Greek Taverna,Greek,"Gyros, Moussaka",Mid-range,Vegetarian,4.5,Greek dining by the sea,https://www.google.com/maps/search/?api=1&query=Athena+Greek+Taverna,El Gouna
+410,Charly's Hot Stone Steak,Grill,Hot Stone Beef,Luxury,Halal,4.6,Steak grilled at your table,https://www.google.com/maps/search/?api=1&query=Charly's+Hot+Stone+Steak,El Gouna
+411,The Grill El Gouna,Mediterranean,Mixed Grill,Mid-range,Halal,4.5,Great for meat lovers,https://www.google.com/maps/search/?api=1&query=The+Grill+El+Gouna,El Gouna
+412,El Bahr,Seafood,"Grilled Fish, Shrimp",Mid-range,Seafood,4.4,Seaside comfort food,https://www.google.com/maps/search/?api=1&query=El+Bahr,El Gouna
+413,The Bagel Tree,Cafe,"Bagels, Smoothies",Affordable,Vegetarian,4.4,New York style,https://www.google.com/maps/search/?api=1&query=The+Bagel+Tree,El Gouna
+414,Tandoor Restaurant,Indian,"Biryani, Tandoori Chicken",Mid-range,Halal,4.5,"Aromatic spices, real flavor",https://www.google.com/maps/search/?api=1&query=Tandoor+Restaurant,El Gouna
+415,Saigon Vietnamese Restaurant,Vietnamese,"Pho, Spring Rolls",Mid-range,Halal,4.4,Flavors of Vietnam in El Gouna,https://www.google.com/maps/search/?api=1&query=Saigon+Vietnamese+Restaurant,El Gouna
+416,Villa Coconut,Mediterranean,"Tapas, Seafood Pasta",Luxury,Halal,4.5,Coastal charm and good food,https://www.google.com/maps/search/?api=1&query=Villa+Coconut,El Gouna
+417,LUMA,Egyptian Fusion,"Tagines, Modern Appetizers",Mid-range,Halal,4.4,Innovative take on Egyptian cuisine,https://www.google.com/maps/search/?api=1&query=LUMA,El Gouna
+418,The Restaurant at Chedi El Gouna,International,"Steaks, Wine Pairings",Luxury,Halal,4.8,Fine dining par excellence,https://www.google.com/maps/search/?api=1&query=The+Restaurant+at+Chedi+El+Gouna,El Gouna
+419,Sultan Bey Restaurant,Middle Eastern,"Mixed Grill, Mezze",Mid-range,Halal,4.4,Authentic Arabesque setting,https://www.google.com/maps/search/?api=1&query=Sultan+Bey+Restaurant,El Gouna
+420,Puddleduck Gouna,British,"Fish & Chips, Meat Pie",Mid-range,Halal,4.3,Homestyle British comfort food,https://www.google.com/maps/search/?api=1&query=Puddleduck+Gouna,El Gouna
+421,Cook's Club Gouna Kitchen Club,Fusion,"Grilled Veggies, Wraps",Mid-range,Halal,4.4,Trendy and stylish eatery,https://www.google.com/maps/search/?api=1&query=Cook's+Club+Gouna+Kitchen+Club,El Gouna
+422,Breeze Restaurant,Seafood,"Grilled Calamari, Lobster",Luxury,Halal,4.5,Classy beachside atmosphere,https://www.google.com/maps/search/?api=1&query=Breeze+Restaurant,El Gouna
+423,La Scala,Italian,"Ravioli, Tiramisu",Mid-range,Halal,4.5,Charming Italian spot,https://www.google.com/maps/search/?api=1&query=La+Scala,El Gouna
+424,Villa Tamtam,French,"Duck à l’orange, Crème Brûlée",Luxury,Halal,4.6,French classics in elegant space,https://www.google.com/maps/search/?api=1&query=Villa+Tamtam,El Gouna
+425,The Tap North Gouna,Bar & Grill,"Burgers, Wings",Mid-range,Halal,4.3,Chill spot with live music,https://www.google.com/maps/search/?api=1&query=The+Tap+North+Gouna,El Gouna
+426,Maui El Gouna,International,"Poke Bowls, Burgers",Mid-range,Halal,4.4,Beach vibes and vibrant menu,https://www.google.com/maps/search/?api=1&query=Maui+El+Gouna,El Gouna
+427,Kiki’s Gouna,Greek,"Moussaka, Feta Salad",Mid-range,Halal,4.4,Seaside Greek restaurant,https://www.google.com/maps/search/?api=1&query=Kiki’s+Gouna,El Gouna
+428,El Balad Gouna,Egyptian,"Tagines, Rice Dishes",Affordable,Halal,4.3,Local taste with a modern setting,https://www.google.com/maps/search/?api=1&query=El+Balad+Gouna,El Gouna
+429,Fares Seafood,Seafood,"Grilled Fish, Calamari",Mid-range,Halal,4.6,Top-rated for fresh seafood,https://www.google.com/maps/search/?api=1&query=Fares+Seafood,Sharm El-Sheikh
+430,Mahony,Seafood,Mixed Seafood Platter,Mid-range,Halal,4.5,Modern ambiance and rich menu,https://www.google.com/maps/search/?api=1&query=Mahony,Sharm El-Sheikh
+431,Fairuz,Lebanese,"Mezze, Grills",Mid-range,Halal,4.5,Classic Lebanese with Fairuz music,https://www.google.com/maps/search/?api=1&query=Fairuz,Sharm El-Sheikh
+432,Taj Mahal Grill,American,"Burgers, Ribs",Mid-range,Halal,4.4,Known for juicy American BBQ,https://www.google.com/maps/search/?api=1&query=Taj+Mahal+Grill,Sharm El-Sheikh
+433,Dananeer,Egyptian,"Grilled Chicken, Mahshi",Mid-range,Halal,4.4,Local favorite for traditional meals,https://www.google.com/maps/search/?api=1&query=Dananeer,Sharm El-Sheikh
+434,Bombay,Indian,"Butter Chicken, Tandoori",Mid-range,Halal,4.5,Best Indian in Sharm,https://www.google.com/maps/search/?api=1&query=Bombay,Sharm El-Sheikh
+435,Pomodoro,Italian,"Pizza, Lasagna",Mid-range,Halal,4.3,Casual Italian dining,https://www.google.com/maps/search/?api=1&query=Pomodoro,Sharm El-Sheikh
+436,El Husseiny,Grill,"Kofta, Chicken",Mid-range,Halal,4.3,Great Egyptian grill,https://www.google.com/maps/search/?api=1&query=El+Husseiny,Sharm El-Sheikh
+437,Bharat,Middle Eastern,"Shawarma, Hummus",Mid-range,Halal,4.4,Fusion of Egyptian and Gulf cuisines,https://www.google.com/maps/search/?api=1&query=Bharat,Sharm El-Sheikh
+438,Cafe Chino,Cafe,"Coffee, Desserts",Mid-range,Halal,4.2,Relaxing for drinks and sweets,https://www.google.com/maps/search/?api=1&query=Cafe+Chino,Sharm El-Sheikh
+439,Soho Sushi Lounge,Japanese,"Sushi, Noodles",Mid-range,Halal,4.5,Trendy sushi bar,https://www.google.com/maps/search/?api=1&query=Soho+Sushi+Lounge,Sharm El-Sheikh
+440,Rangoli,Indian,"Biryani, Curry",Mid-range,Halal,4.4,Elegant Indian experience,https://www.google.com/maps/search/?api=1&query=Rangoli,Sharm El-Sheikh
+441,Mango Chinese,Chinese,Sweet & Sour Chicken,Mid-range,Halal,4.3,Authentic Chinese meals,https://www.google.com/maps/search/?api=1&query=Mango+Chinese,Sharm El-Sheikh
+442,Wild West,American,"BBQ Chicken, Steak",Mid-range,Halal,4.2,Western theme and good meats,https://www.google.com/maps/search/?api=1&query=Wild+West,Sharm El-Sheikh
+443,El Kababgy,Grill,"Mixed Grill, Rice",Mid-range,Halal,4.4,Top for Egyptian kebabs,https://www.google.com/maps/search/?api=1&query=El+Kababgy,Sharm El-Sheikh
+444,Fleur de Lis,French,"Escargot, Duck",Mid-range,Halal,4.5,Fine French cuisine,https://www.google.com/maps/search/?api=1&query=Fleur+de+Lis,Sharm El-Sheikh
+445,Mandarin Bistro,Asian Fusion,"Stir Fry, Noodles",Mid-range,Halal,4.3,Blended Asian flavors,https://www.google.com/maps/search/?api=1&query=Mandarin+Bistro,Sharm El-Sheikh
+446,Casa Mia,Italian,"Pasta, Cannelloni",Mid-range,Halal,4.4,Great Italian options,https://www.google.com/maps/search/?api=1&query=Casa+Mia,Sharm El-Sheikh
+447,El Masryeen,Egyptian,"Molokhia, Tagines",Mid-range,Halal,4.5,Authentic and homey,https://www.google.com/maps/search/?api=1&query=El+Masryeen,Sharm El-Sheikh
+448,Abou Ali,Seafood,"Shrimp, Calamari",Mid-range,Halal,4.5,Elegant seafood dishes,https://www.google.com/maps/search/?api=1&query=Abou+Ali,Sharm El-Sheikh
+449,Al Ghazal,Seafood,"Fish Soup, Grilled Fish",Mid-range,Halal,4.4,Fresh seafood and stylish place,https://www.google.com/maps/search/?api=1&query=Al+Ghazal,Sharm El-Sheikh
+450,Fisherman,Seafood,Shrimp Platter,Mid-range,Halal,4.4,Top-notch seafood service,https://www.google.com/maps/search/?api=1&query=Fisherman,Sharm El-Sheikh
+451,Negmet Sinai,Seafood,Grilled Snapper,Mid-range,Halal,4.3,Hidden gem in the city,https://www.google.com/maps/search/?api=1&query=Negmet+Sinai,Sharm El-Sheikh
+452,Red Sea Fish,Seafood,"Fried Fish, Rice",Mid-range,Halal,4.3,Daily fresh fish,https://www.google.com/maps/search/?api=1&query=Red+Sea+Fish,Sharm El-Sheikh
+453,On Deck,Mediterranean,"Grilled Lamb, Salad",Mid-range,Halal,4.5,Mediterranean meals by the sea,https://www.google.com/maps/search/?api=1&query=On+Deck,Sharm El-Sheikh
+454,Balady,Oriental,"Rice, Stuffed Vegetables",Mid-range,Halal,4.4,Best local Egyptian flavors,https://www.google.com/maps/search/?api=1&query=Balady,Sharm El-Sheikh
+455,Dananir,Steak & Seafood,"T-bone Steak, Shrimp",Mid-range,Halal,4.5,Modern and upscale,https://www.google.com/maps/search/?api=1&query=Dananir,Sharm El-Sheikh
+456,Soho Sushi Bar,Japanese,"Rolls, Sashimi",Mid-range,Halal,4.5,Stylish and varied sushi,https://www.google.com/maps/search/?api=1&query=Soho+Sushi+Bar,Sharm El-Sheikh
+457,Sala Thai,Thai,"Pad Thai, Coconut Soup",Mid-range,Halal,4.4,Fresh and spicy Thai,https://www.google.com/maps/search/?api=1&query=Sala+Thai,Sharm El-Sheikh
+458,Ali Baba Oriental,Oriental,"Tagines, Couscous",Mid-range,Halal,4.4,Classic Egyptian vibes,https://www.google.com/maps/search/?api=1&query=Ali+Baba+Oriental,Sharm El-Sheikh
+459,Sushi Corner,Japanese,"Rolls, Ramen",Mid-range,Halal,4.3,Compact and creative sushi,https://www.google.com/maps/search/?api=1&query=Sushi+Corner,Sharm El-Sheikh
+460,Alhambra,Middle Eastern,"Kofta, Lamb",Mid-range,Halal,4.3,Spiced Middle Eastern foods,https://www.google.com/maps/search/?api=1&query=Alhambra,Sharm El-Sheikh
+461,Dolce Vita,Italian,"Tiramisu, Pizza",Mid-range,Halal,4.4,Popular pizza joint,https://www.google.com/maps/search/?api=1&query=Dolce+Vita,Sharm El-Sheikh
+462,Sky Lounge,Cafe,"Smoothies, Ice Cream",Mid-range,Halal,4.2,Rooftop hangout,https://www.google.com/maps/search/?api=1&query=Sky+Lounge,Sharm El-Sheikh
+463,The Steakhouse,Grill,"Grilled Steak, Salad",Mid-range,Halal,4.5,"Meaty, satisfying dishes",https://www.google.com/maps/search/?api=1&query=The+Steakhouse,Sharm El-Sheikh
+464,Sinai Star,Seafood,"Red Snapper, Soup",Mid-range,Halal,4.4,Family seafood spot,https://www.google.com/maps/search/?api=1&query=Sinai+Star,Sharm El-Sheikh
+465,Tandoori Palace,Indian,"Curry, Naan",Mid-range,Halal,4.4,Spicy and satisfying,https://www.google.com/maps/search/?api=1&query=Tandoori+Palace,Sharm El-Sheikh
+466,Café del Mar,Cafe,"Coffee, Wraps",Mid-range,Halal,4.2,Seafront chill café,https://www.google.com/maps/search/?api=1&query=Café+del+Mar,Sharm El-Sheikh
+467,Naama Star Café,Cafe,"Shisha, Beverages",Mid-range,Halal,4.2,Popular in Naama Bay,https://www.google.com/maps/search/?api=1&query=Naama+Star+Café,Sharm El-Sheikh
+468,Fatima Egyptian Restaurant,Egyptian,"Grilled Meat, Rice",Mid-range,Halal,4.4,Homey and hearty meals,https://www.google.com/maps/search/?api=1&query=Fatima+Egyptian+Restaurant,Sharm El-Sheikh
+469,Reef Grill,Seafood,"Lobster, Grilled Shrimp",Luxury,Halal,4.6,Fine seafood with sea view,https://www.google.com/maps/search/?api=1&query=Reef+Grill,Sharm El-Sheikh
+470,Bait Al Zaytoun,Middle Eastern,"Lamb Chops, Mezze",Mid-range,Halal,4.5,Authentic Arab cuisine,https://www.google.com/maps/search/?api=1&query=Bait+Al+Zaytoun,Sharm El-Sheikh
+471,Sharks Bay Restaurant,Grill,"Kebabs, Kofta",Mid-range,Halal,4.4,Grilled meat with beach access,https://www.google.com/maps/search/?api=1&query=Sharks+Bay+Restaurant,Sharm El-Sheikh
+472,Blue Fountain,International,"Steak, Pasta",Mid-range,Halal,4.3,Great view and tasty menu,https://www.google.com/maps/search/?api=1&query=Blue+Fountain,Sharm El-Sheikh
+473,Tandoori House,Indian,"Masala, Biryani",Mid-range,Halal,4.4,Spicy and flavorful,https://www.google.com/maps/search/?api=1&query=Tandoori+House,Sharm El-Sheikh
+474,El Fanar Restaurant,Seafood,"Fish Tagine, Calamari",Mid-range,Halal,4.4,Famous for views and fresh seafood,https://www.google.com/maps/search/?api=1&query=El+Fanar+Restaurant,Sharm El-Sheikh
+475,Sinai Lounge,Fusion,"Mixed Grill, Pasta",Mid-range,Halal,4.3,Relaxed setting with good variety,https://www.google.com/maps/search/?api=1&query=Sinai+Lounge,Sharm El-Sheikh
+476,Takataka Café,Cafe,"Coffee, Breakfast",Affordable,Halal,4.2,Casual and fun breakfast spot,https://www.google.com/maps/search/?api=1&query=Takataka+Café,Sharm El-Sheikh
+477,The Palms Bar & Grill,Grill,"BBQ Ribs, Chicken",Mid-range,Halal,4.3,Good for grill lovers,https://www.google.com/maps/search/?api=1&query=The+Palms+Bar+&+Grill,Sharm El-Sheikh
+478,Casa Nostra,Italian,"Pasta, Tiramisu",Mid-range,Halal,4.4,Comfortable and authentic Italian,https://www.google.com/maps/search/?api=1&query=Casa+Nostra,Sharm El-Sheikh
+479,Abdo Restaurant,Egyptian,"Foul, Falafel, Grills",Mid-range,Halal,4.6,Popular with great local taste,https://www.google.com/maps/search/?api=1&query=Abdo+Restaurant,Siwa
+480,Shahrazad Restaurant,Egyptian/International,"Pizza, Pasta, Grills",Mid-range,Halal,4.5,Spacious and delicious,https://www.google.com/maps/search/?api=1&query=Shahrazad+Restaurant,Siwa
+481,Siwa Shali Restaurant,Lebanese,"Kebabs, Manakeesh",Mid-range,Halal,4.5,Fusion of Lebanese and local,https://www.google.com/maps/search/?api=1&query=Siwa+Shali+Restaurant,Siwa
+482,Sahar El Layali Restaurant,Egyptian,"Mixed Grill, Tagines",Mid-range,Halal,4.4,Desert view and great seating,https://www.google.com/maps/search/?api=1&query=Sahar+El+Layali+Restaurant,Siwa
+483,Babenshal Restaurant,Fast Food,"Burgers, Kushari",Mid-range,Halal,4.3,Quick bites in town center,https://www.google.com/maps/search/?api=1&query=Babenshal+Restaurant,Siwa
+484,New Star Restaurant,Middle Eastern,"Zarb, Sambosa",Mid-range,Halal,4.4,Great variety and ambiance,https://www.google.com/maps/search/?api=1&query=New+Star+Restaurant,Siwa
+485,Tanta Juice & Grill,Indian,"Tandoori, Rice",Mid-range,Halal,4.3,Indian fusion in Siwa,https://www.google.com/maps/search/?api=1&query=Tanta+Juice+&+Grill,Siwa
+486,Noor Oasis Restaurant,Middle Eastern,"Kofta, Kebab",Mid-range,Halal,4.4,Open kitchen and diverse dishes,https://www.google.com/maps/search/?api=1&query=Noor+Oasis+Restaurant,Siwa
+487,Abou Rayah Restaurant,Traditional,"Mandi, Bukhari",Mid-range,Halal,4.4,Bedouin vibes and large portions,https://www.google.com/maps/search/?api=1&query=Abou+Rayah+Restaurant,Siwa
+488,Joba Lounge,Local/Grill,"Grilled Chicken, Rice",Mid-range,Halal,4.5,Cozy with generous portions,https://www.google.com/maps/search/?api=1&query=Joba+Lounge,Siwa
+489,Hayat Café,Cafe,"Coffee, Light Meals",Mid-range,Halal,4.2,Quiet atmosphere for relaxing,https://www.google.com/maps/search/?api=1&query=Hayat+Café,Siwa
+490,Takeyet El Amir,Egyptian,"Tagines, Rice",Mid-range,Halal,4.3,Great spot with open space,https://www.google.com/maps/search/?api=1&query=Takeyet+El+Amir,Siwa
+491,Noor Oasis Garden,Grill,"Mixed Grill, Fattah",Mid-range,Halal,4.3,Nice outdoor experience,https://www.google.com/maps/search/?api=1&query=Noor+Oasis+Garden,Siwa
+492,Anaro Restaurant,Mixed,"Grill, Pizza",Mid-range,Halal,4.3,Simple and casual,https://www.google.com/maps/search/?api=1&query=Anaro+Restaurant,Siwa
+493,Ola Restaurant,Egyptian,"Stuffed Vegetables, Kofta",Mid-range,Halal,4.4,Classic meals with big portions,https://www.google.com/maps/search/?api=1&query=Ola+Restaurant,Siwa
+494,Fahmy Garden,Outdoor Dining,Mixed Dishes,Mid-range,Halal,4.2,Great for group dining,https://www.google.com/maps/search/?api=1&query=Fahmy+Garden,Siwa
+495,Safari Paradise Restaurant,Buffet,Egyptian & Global,Mid-range,Halal,4.4,Hotel buffet with variety,https://www.google.com/maps/search/?api=1&query=Safari+Paradise+Restaurant,Siwa
+496,Knooz Siwa Restaurant,Local,"Olive Chicken, Molokhia",Mid-range,Halal,4.5,Natural surroundings and quality,https://www.google.com/maps/search/?api=1&query=Knooz+Siwa+Restaurant,Siwa
+497,Ali Aliwa Restaurant,Egyptian,"Duck, Stuffed Pigeon",Mid-range,Halal,4.3,Traditional setting and taste,https://www.google.com/maps/search/?api=1&query=Ali+Aliwa+Restaurant,Siwa
+498,Alaa Fish Restaurant,Seafood,"Grilled Fish, Lobster",Mid-range,Halal,4.4,Fresh and local seafood,https://www.google.com/maps/search/?api=1&query=Alaa+Fish+Restaurant,Siwa
+499,Green Oasis Restaurant,Vegetarian,"Salads, Grilled Veggies",Mid-range,Halal,4.2,Healthy and light options,https://www.google.com/maps/search/?api=1&query=Green+Oasis+Restaurant,Siwa
+500,Golden Sands Restaurant,Bedouin,Grilled Meats,Mid-range,Halal,4.3,Desert-themed dining,https://www.google.com/maps/search/?api=1&query=Golden+Sands+Restaurant,Siwa
+501,Siwan Cottage,Local,"Stuffed Chicken, Dates",Mid-range,Halal,4.4,Very traditional experience,https://www.google.com/maps/search/?api=1&query=Siwan+Cottage,Siwa
+502,Bayt El Zeitoun,Olive Cuisine,"Olive Tapas, Kofta",Mid-range,Halal,4.4,Unique use of olive oil,https://www.google.com/maps/search/?api=1&query=Bayt+El+Zeitoun,Siwa
+503,Great Desert Restaurant,Grill,"Tagines, Chicken",Mid-range,Halal,4.3,Good for groups,https://www.google.com/maps/search/?api=1&query=Great+Desert+Restaurant,Siwa
+504,White Oasis Restaurant,Fusion,"Kofta, Curry",Mid-range,Halal,4.3,Peaceful setting,https://www.google.com/maps/search/?api=1&query=White+Oasis+Restaurant,Siwa
+505,Palm Restaurant,Egyptian,"Grilled Duck, Rice",Mid-range,Halal,4.3,Family spot under palm trees,https://www.google.com/maps/search/?api=1&query=Palm+Restaurant,Siwa
+506,Sama Siwa Restaurant,Traditional,"Zarb, Stuffed Grape Leaves",Mid-range,Halal,4.4,Beautiful setting with tents,https://www.google.com/maps/search/?api=1&query=Sama+Siwa+Restaurant,Siwa
+507,Cleopatra Spring Restaurant,Tourist Local,"Shish Tawook, Salad",Mid-range,Halal,4.3,By Cleopatra’s spring,https://www.google.com/maps/search/?api=1&query=Cleopatra+Spring+Restaurant,Siwa
+508,Western Oasis Restaurant,Egyptian,"Rice, Grilled Lamb",Mid-range,Halal,4.3,Known for warm service,https://www.google.com/maps/search/?api=1&query=Western+Oasis+Restaurant,Siwa
+509,Sea Door,Seafood,"Seafood Soup, Caviar",Mid-range,Halal,4.6,High quality seafood near beach,https://www.google.com/maps/search/?api=1&query=Sea+Door,Ras El-Bar
+510,Hawaii Café,Egyptian/Mediterranean,"Shawarma, Juices",Mid-range,Halal,4.4,Popular cozy spot,https://www.google.com/maps/search/?api=1&query=Hawaii+Café,Ras El-Bar
+511,Nawarat El Sahel,Seafood,"Grilled Fish, Shrimp",Mid-range,Halal,4.4,Affordable and fresh,https://www.google.com/maps/search/?api=1&query=Nawarat+El+Sahel,Ras El-Bar
+512,Sultan Grill House,Grill,"Kofta, Chicken",Mid-range,Halal,4.5,Great grilled taste,https://www.google.com/maps/search/?api=1&query=Sultan+Grill+House,Ras El-Bar
+513,Old Sham Restaurant,Levantine,"Kebabs, Shawarma",Mid-range,Halal,4.4,Shami style dishes,https://www.google.com/maps/search/?api=1&query=Old+Sham+Restaurant,Ras El-Bar
+514,Fetouh Restaurant,Italian/Feteer,"Pizza, Oriental Pie",Mid-range,Halal,4.5,Best for pies and pasta,https://www.google.com/maps/search/?api=1&query=Fetouh+Restaurant,Ras El-Bar
+515,Cook Door,Fast Food,"Burgers, Chicken",Mid-range,Halal,4.2,Popular Egyptian chain,https://www.google.com/maps/search/?api=1&query=Cook+Door,Ras El-Bar
+516,Bel Laban,Desserts,"Rice Pudding, Juice",Mid-range,Halal,4.3,Modern oriental desserts,https://www.google.com/maps/search/?api=1&query=Bel+Laban,Ras El-Bar
+517,El Mohamady Kebab House,Grill,"Kebab, Kofta",Mid-range,Halal,4.5,Long-standing grill house,https://www.google.com/maps/search/?api=1&query=El+Mohamady+Kebab+House,Ras El-Bar
+518,3al Fokham,Grill,Grilled Chicken,Mid-range,Halal,4.4,Simple grill spot,https://www.google.com/maps/search/?api=1&query=3al+Fokham,Ras El-Bar
+519,Haty Gaber,Grill,"Grilled Mix, Liver",Mid-range,Halal,4.3,Classic and reliable,https://www.google.com/maps/search/?api=1&query=Haty+Gaber,Ras El-Bar
+520,Pizza Party,Pizza,"Cheese Pizza, Seafood Pizza",Mid-range,Halal,4.3,Fast delivery and taste,https://www.google.com/maps/search/?api=1&query=Pizza+Party,Ras El-Bar
+521,Barakat,Mixed,"Grill, Desserts",Mid-range,Halal,4.3,Local family favorite,https://www.google.com/maps/search/?api=1&query=Barakat,Ras El-Bar
+522,Abou Auf,Bakery,"Pastries, Nuts",Mid-range,Halal,4.4,Fresh and diverse,https://www.google.com/maps/search/?api=1&query=Abou+Auf,Ras El-Bar
+523,Kelany Village Grill,Grill,"Chicken Grill, Liver",Mid-range,Halal,4.4,Nice for groups,https://www.google.com/maps/search/?api=1&query=Kelany+Village+Grill,Ras El-Bar
+524,Golden Spoon,Mixed,"Seafood, Pizza, Grill",Mid-range,Halal,4.2,All-in-one menu,https://www.google.com/maps/search/?api=1&query=Golden+Spoon,Ras El-Bar
+525,Barakat Halabi,Syrian,"Shawarma, Grilled Meats",Mid-range,Halal,4.3,Damascene taste in Ras El-Bar,https://www.google.com/maps/search/?api=1&query=Barakat+Halabi,Ras El-Bar
+526,Basha,Mixed,"Pizza, Seafood, Oriental",Mid-range,Halal,4.4,Variety and great view,https://www.google.com/maps/search/?api=1&query=Basha,Ras El-Bar
+527,El Mohamady,Grill,Shish Kebab,Mid-range,Halal,4.3,Authentic grill house,https://www.google.com/maps/search/?api=1&query=El+Mohamady,Ras El-Bar
+528,Dragon,Sandwiches,"Hot Dog, Shawarma",Mid-range,Halal,4.2,Youth-friendly spot,https://www.google.com/maps/search/?api=1&query=Dragon,Ras El-Bar
+529,Koshary Masr,Egyptian,Koshary,Mid-range,Halal,4.3,Great for quick bites,https://www.google.com/maps/search/?api=1&query=Koshary+Masr,Ras El-Bar
+530,Feseekh El Naggar,Seafood,"Feseekh, Renga",Mid-range,Halal,4.4,Eid season favorite,https://www.google.com/maps/search/?api=1&query=Feseekh+El+Naggar,Ras El-Bar
+531,Darb Shakamba,Grill,"Liver, Shawarma",Mid-range,Halal,4.3,Local and lively,https://www.google.com/maps/search/?api=1&query=Darb+Shakamba,Ras El-Bar
+532,Galal Coffee,Cafe,"Pastries, Coffee",Mid-range,Halal,4.3,Quiet and neat,https://www.google.com/maps/search/?api=1&query=Galal+Coffee,Ras El-Bar
+533,Pizza Lovers,Pizza,"Classic Pizza, BBQ Chicken",Mid-range,Halal,4.3,Pizza for all tastes,https://www.google.com/maps/search/?api=1&query=Pizza+Lovers,Ras El-Bar
+534,Banadora,Fast Food,"Crepes, Pizza",Mid-range,Halal,4.2,Colorful and good portions,https://www.google.com/maps/search/?api=1&query=Banadora,Ras El-Bar
+535,Kanz El Amir,Egyptian,"Koshary, Juices",Mid-range,Halal,4.3,Street food with good quality,https://www.google.com/maps/search/?api=1&query=Kanz+El+Amir,Ras El-Bar
+536,El Serag 3,Oriental,"Grilled Meats, Rice",Mid-range,Halal,4.3,Hidden gem in Ras El-Bar,https://www.google.com/maps/search/?api=1&query=El+Serag+3,Ras El-Bar
+537,Bab El Hara,Levantine,"Grills, Hummus",Mid-range,Halal,4.4,Inspired by Syrian series,https://www.google.com/maps/search/?api=1&query=Bab+El+Hara,Ras El-Bar
+538,Lesan El Wozara,Seafood,"Shrimp, Grilled Fish",Mid-range,Halal,4.5,Overlooking the Nile and sea,https://www.google.com/maps/search/?api=1&query=Lesan+El+Wozara,Ras El-Bar
+539,Restaurant Dr. Sheashkebab,Egyptian Grill,"Kebab, Shish Tawook",Mid-range,Halal,4.4,Comfortable and family friendly,https://www.google.com/maps/search/?api=1&query=Restaurant+Dr.+Sheashkebab,Nuweiba
+540,Habiba Restaurant,Seafood,"Fresh Fish, Grilled Shrimp",Mid-range,Halal,4.5,Beachside dining with great view,https://www.google.com/maps/search/?api=1&query=Habiba+Restaurant,Nuweiba
+541,Han Kang Chinese Korean Restaurant,Asian,"Noodles, Sweet & Sour Chicken",Mid-range,Halal,4.3,Authentic Korean taste,https://www.google.com/maps/search/?api=1&query=Han+Kang+Chinese+Korean+Restaurant,Nuweiba
+542,Al Malek Restaurant,Italian,"Pizza, Sandwiches",Mid-range,Halal,4.2,Center town spot with pastries,https://www.google.com/maps/search/?api=1&query=Al+Malek+Restaurant,Nuweiba
+543,Cleopatra Restaurant Nweibaa,Seafood,"Fish Grill, Greek Sides",Mid-range,Halal,4.5,Tourist favorite,https://www.google.com/maps/search/?api=1&query=Cleopatra+Restaurant+Nweibaa,Nuweiba
+544,Korean Dragon Restaurant,Asian,"Stir Fry, Dumplings",Mid-range,Halal,4.4,Top Asian dishes in town,https://www.google.com/maps/search/?api=1&query=Korean+Dragon+Restaurant,Nuweiba
+545,Cafe Little Prince,Cafe,"Pastries, Local Sweets",Mid-range,Halal,4.3,Colorful garden café,https://www.google.com/maps/search/?api=1&query=Cafe+Little+Prince,Nuweiba
+546,Ganat Al Asmak Restaurant,Seafood,Grilled Fish,Mid-range,Halal,4.4,Garden-themed seafood place,https://www.google.com/maps/search/?api=1&query=Ganat+Al+Asmak+Restaurant,Nuweiba
+547,Beirut Restaurant Nuweiba,Lebanese,"Grills, Hummus",Mid-range,Halal,4.4,Mediterranean flavors,https://www.google.com/maps/search/?api=1&query=Beirut+Restaurant+Nuweiba,Nuweiba
+548,The Tuscany Restaurant,Italian,"Pasta, Risotto",Mid-range,Halal,4.5,Cozy Italian meals,https://www.google.com/maps/search/?api=1&query=The+Tuscany+Restaurant,Nuweiba
+549,El Sharkawy Restaurant,Egyptian,"Stuffed Pigeon, Grilled Chicken",Mid-range,Halal,4.3,Traditional meals,https://www.google.com/maps/search/?api=1&query=El+Sharkawy+Restaurant,Nuweiba
+550,Senara Seafood Restaurant,Seafood,"Shrimp, Lobster",Mid-range,Halal,4.4,Known for fresh catches,https://www.google.com/maps/search/?api=1&query=Senara+Seafood+Restaurant,Nuweiba
+551,Khaymet Baba,Egyptian,"Tagines, Kofta",Mid-range,Halal,4.3,Simple local dining,https://www.google.com/maps/search/?api=1&query=Khaymet+Baba,Nuweiba
+552,Al Saraya Restaurant & Cafe,Egyptian,Mixed Grill,Mid-range,Halal,4.3,Traditional and spacious,https://www.google.com/maps/search/?api=1&query=Al+Saraya+Restaurant+&+Cafe,Nuweiba
+553,Little Head Bar,Seafood,"Grilled Snapper, Fried Calamari",Mid-range,Halal,4.2,Relaxed and fresh,https://www.google.com/maps/search/?api=1&query=Little+Head+Bar,Nuweiba
+554,Chopsticks,Asian,"Noodles, Fried Rice",Mid-range,Halal,4.3,Modern Asian restaurant,https://www.google.com/maps/search/?api=1&query=Chopsticks,Nuweiba
+555,El Mar,Seafood,Fish Tagine,Mid-range,Halal,4.4,Local seafood with view,https://www.google.com/maps/search/?api=1&query=El+Mar,Nuweiba
+556,Asiatic Restaurant,Asian,"Dim Sum, Curry",Mid-range,Halal,4.3,Clean and aromatic,https://www.google.com/maps/search/?api=1&query=Asiatic+Restaurant,Nuweiba
+557,Sultana Village,Seafood,Mixed Seafood Platter,Mid-range,Halal,4.4,Charming village theme,https://www.google.com/maps/search/?api=1&query=Sultana+Village,Nuweiba
+558,Fisch Fisch Restaurant,Seafood,Fish Grill,Mid-range,Halal,4.4,Popular seafood spot,https://www.google.com/maps/search/?api=1&query=Fisch+Fisch+Restaurant,Nuweiba
+559,Moonlight Restaurant,Seafood,"Grilled Octopus, Fish Fillet",Affordable,Halal,4.4,Beautiful beach view,https://www.google.com/maps/search/?api=1&query=Moonlight+Restaurant,Nuweiba
+560,Al Bahr Restaurant,Seafood,"Fish Curry, Grilled Shrimp",Mid-range,Halal,4.3,"Local flavors, nice vibe",https://www.google.com/maps/search/?api=1&query=Al+Bahr+Restaurant,Nuweiba
+561,Laguna Cafe,Cafe,"Smoothies, Sandwiches",Affordable,Halal,4.2,Relaxed café with beach seating,https://www.google.com/maps/search/?api=1&query=Laguna+Cafe,Nuweiba
+562,Zoola Restaurant,Egyptian,"Stuffed Vegetables, Kofta",Mid-range,Halal,4.3,Boho vibes and homemade meals,https://www.google.com/maps/search/?api=1&query=Zoola+Restaurant,Nuweiba
+563,Sunrise Kitchen,Breakfast,"Pancakes, Egyptian Breakfast",Affordable,Halal,4.2,Great morning spot,https://www.google.com/maps/search/?api=1&query=Sunrise+Kitchen,Nuweiba
+564,Freedom Café,International,"Pasta, Toasties",Mid-range,Halal,4.3,Open air café with desert view,https://www.google.com/maps/search/?api=1&query=Freedom+Café,Nuweiba
+565,Starfish Restaurant,Seafood,"Shrimp, Mixed Grill",Affordable,Halal,4.4,Casual and cozy,https://www.google.com/maps/search/?api=1&query=Starfish+Restaurant,Nuweiba
+566,Bedouin House,Bedouin,"Zarb, Grilled Chicken",Mid-range,Halal,4.5,Authentic desert dining,https://www.google.com/maps/search/?api=1&query=Bedouin+House,Nuweiba
+567,Nemo Café,Cafe,"Juice, Pizza",Affordable,Halal,4.2,Colorful and artsy,https://www.google.com/maps/search/?api=1&query=Nemo+Café,Nuweiba
+568,Yasmina Restaurant,Mediterranean,"Grilled Chicken, Meze",Mid-range,Halal,4.3,Simple and tasty,https://www.google.com/maps/search/?api=1&query=Yasmina+Restaurant,Nuweiba
+569,Magic Bar & Grill,Grill,"Chicken Wings, Kebab",Affordable,Halal,4.2,Beachside grill and bar,https://www.google.com/maps/search/?api=1&query=Magic+Bar+&+Grill,Nuweiba
+570,Paradise Camp Restaurant,Mixed,"Kofta, Curry",Mid-range,Halal,4.3,Serves guests and walk-ins,https://www.google.com/maps/search/?api=1&query=Paradise+Camp+Restaurant,Nuweiba
+571,Palm Tree Café,Cafe,"Fresh Juices, Pastries",Affordable,Halal,4.2,Quiet corner spot,https://www.google.com/maps/search/?api=1&query=Palm+Tree+Café,Nuweiba
+572,Dolphin Restaurant,Seafood,"Crab, Fish Soup",Mid-range,Halal,4.3,Fresh and nicely cooked,https://www.google.com/maps/search/?api=1&query=Dolphin+Restaurant,Nuweiba
+573,Layaly Nuweiba,Oriental,"Mahshi, Molokhia",Affordable,Halal,4.3,Home-style Egyptian dishes,https://www.google.com/maps/search/?api=1&query=Layaly+Nuweiba,Nuweiba
+574,Sunset Café,Cafe,"Coffee, Pancakes",Mid-range,Halal,4.2,Perfect for sunset view,https://www.google.com/maps/search/?api=1&query=Sunset+Café,Nuweiba
+575,Habiba Organic Kitchen,Vegetarian,"Falafel, Lentil Soup",Affordable,Halal,4.5,Healthy and organic,https://www.google.com/maps/search/?api=1&query=Habiba+Organic+Kitchen,Nuweiba
+576,La Plage Restaurant,French,"Steak, Salads",Mid-range,Halal,4.4,"By the sea, peaceful",https://www.google.com/maps/search/?api=1&query=La+Plage+Restaurant,Nuweiba
+577,Rihana Restaurant,Levantine,"Hummus, Lamb Chops",Affordable,Halal,4.3,Popular among locals,https://www.google.com/maps/search/?api=1&query=Rihana+Restaurant,Nuweiba
+578,Shisha Garden,Cafe,"Drinks, Shisha",Mid-range,Halal,4.2,Chill garden vibes,https://www.google.com/maps/search/?api=1&query=Shisha+Garden,Nuweiba
+579,Porto Fish,Seafood,"Seafood Grill, Shrimp",Mid-range,Halal,4.6,Top seafood in Port Said,https://www.google.com/maps/search/?api=1&query=Porto+Fish,Port Said
+580,Al Borg Restaurant,Seafood,"Fried Calamari, Fish Tagine",Affordable,Halal,4.5,Local favorite,https://www.google.com/maps/search/?api=1&query=Al+Borg+Restaurant,Port Said
+581,Damascus Restaurant,Syrian,"Shawarma, Grilled Meat",Mid-range,Halal,4.4,Authentic Syrian cuisine,https://www.google.com/maps/search/?api=1&query=Damascus+Restaurant,Port Said
+582,El Tahrir,Egyptian,"Koshary, Hawawshi",Affordable,Halal,4.3,Simple and delicious,https://www.google.com/maps/search/?api=1&query=El+Tahrir,Port Said
+583,Burger Joint,Fast Food,"Beef Burger, Fries",Mid-range,Halal,4.2,Trendy burger place,https://www.google.com/maps/search/?api=1&query=Burger+Joint,Port Said
+584,El Borg El Shamy,Levantine,"Grills, Hummus",Affordable,Halal,4.3,Syrian and Lebanese mix,https://www.google.com/maps/search/?api=1&query=El+Borg+El+Shamy,Port Said
+585,El Sheikh Restaurant,Egyptian,"Stuffed Vegetables, Grills",Mid-range,Halal,4.3,Traditional family place,https://www.google.com/maps/search/?api=1&query=El+Sheikh+Restaurant,Port Said
+586,Grill Master,Grill,"Mixed Grill, Kofta",Affordable,Halal,4.4,Specialty in grilled meat,https://www.google.com/maps/search/?api=1&query=Grill+Master,Port Said
+587,Sushimania,Japanese,"Sushi, Noodles",Mid-range,Halal,4.4,Modern sushi bar,https://www.google.com/maps/search/?api=1&query=Sushimania,Port Said
+588,Papa John's Port Said,Pizza,Pepperoni Pizza,Affordable,Halal,4.3,International brand,https://www.google.com/maps/search/?api=1&query=Papa+John's+Port+Said,Port Said
+589,Tandor Indian,Indian,"Chicken Tikka, Curry",Mid-range,Halal,4.3,Exotic Indian flavor,https://www.google.com/maps/search/?api=1&query=Tandor+Indian,Port Said
+590,Koshary El Tahrir,Egyptian,Koshary,Affordable,Halal,4.4,Local chain favorite,https://www.google.com/maps/search/?api=1&query=Koshary+El+Tahrir,Port Said
+591,Al Forno,Italian,"Pizza, Pasta",Mid-range,Halal,4.3,Stylish and cozy,https://www.google.com/maps/search/?api=1&query=Al+Forno,Port Said
+592,Bahary,Seafood,"Grilled Mullet, Shrimp Soup",Affordable,Halal,4.5,Right on the water,https://www.google.com/maps/search/?api=1&query=Bahary,Port Said
+593,Feteer House,Egyptian,"Feteer, Cheese Mix",Mid-range,Halal,4.3,Good for breakfast,https://www.google.com/maps/search/?api=1&query=Feteer+House,Port Said
+594,Al Shami Restaurant,Syrian,Chicken Shawarma,Affordable,Halal,4.3,Fast Syrian eats,https://www.google.com/maps/search/?api=1&query=Al+Shami+Restaurant,Port Said
+595,Layaly Beirut,Lebanese,"Kebabs, Labneh",Mid-range,Halal,4.4,Fine Lebanese cuisine,https://www.google.com/maps/search/?api=1&query=Layaly+Beirut,Port Said
+596,Kabana,Fast Food,"Zinger, Wraps",Affordable,Halal,4.3,Young crowd favorite,https://www.google.com/maps/search/?api=1&query=Kabana,Port Said
+597,Kabab El Kheir,Grill,"Lamb Chops, Kofta",Mid-range,Halal,4.4,Juicy and authentic,https://www.google.com/maps/search/?api=1&query=Kabab+El+Kheir,Port Said
+598,Al Batros,Seafood,"Crab, Fish Grill",Affordable,Halal,4.4,Beachside view,https://www.google.com/maps/search/?api=1&query=Al+Batros,Port Said
+599,El Bawadi,Oriental,"Tagines, Rice Dishes",Mid-range,Halal,4.3,Rustic and warm,https://www.google.com/maps/search/?api=1&query=El+Bawadi,Port Said
+600,Ocean Basket,Seafood,Seafood Platter,Affordable,Halal,4.5,Family friendly,https://www.google.com/maps/search/?api=1&query=Ocean+Basket,Port Said
+601,Zaman Restaurant,Egyptian,Traditional Dishes,Mid-range,Halal,4.3,Old-school charm,https://www.google.com/maps/search/?api=1&query=Zaman+Restaurant,Port Said
+602,Tablia,Oriental,Grilled Chicken,Affordable,Halal,4.2,"Good service, clean",https://www.google.com/maps/search/?api=1&query=Tablia,Port Said
+603,Burger Time,Fast Food,"Cheeseburger, Hotdog",Mid-range,Halal,4.2,Late night go-to,https://www.google.com/maps/search/?api=1&query=Burger+Time,Port Said
+604,Al Mokhtar,Grill,"Stuffed Pigeon, Kofta",Affordable,Halal,4.3,Traditional grill experience,https://www.google.com/maps/search/?api=1&query=Al+Mokhtar,Port Said
+605,Saray El Qahira,Oriental,"Mahshi, Kabsa",Mid-range,Halal,4.4,"Rich dishes, comfy seating",https://www.google.com/maps/search/?api=1&query=Saray+El+Qahira,Port Said
+606,Fishers,Seafood,"Seafood Soup, Shrimp",Affordable,Halal,4.5,High quality meals,https://www.google.com/maps/search/?api=1&query=Fishers,Port Said
+607,El Sayed Fish,Seafood,Grilled Fish,Mid-range,Halal,4.4,Popular in Port Fouad,https://www.google.com/maps/search/?api=1&query=El+Sayed+Fish,Port Said
+608,Oriental Taste,Oriental,Stuffed Chicken,Affordable,Halal,4.3,Simple but flavorful,https://www.google.com/maps/search/?api=1&query=Oriental+Taste,Port Said
+609,Sultan Café,Cafe,"Tea, Oriental Desserts",Mid-range,Halal,4.2,Cozy and traditional,https://www.google.com/maps/search/?api=1&query=Sultan+Café,Port Fouad
+610,Sultana Lounge,Mixed,"Juices, Sandwiches",Affordable,Halal,4.2,Port Fouad vibes,https://www.google.com/maps/search/?api=1&query=Sultana+Lounge,Port Fouad
+611,El Marsa,Seafood,Shrimp Grill,Mid-range,Halal,4.5,Top choice in Port Fouad,https://www.google.com/maps/search/?api=1&query=El+Marsa,Port Fouad
+612,Al Sheikh Grill,Grill,Mixed Grill,Affordable,Halal,4.3,Port Fouad favorite,https://www.google.com/maps/search/?api=1&query=Al+Sheikh+Grill,Port Fouad
+613,Zizo's Pizza,Pizza,Pizza Margherita,Mid-range,Halal,4.3,Local pizzeria,https://www.google.com/maps/search/?api=1&query=Zizo's+Pizza,Port Fouad
+614,Tutti Frutti,Cafe,"Ice Cream, Waffles",Affordable,Halal,4.2,Sweet spot in Port Fouad,https://www.google.com/maps/search/?api=1&query=Tutti+Frutti,Port Fouad
+615,Habiba House,Oriental,Stuffed Vine Leaves,Mid-range,Halal,4.3,Homemade feel,https://www.google.com/maps/search/?api=1&query=Habiba+House,Port Fouad
+616,Laziz,Mixed,"Shawarma, Falafel",Affordable,Halal,4.3,Balanced flavors,https://www.google.com/maps/search/?api=1&query=Laziz,Port Fouad
+617,El Mina Café,Seafood/Cafe,Seafood Snacks,Mid-range,Halal,4.2,Chill seaside café,https://www.google.com/maps/search/?api=1&query=El+Mina+Café,Port Fouad
+618,Chef Tarek,Grill,"Skewers, Stew",Affordable,Halal,4.3,Hidden gem for grills,https://www.google.com/maps/search/?api=1&query=Chef+Tarek,Port Fouad
+619,El Awqaf Fish,Seafood,"Grilled Fish, Shrimp Soup",Mid-range,Halal,4.5,One of the most famous in town,https://www.google.com/maps/search/?api=1&query=El+Awqaf+Fish,Marsa Matrouh
+620,Gondy Restaurant,Oriental,"Stuffed Vine Leaves, Kofta",Affordable,Halal,4.3,Popular with locals,https://www.google.com/maps/search/?api=1&query=Gondy+Restaurant,Marsa Matrouh
+621,Kandil Restaurant,Seafood,"Calamari, Fried Fish",Mid-range,Halal,4.4,Known for fast service,https://www.google.com/maps/search/?api=1&query=Kandil+Restaurant,Marsa Matrouh
+622,Al Agha Restaurant,Syrian,"Shawarma, Grills",Affordable,Halal,4.3,Top-rated Syrian spot,https://www.google.com/maps/search/?api=1&query=Al+Agha+Restaurant,Marsa Matrouh
+623,El Hossary,Egyptian,"Koshary, Rice Dishes",Mid-range,Halal,4.2,Budget-friendly and tasty,https://www.google.com/maps/search/?api=1&query=El+Hossary,Marsa Matrouh
+624,El Kasr,Seafood,"Seafood Mix, Crab",Affordable,Halal,4.4,Nice sea views and clean,https://www.google.com/maps/search/?api=1&query=El+Kasr,Marsa Matrouh
+625,Matruh Nights,Mixed,"Grills, Pizza",Mid-range,Halal,4.3,Fun place for families,https://www.google.com/maps/search/?api=1&query=Matruh+Nights,Marsa Matrouh
+626,Al Marsa,Seafood,"Shrimp, Lobster",Affordable,Halal,4.4,Fresh and elegant,https://www.google.com/maps/search/?api=1&query=Al+Marsa,Marsa Matrouh
+627,El Demashky,Syrian,"Kebab, Hummus",Mid-range,Halal,4.3,Shawarma favorite,https://www.google.com/maps/search/?api=1&query=El+Demashky,Marsa Matrouh
+628,El Teba,Grill,"Lamb Kofta, Chicken Grill",Affordable,Halal,4.4,Clean and well-rated,https://www.google.com/maps/search/?api=1&query=El+Teba,Marsa Matrouh
+629,Captain Fish,Seafood,"Grilled Fish, Tagine",Mid-range,Halal,4.5,Local go-to,https://www.google.com/maps/search/?api=1&query=Captain+Fish,Marsa Matrouh
+630,Oasis Matrouh,Oriental,"Tagines, Mahshi",Affordable,Halal,4.3,Calm atmosphere,https://www.google.com/maps/search/?api=1&query=Oasis+Matrouh,Marsa Matrouh
+631,El Malky,Desserts,"Rice Pudding, Ice Cream",Mid-range,Halal,4.2,Sweet tooth stop,https://www.google.com/maps/search/?api=1&query=El+Malky,Marsa Matrouh
+632,Café Aroma,Cafe,"Coffee, Waffles",Affordable,Halal,4.3,Stylish and modern,https://www.google.com/maps/search/?api=1&query=Café+Aroma,Marsa Matrouh
+633,Pizza Roma,Italian,"Pizza, Pasta",Mid-range,Halal,4.4,Italian vibes,https://www.google.com/maps/search/?api=1&query=Pizza+Roma,Marsa Matrouh
+634,El Fardous,Seafood,"Fried Shrimp, Soup",Affordable,Halal,4.3,Affordable and simple,https://www.google.com/maps/search/?api=1&query=El+Fardous,Marsa Matrouh
+635,Al Khal Egyptian,Traditional,"Grilled Chicken, Beans",Mid-range,Halal,4.2,Basic and reliable,https://www.google.com/maps/search/?api=1&query=Al+Khal+Egyptian,Marsa Matrouh
+636,Al Saraya,Mixed,"Pizza, Grills",Affordable,Halal,4.2,Well located,https://www.google.com/maps/search/?api=1&query=Al+Saraya,Marsa Matrouh
+637,Chick Town,Fast Food,"Fried Chicken, Wraps",Mid-range,Halal,4.1,Youth favorite,https://www.google.com/maps/search/?api=1&query=Chick+Town,Marsa Matrouh
+638,Sultana Café,Cafe,"Juices, Oriental Sweets",Affordable,Halal,4.2,Nice evening stop,https://www.google.com/maps/search/?api=1&query=Sultana+Café,Marsa Matrouh
+639,Bab El Bahr,Seafood,"Shrimp Grill, Fish Soup",Mid-range,Halal,4.4,On the seafront,https://www.google.com/maps/search/?api=1&query=Bab+El+Bahr,Marsa Matrouh
+640,Al Mandarah,Oriental,Stuffed Chicken,Affordable,Halal,4.2,Big portions,https://www.google.com/maps/search/?api=1&query=Al+Mandarah,Marsa Matrouh
+641,Arabella Lounge,Mixed,"Juices, Appetizers",Mid-range,Halal,4.1,Nice seating,https://www.google.com/maps/search/?api=1&query=Arabella+Lounge,Marsa Matrouh
+642,Koshary El Tahrir,Egyptian,Koshary,Affordable,Halal,4.3,Always a classic,https://www.google.com/maps/search/?api=1&query=Koshary+El+Tahrir,Marsa Matrouh
+643,Al Dahan,Grill,"Shish Tawook, Rice",Mid-range,Halal,4.3,Top grill combo,https://www.google.com/maps/search/?api=1&query=Al+Dahan,Marsa Matrouh
+644,Blue Fish,Seafood,Seafood Pasta,Affordable,Halal,4.4,Stylish seafood café,https://www.google.com/maps/search/?api=1&query=Blue+Fish,Marsa Matrouh
+645,Kebda El Shabrawy,Street Food,"Fried Liver, Sandwiches",Mid-range,Halal,4.2,Famous for late night meals,https://www.google.com/maps/search/?api=1&query=Kebda+El+Shabrawy,Marsa Matrouh
+646,Biryani House,Indian,"Biryani, Tikka",Affordable,Halal,4.3,Spicy and unique,https://www.google.com/maps/search/?api=1&query=Biryani+House,Marsa Matrouh
+647,Siwa Garden,Bedouin,"Zarb, Kofta",Mid-range,Halal,4.4,Desert inspired place,https://www.google.com/maps/search/?api=1&query=Siwa+Garden,Marsa Matrouh
+648,Marsa Café,Cafe,"Latte, Crepes",Affordable,Halal,4.1,Local coffee hangout,https://www.google.com/maps/search/?api=1&query=Marsa+Café,Marsa Matrouh
+649,Al Soghayar,Grill,"Chicken Grill, Rice",Mid-range,Halal,4.2,Simple but filling,https://www.google.com/maps/search/?api=1&query=Al+Soghayar,Marsa Matrouh
+650,Layali Matrouh,Oriental,"Tagines, Okra Stew",Affordable,Halal,4.3,Tasty and warm,https://www.google.com/maps/search/?api=1&query=Layali+Matrouh,Marsa Matrouh
+651,El Qobtan,Seafood,"Calamari, Fish Platter",Mid-range,Halal,4.4,Known for freshness,https://www.google.com/maps/search/?api=1&query=El+Qobtan,Marsa Matrouh
+652,La Plage,Mediterranean,"Seafood, Appetizers",Affordable,Halal,4.4,Beachfront dining,https://www.google.com/maps/search/?api=1&query=La+Plage,Marsa Matrouh
+653,Zamzam,Fast Food,"Zinger, Fries",Mid-range,Halal,4.1,Quick bites,https://www.google.com/maps/search/?api=1&query=Zamzam,Marsa Matrouh
+654,Vista Marina,Cafe,"Coffee, Snacks",Affordable,Halal,4.2,Nice view café,https://www.google.com/maps/search/?api=1&query=Vista+Marina,Marsa Matrouh
+655,Baba Lounge,Mixed,"Kofta, Juices",Mid-range,Halal,4.2,Good for families,https://www.google.com/maps/search/?api=1&query=Baba+Lounge,Marsa Matrouh
+656,Al Matbakh,Egyptian,"Stuffed Pigeon, Molokhia",Affordable,Halal,4.3,Feels like home,https://www.google.com/maps/search/?api=1&query=Al+Matbakh,Marsa Matrouh
+657,El Tayeb Restaurant,Traditional,"Kofta, Shawarma",Mid-range,Halal,4.3,Popular local,https://www.google.com/maps/search/?api=1&query=El+Tayeb+Restaurant,Marsa Matrouh
+658,Marsa Star,Seafood,"Mixed Grill, Shrimp Rice",Affordable,Halal,4.4,Good reviews and service,https://www.google.com/maps/search/?api=1&query=Marsa+Star,Marsa Matrouh
+659,Tandouba Restaurant,Seafood,"Grilled Fish, Shrimp",Mid-range,Halal,4.5,Top seafood in Marsa Alam,https://www.google.com/maps/search/?api=1&query=Tandouba+Restaurant,Marsa Alam
+660,Wunder-Bar,International,"Burgers, Pasta",Affordable,Halal,4.4,Lively atmosphere,https://www.google.com/maps/search/?api=1&query=Wunder-Bar,Marsa Alam
+661,La Piazza,Italian,"Pizza, Lasagna",Mid-range,Halal,4.3,Great Italian food,https://www.google.com/maps/search/?api=1&query=La+Piazza,Marsa Alam
+662,Casero Restaurant,Egyptian,"Koshary, Mahshi",Affordable,Halal,4.2,Local experience,https://www.google.com/maps/search/?api=1&query=Casero+Restaurant,Marsa Alam
+663,Fish Market Marsa Alam,Seafood,"Seafood Mix, Calamari",Mid-range,Halal,4.5,Fresh and well-prepared,https://www.google.com/maps/search/?api=1&query=Fish+Market+Marsa+Alam,Marsa Alam
+664,Red Sea Dive Bar,Grill,"Burgers, Wings",Affordable,Halal,4.3,Relaxed post-dive meals,https://www.google.com/maps/search/?api=1&query=Red+Sea+Dive+Bar,Marsa Alam
+665,Bella Napoli,Italian,"Pizza, Gnocchi",Mid-range,Halal,4.4,Real Italian feel,https://www.google.com/maps/search/?api=1&query=Bella+Napoli,Marsa Alam
+666,Habiba Restaurant,Bedouin,"Zarb, Grilled Chicken",Affordable,Halal,4.3,Traditional dining,https://www.google.com/maps/search/?api=1&query=Habiba+Restaurant,Marsa Alam
+667,Al Dente Restaurant,Mediterranean,Seafood Pasta,Mid-range,Halal,4.4,Beautiful sea view,https://www.google.com/maps/search/?api=1&query=Al+Dente+Restaurant,Marsa Alam
+668,Al Marsa Café,Cafe,"Coffee, Ice Cream",Affordable,Halal,4.2,Chill spot by the shore,https://www.google.com/maps/search/?api=1&query=Al+Marsa+Café,Marsa Alam
+669,Marsa Waves,Seafood,"Fish Grill, Tagine",Mid-range,Halal,4.4,Popular with divers,https://www.google.com/maps/search/?api=1&query=Marsa+Waves,Marsa Alam
+670,Sunset Beach Restaurant,International,"Grill Mix, Sandwiches",Affordable,Halal,4.3,Great for sunsets,https://www.google.com/maps/search/?api=1&query=Sunset+Beach+Restaurant,Marsa Alam
+671,El Diwan,Oriental,"Stuffed Pigeon, Molokhia",Mid-range,Halal,4.2,Authentic taste,https://www.google.com/maps/search/?api=1&query=El+Diwan,Marsa Alam
+672,Blue Vision Restaurant,Mixed,"Pizza, Chicken",Affordable,Halal,4.3,Hotel-style dining,https://www.google.com/maps/search/?api=1&query=Blue+Vision+Restaurant,Marsa Alam
+673,The View Restaurant,Grill,"BBQ Chicken, Fries",Mid-range,Halal,4.3,Nice beach view,https://www.google.com/maps/search/?api=1&query=The+View+Restaurant,Marsa Alam
+674,Panorama Restaurant,International,"Pasta, Rice Dishes",Affordable,Halal,4.2,Diverse menu,https://www.google.com/maps/search/?api=1&query=Panorama+Restaurant,Marsa Alam
+675,Portofino,Italian,"Spaghetti, Tiramisu",Mid-range,Halal,4.4,Italian elegance,https://www.google.com/maps/search/?api=1&query=Portofino,Marsa Alam
+676,Ali Baba Restaurant,Egyptian,"Foul, Falafel",Affordable,Halal,4.1,Budget and traditional,https://www.google.com/maps/search/?api=1&query=Ali+Baba+Restaurant,Marsa Alam
+677,Casa Moresca,Seafood,"Shrimp Soup, Lobster",Mid-range,Halal,4.4,Upscale seafood place,https://www.google.com/maps/search/?api=1&query=Casa+Moresca,Marsa Alam
+678,Farsha Café,Cafe,"Juices, Desserts",Affordable,Halal,4.2,Bedouin style drinks,https://www.google.com/maps/search/?api=1&query=Farsha+Café,Marsa Alam
+679,Zaytona Restaurant,Lebanese,"Shawarma, Hummus",Mid-range,Halal,4.3,Levantine flavors,https://www.google.com/maps/search/?api=1&query=Zaytona+Restaurant,Marsa Alam
+680,Ocean Breeze,Seafood,Grilled Octopus,Affordable,Halal,4.4,Seaside spot,https://www.google.com/maps/search/?api=1&query=Ocean+Breeze,Marsa Alam
+681,Del Mare,Italian,"Pizza, Salads",Mid-range,Halal,4.3,Cozy and fresh,https://www.google.com/maps/search/?api=1&query=Del+Mare,Marsa Alam
+682,La Pergola,International,"Seafood, Sandwiches",Affordable,Halal,4.3,Fine beach dining,https://www.google.com/maps/search/?api=1&query=La+Pergola,Marsa Alam
+683,Coraya Restaurant,Mixed,"Pasta, Tagines",Mid-range,Halal,4.2,Part of resort zone,https://www.google.com/maps/search/?api=1&query=Coraya+Restaurant,Marsa Alam
+684,Green Garden,Vegetarian,"Grilled Veggies, Soup",Affordable,Halal,4.3,Healthy and green,https://www.google.com/maps/search/?api=1&query=Green+Garden,Marsa Alam
+685,Palm Garden,Oriental,"Tagines, Rice",Mid-range,Halal,4.3,Peaceful outdoor spot,https://www.google.com/maps/search/?api=1&query=Palm+Garden,Marsa Alam
+686,Ali Baba Grill,Grill,"Skewers, Sausages",Affordable,Halal,4.2,Friendly vibes,https://www.google.com/maps/search/?api=1&query=Ali+Baba+Grill,Marsa Alam
+687,Bedouin Tent,Bedouin,"Zarb, Rice",Mid-range,Halal,4.4,Desert-style meals,https://www.google.com/maps/search/?api=1&query=Bedouin+Tent,Marsa Alam
+688,Azzurro,Seafood,"Calamari, Grilled Fish",Affordable,Halal,4.3,Fresh and stylish,https://www.google.com/maps/search/?api=1&query=Azzurro,Marsa Alam
+689,Reef Café,Cafe,"Croissant, Cappuccino",Mid-range,Halal,4.2,Nice post-dive snack,https://www.google.com/maps/search/?api=1&query=Reef+Café,Marsa Alam
+690,Dar El Bahr,Oriental,Stuffed Chicken,Affordable,Halal,4.3,Feels like home,https://www.google.com/maps/search/?api=1&query=Dar+El+Bahr,Marsa Alam
+691,Jaz Solaya Buffet,Buffet,Global Options,Mid-range,Halal,4.3,All inclusive variety,https://www.google.com/maps/search/?api=1&query=Jaz+Solaya+Buffet,Marsa Alam
+692,Lagoon Bar,International,"Tapas, Cocktails",Affordable,Halal,4.4,Laid-back evenings,https://www.google.com/maps/search/?api=1&query=Lagoon+Bar,Marsa Alam
+693,Abo El Ash Restaurant,Seafood,"Shrimp, Fish Tagine",Mid-range,Halal,4.3,Fresh and well-known,https://www.google.com/maps/search/?api=1&query=Abo+El+Ash+Restaurant,Marsa Alam
+694,Karkadeh Lounge,Egyptian,"Tea, Breads",Affordable,Halal,4.1,Calm tea stop,https://www.google.com/maps/search/?api=1&query=Karkadeh+Lounge,Marsa Alam
+695,Romantic Corner,Grill,Mixed Grills,Mid-range,Halal,4.2,Good for couples,https://www.google.com/maps/search/?api=1&query=Romantic+Corner,Marsa Alam
+696,Captain's Table,Seafood,Fish & Chips,Affordable,Halal,4.3,UK-inspired,https://www.google.com/maps/search/?api=1&query=Captain's+Table,Marsa Alam
+697,Sahara Grill,Grill,Meat Platters,Mid-range,Halal,4.2,Desert-themed,https://www.google.com/maps/search/?api=1&query=Sahara+Grill,Marsa Alam
+698,Bouillabaisse Restaurant,Seafood,"Grilled Fish, Seafood Pasta",Mid-range,Halal,4.5,Top seafood dining,https://www.google.com/maps/search/?api=1&query=Bouillabaisse+Restaurant,Ain Sokhna
+699,Fish Ring,Seafood,"Shrimp, Grilled Calamari",Affordable,Halal,4.4,Local favorite,https://www.google.com/maps/search/?api=1&query=Fish+Ring,Ain Sokhna
+700,Il Forno,Italian,"Pizza, Pasta",Mid-range,Halal,4.3,Casual Italian food,https://www.google.com/maps/search/?api=1&query=Il+Forno,Ain Sokhna
+701,The Bakery Lounge,Cafe,"Pastries, Coffee",Affordable,Halal,4.2,Great morning vibe,https://www.google.com/maps/search/?api=1&query=The+Bakery+Lounge,Ain Sokhna
+702,La Sirena,Seafood,Seafood Platter,Mid-range,Halal,4.5,Beachside elegance,https://www.google.com/maps/search/?api=1&query=La+Sirena,Ain Sokhna
+703,Marina Garden,Mixed,"Grilled Meat, Pizza",Affordable,Halal,4.3,Family spot,https://www.google.com/maps/search/?api=1&query=Marina+Garden,Ain Sokhna
+704,Blue Blue Restaurant,Seafood,"Crab, Fish Fillet",Mid-range,Halal,4.4,Relaxed setting,https://www.google.com/maps/search/?api=1&query=Blue+Blue+Restaurant,Ain Sokhna
+705,El Wekala,Egyptian,"Stuffed Pigeon, Mahshi",Affordable,Halal,4.3,Authentic Egyptian food,https://www.google.com/maps/search/?api=1&query=El+Wekala,Ain Sokhna
+706,Zaitouna Bay Café,Cafe,"Juices, Sandwiches",Mid-range,Halal,4.2,Trendy and cozy,https://www.google.com/maps/search/?api=1&query=Zaitouna+Bay+Café,Ain Sokhna
+707,Catch 55,Seafood,"Shrimp, Soup",Affordable,Halal,4.4,Modern seafood place,https://www.google.com/maps/search/?api=1&query=Catch+55,Ain Sokhna
+708,Aqua Park Grill,Grill,Chicken Skewers,Mid-range,Halal,4.2,Popular with families,https://www.google.com/maps/search/?api=1&query=Aqua+Park+Grill,Ain Sokhna
+709,Koshary El Tahrir,Egyptian,Koshary,Affordable,Halal,4.3,Classic Egyptian meal,https://www.google.com/maps/search/?api=1&query=Koshary+El+Tahrir,Ain Sokhna
+710,Sea Breeze,Seafood,"Mixed Grill, Fish Soup",Mid-range,Halal,4.3,By the water,https://www.google.com/maps/search/?api=1&query=Sea+Breeze,Ain Sokhna
+711,Sultan Restaurant,Oriental,"Tagines, Lentil Soup",Affordable,Halal,4.2,Traditional setup,https://www.google.com/maps/search/?api=1&query=Sultan+Restaurant,Ain Sokhna
+712,Coral Café,Cafe,"Coffee, Pastries",Mid-range,Halal,4.3,Modern design and menu,https://www.google.com/maps/search/?api=1&query=Coral+Café,Ain Sokhna
+713,Grill House,Grill,"Kofta, Sausages",Affordable,Halal,4.2,Simple and tasty,https://www.google.com/maps/search/?api=1&query=Grill+House,Ain Sokhna
+714,Costa Marina,International,Seafood Risotto,Mid-range,Halal,4.4,Resort dining,https://www.google.com/maps/search/?api=1&query=Costa+Marina,Ain Sokhna
+715,Villa 55,Grill,"Lamb Chops, Steak",Affordable,Halal,4.3,Romantic dinner place,https://www.google.com/maps/search/?api=1&query=Villa+55,Ain Sokhna
+716,Oasis Restaurant,Egyptian,"Foul, Falafel",Mid-range,Halal,4.2,Budget friendly,https://www.google.com/maps/search/?api=1&query=Oasis+Restaurant,Ain Sokhna
+717,Palm Beach Café,Cafe,"Tea, Cake",Affordable,Halal,4.2,Nice for sunset,https://www.google.com/maps/search/?api=1&query=Palm+Beach+Café,Ain Sokhna
+718,Mahmya Lounge,Mixed,"Shawarma, Pizza",Mid-range,Halal,4.3,All-rounder,https://www.google.com/maps/search/?api=1&query=Mahmya+Lounge,Ain Sokhna
+719,Bayside Grill,Seafood,"Fish Grill, Pasta",Affordable,Halal,4.4,Excellent ambiance,https://www.google.com/maps/search/?api=1&query=Bayside+Grill,Ain Sokhna
+720,Tandoori Express,Indian,"Curry, Biryani",Mid-range,Halal,4.3,Spicy and rich,https://www.google.com/maps/search/?api=1&query=Tandoori+Express,Ain Sokhna
+721,Nile Breeze,Seafood,"Shrimp, Fish Tagine",Affordable,Halal,4.4,Charming atmosphere,https://www.google.com/maps/search/?api=1&query=Nile+Breeze,Ain Sokhna
+722,Dolphin Café,Cafe,"Milkshakes, Waffles",Mid-range,Halal,4.2,Great for kids,https://www.google.com/maps/search/?api=1&query=Dolphin+Café,Ain Sokhna
+723,Sands Bistro,Mediterranean,Seafood Tapas,Affordable,Halal,4.3,Fine taste,https://www.google.com/maps/search/?api=1&query=Sands+Bistro,Ain Sokhna
+724,Bella Vista,Italian,"Pizza, Antipasti",Mid-range,Halal,4.4,Lovely service,https://www.google.com/maps/search/?api=1&query=Bella+Vista,Ain Sokhna
+725,Al Mokhtar,Grill,Grilled Kofta,Affordable,Halal,4.2,Authentic feel,https://www.google.com/maps/search/?api=1&query=Al+Mokhtar,Ain Sokhna
+726,Captain's Grill,Seafood,Fish BBQ,Mid-range,Halal,4.4,Top grilled seafood,https://www.google.com/maps/search/?api=1&query=Captain's+Grill,Ain Sokhna
+727,Porto Food Court,Fast Food,"Zinger, Fries",Affordable,Halal,4.2,Youth spot,https://www.google.com/maps/search/?api=1&query=Porto+Food+Court,Ain Sokhna
+728,Ain Vista,Mixed,"Rice, Chicken",Mid-range,Halal,4.3,Modern Egyptian menu,https://www.google.com/maps/search/?api=1&query=Ain+Vista,Ain Sokhna
+729,El Goma,Grill,Mixed Grill,Affordable,Halal,4.3,Simple and solid,https://www.google.com/maps/search/?api=1&query=El+Goma,Ain Sokhna
+730,Red Coral Restaurant,Seafood,Fish Curry,Mid-range,Halal,4.4,Known for flavor,https://www.google.com/maps/search/?api=1&query=Red+Coral+Restaurant,Ain Sokhna
+731,Sky Lounge,Cafe,"Smoothies, Coffee",Affordable,Halal,4.3,Rooftop view,https://www.google.com/maps/search/?api=1&query=Sky+Lounge,Ain Sokhna
+732,The Dune,Grill,"Burger, Ribs",Mid-range,Halal,4.3,Western menu,https://www.google.com/maps/search/?api=1&query=The+Dune,Ain Sokhna
+733,Paradise Corner,Seafood,Fish Tagine,Affordable,Halal,4.4,Relaxed by the sea,https://www.google.com/maps/search/?api=1&query=Paradise+Corner,Ain Sokhna
+734,Karim's Kitchen,Egyptian,Stuffed Chicken,Mid-range,Halal,4.3,Local food at its best,https://www.google.com/maps/search/?api=1&query=Karim's+Kitchen,Ain Sokhna
+735,Laguna View Café,Cafe,"Drinks, Snacks",Affordable,Halal,4.2,Overlooking water,https://www.google.com/maps/search/?api=1&query=Laguna+View+Café,Ain Sokhna
+736,Al Marsa Restaurant,Seafood,Seafood Rice,Mid-range,Halal,4.4,Stylish dining spot,https://www.google.com/maps/search/?api=1&query=Al+Marsa+Restaurant,Ain Sokhna
