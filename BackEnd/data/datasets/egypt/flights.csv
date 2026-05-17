@@ -1,0 +1,54 @@
+From,To,Price (USD),Airline,Flight Duration (Minutes),Weekly Flights,Stops,Class,Departure Date,Airline Link
+Cairo,Sharm El Sheikh,45,EgyptAir,71,84,0,Economy,4/15/2025,https://www.egyptair.com
+Cairo,Luxor,55,EgyptAir,65,77,0,Economy,4/15/2025,https://www.egyptair.com
+Cairo,Aswan,50,EgyptAir,90,70,1,Economy,4/16/2025,https://www.egyptair.com
+Cairo,Hurghada,60,EgyptAir,60,50,0,Economy,4/20/2025,https://www.egyptair.com
+Cairo,Marsa Alam,85,EgyptAir,95,28,0,Economy,4/18/2025,https://www.egyptair.com
+Cairo,Taba,75,EgyptAir,85,14,0,Economy,4/17/2025,https://www.egyptair.com
+Cairo,St. Catherine,110,EgyptAir,65,7,1,Economy,4/19/2025,https://www.egyptair.com
+Cairo,Abu Simbel,120,EgyptAir,120,10,1,Economy,4/21/2025,https://www.egyptair.com
+Cairo,Alexandria,40,EgyptAir,45,112,0,Economy,4/22/2025,https://www.egyptair.com
+Cairo,Port Said,55,EgyptAir,50,35,0,Economy,4/23/2025,https://www.egyptair.com
+Cairo,Sohag,65,EgyptAir,70,42,0,Economy,4/24/2025,https://www.egyptair.com
+Cairo,Assiut,60,EgyptAir,65,38,0,Economy,4/25/2025,https://www.egyptair.com
+Cairo,Luxor,75,Air Cairo,80,21,0,Economy,4/26/2025,https://www.flyaircairo.com
+Cairo,Sharm El Sheikh,65,Air Cairo,75,56,0,Economy,4/27/2025,https://www.flyaircairo.com
+Cairo,Hurghada,70,Air Cairo,65,49,0,Economy,4/28/2025,https://www.flyaircairo.com
+Cairo,Marsa Alam,90,Air Cairo,100,18,0,Economy,4/29/2025,https://www.flyaircairo.com
+Alexandria,Sharm El Sheikh,75,Air Cairo,120,35,0,Economy,4/30/2025,https://www.flyaircairo.com
+Alexandria,Hurghada,80,Air Cairo,110,28,0,Economy,5/1/2025,https://www.flyaircairo.com
+Alexandria,Luxor,95,Air Cairo,130,14,1,Economy,5/2/2025,https://www.flyaircairo.com
+Luxor,Sharm El Sheikh,85,EgyptAir,80,21,0,Economy,5/3/2025,https://www.egyptair.com
+Luxor,Hurghada,75,EgyptAir,70,35,0,Economy,5/4/2025,https://www.egyptair.com
+Luxor,Aswan,65,EgyptAir,60,42,0,Economy,5/5/2025,https://www.egyptair.com
+Aswan,Sharm El Sheikh,95,EgyptAir,100,14,1,Economy,5/6/2025,https://www.egyptair.com
+Aswan,Cairo,55,EgyptAir,85,63,0,Economy,5/7/2025,https://www.egyptair.com
+Hurghada,Sharm El Sheikh,60,EgyptAir,55,77,0,Economy,5/8/2025,https://www.egyptair.com
+Hurghada,Luxor,70,EgyptAir,65,56,0,Economy,5/9/2025,https://www.egyptair.com
+Sharm El Sheikh,Luxor,80,EgyptAir,75,42,0,Economy,5/10/2025,https://www.egyptair.com
+Sharm El Sheikh,Aswan,110,EgyptAir,105,21,1,Economy,5/11/2025,https://www.egyptair.com
+Marsa Alam,Hurghada,50,EgyptAir,45,56,0,Economy,5/12/2025,https://www.egyptair.com
+Marsa Alam,Cairo,90,EgyptAir,95,49,0,Economy,5/13/2025,https://www.egyptair.com
+Taba,Cairo,80,EgyptAir,85,28,0,Economy,5/14/2025,https://www.egyptair.com
+Sohag,Cairo,60,EgyptAir,70,35,0,Economy,5/15/2025,https://www.egyptair.com
+Assiut,Cairo,55,EgyptAir,65,42,0,Economy,5/16/2025,https://www.egyptair.com
+Port Said,Cairo,45,EgyptAir,50,77,0,Economy,5/17/2025,https://www.egyptair.com
+Cairo,Sharm El Sheikh,120,EgyptAir,71,84,0,Premium,4/15/2025,https://www.egyptair.com
+Cairo,Luxor,130,EgyptAir,65,77,0,Premium,4/15/2025,https://www.egyptair.com
+Cairo,Hurghada,140,EgyptAir,60,50,0,Premium,4/20/2025,https://www.egyptair.com
+Cairo,Alexandria,90,EgyptAir,45,112,0,Premium,4/22/2025,https://www.egyptair.com
+Alexandria,Sharm El Sheikh,140,Air Cairo,120,35,0,Premium,4/30/2025,https://www.flyaircairo.com
+Luxor,Sharm El Sheikh,150,EgyptAir,80,21,0,Premium,5/3/2025,https://www.egyptair.com
+Hurghada,Sharm El Sheikh,110,EgyptAir,55,77,0,Premium,5/8/2025,https://www.egyptair.com
+Luxor,Cairo,55,EgyptAir,65,77,0,Economy,5/18/2025,https://www.egyptair.com
+Aswan,Luxor,65,EgyptAir,60,42,0,Economy,5/19/2025,https://www.egyptair.com
+Hurghada,Cairo,60,EgyptAir,60,50,0,Economy,5/20/2025,https://www.egyptair.com
+Sharm El Sheikh,Cairo,45,EgyptAir,71,84,0,Economy,5/21/2025,https://www.egyptair.com
+Alexandria,Cairo,40,EgyptAir,45,112,0,Economy,5/22/2025,https://www.egyptair.com
+Port Said,Alexandria,60,EgyptAir,55,28,0,Economy,5/23/2025,https://www.egyptair.com
+Assiut,Sohag,70,EgyptAir,50,21,0,Economy,5/24/2025,https://www.egyptair.com
+Sohag,Luxor,80,EgyptAir,75,14,0,Economy,5/25/2025,https://www.egyptair.com
+Marsa Alam,Sharm El Sheikh,85,EgyptAir,80,21,0,Economy,5/26/2025,https://www.egyptair.com
+Taba,Sharm El Sheikh,65,EgyptAir,60,35,0,Economy,5/27/2025,https://www.egyptair.com
+St. Catherine,Cairo,110,EgyptAir,65,7,1,Economy,5/28/2025,https://www.egyptair.com
+Abu Simbel,Cairo,120,EgyptAir,120,10,1,Economy,5/29/2025,https://www.egyptair.com

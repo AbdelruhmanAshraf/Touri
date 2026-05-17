@@ -1,0 +1,22 @@
+# Secrets
+**/.env
+**/.env.local
+**/secrets/
+**/*service-account*.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Node / Expo
+node_modules/
+.expo/
+dist/
+build/
+*.log
+
+# OS
+.DS_Store

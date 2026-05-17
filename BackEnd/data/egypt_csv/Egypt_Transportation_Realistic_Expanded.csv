@@ -1,0 +1,703 @@
+Route_ID,From_Province,To_Province,Transport_Type,Avg_Price_EGP,Distance_KM,Avg_Duration_Hours,Frequency,Company_Name,Notes
+1,Cairo,Giza,Taxi,1275,647,17.11,On Demand,Local Taxi,Taxi service between Cairo and Giza
+2,Cairo,Alexandria,Taxi,467,225,6.11,On Demand,Local Taxi,Taxi service between Cairo and Alexandria
+3,Cairo,Qalyubia,Metro,93,519,8.71,Every 10 mins,Cairo Metro Authority,Metro service between Cairo and Qalyubia
+4,Cairo,Sharqia,Metro,43,167,2.76,Every 10 mins,Cairo Metro Authority,Metro service between Cairo and Sharqia
+5,Cairo,Dakahlia,River Transport,499,635,22.93,Every 1-2 hours,Nile Transport Co.,River Transport service between Cairo and Dakahlia
+6,Cairo,Beheira,Car Rental,912,602,12.75,On Demand,Sixt,Car Rental service between Cairo and Beheira
+7,Cairo,Kafr El Sheikh,Metro,50,244,3.82,Every 10 mins,Cairo Metro Authority,Metro service between Cairo and Kafr El Sheikh
+8,Cairo,Gharbia,Bus,349,828,24.98,Hourly,Go Bus,Bus service between Cairo and Gharbia
+9,Cairo,Monufia,Metro,41,286,4.68,Every 10 mins,Cairo Metro Authority,Metro service between Cairo and Monufia
+10,Cairo,Fayoum,Car Rental,188,112,2.89,On Demand,Sixt,Car Rental service between Cairo and Fayoum
+11,Cairo,Beni Suef,Bus,180,451,13.99,Hourly,Go Bus,Bus service between Cairo and Beni Suef
+12,Cairo,Minya,Metro,145,758,11.71,Every 10 mins,Cairo Metro Authority,Metro service between Cairo and Minya
+13,Cairo,Assiut,Car Rental,346,228,5.12,On Demand,Sixt,Car Rental service between Cairo and Assiut
+14,Cairo,Sohag,Car Rental,1033,685,14.26,On Demand,Avis,Car Rental service between Cairo and Sohag
+15,Cairo,Qena,Bus,308,743,23.12,Hourly,Super Jet,Bus service between Cairo and Qena
+16,Cairo,Luxor,Car Rental,176,108,2.95,On Demand,Sixt,Car Rental service between Cairo and Luxor
+17,Cairo,Aswan,Bus,295,714,22.08,Hourly,Super Jet,Bus service between Cairo and Aswan
+18,Cairo,Red Sea,Train,520,874,17.8,2-3 times daily,Egyptian Railways,Train service between Cairo and Red Sea
+19,Cairo,New Valley,Taxi,419,214,5.96,On Demand,Careem,Taxi service between Cairo and New Valley
+20,Cairo,Matrouh,Car Rental,950,643,13.68,On Demand,Budget,Car Rental service between Cairo and Matrouh
+21,Cairo,North Sinai,Bus,353,879,26.76,Hourly,Go Bus,Bus service between Cairo and North Sinai
+22,Cairo,South Sinai,Taxi,354,183,4.87,On Demand,Careem,Taxi service between Cairo and South Sinai
+23,Cairo,Port Said,Metro,45,256,4.67,Every 10 mins,Cairo Metro Authority,Metro service between Cairo and Port Said
+24,Cairo,Suez,Taxi,1533,767,20.17,On Demand,Local Taxi,Taxi service between Cairo and Suez
+25,Cairo,Ismailia,Metro,102,557,9.19,Every 10 mins,Cairo Metro Authority,Metro service between Cairo and Ismailia
+26,Cairo,Damietta,Bus,119,276,8.59,Hourly,Go Bus,Bus service between Cairo and Damietta
+27,Giza,Cairo,Bus,217,577,17.66,Hourly,Super Jet,Bus service between Giza and Cairo
+28,Giza,Alexandria,Train,152,284,5.9,2-3 times daily,Egyptian Railways,Train service between Giza and Alexandria
+29,Giza,Qalyubia,Car Rental,341,228,5,On Demand,Avis,Car Rental service between Giza and Qalyubia
+30,Giza,Sharqia,Metro,121,505,8.5,Every 10 mins,Cairo Metro Authority,Metro service between Giza and Sharqia
+31,Giza,Dakahlia,Car Rental,479,323,7.24,On Demand,Budget,Car Rental service between Giza and Dakahlia
+32,Giza,Beheira,Bus,306,752,23.2,Hourly,Super Jet,Bus service between Giza and Beheira
+33,Giza,Kafr El Sheikh,Bus,136,299,9.7,Hourly,Super Jet,Bus service between Giza and Kafr El Sheikh
+34,Giza,Gharbia,River Transport,340,450,16.6,Every 1-2 hours,Nile Transport Co.,River Transport service between Giza and Gharbia
+35,Giza,Monufia,Metro,70,251,4.42,Every 10 mins,Cairo Metro Authority,Metro service between Giza and Monufia
+36,Giza,Fayoum,Car Rental,956,624,12.67,On Demand,Avis,Car Rental service between Giza and Fayoum
+37,Giza,Beni Suef,Metro,175,883,13.93,Every 10 mins,Cairo Metro Authority,Metro service between Giza and Beni Suef
+38,Giza,Minya,Bus,146,371,11.91,Hourly,Super Jet,Bus service between Giza and Minya
+39,Giza,Assiut,Train,158,290,6.35,2-3 times daily,Egyptian Railways,Train service between Giza and Assiut
+40,Giza,Sohag,Taxi,409,208,6.02,On Demand,Careem,Taxi service between Giza and Sohag
+41,Giza,Qena,River Transport,458,563,20.59,Every 1-2 hours,Nile Transport Co.,River Transport service between Giza and Qena
+42,Giza,Luxor,Car Rental,756,507,10.33,On Demand,Sixt,Car Rental service between Giza and Luxor
+43,Giza,Aswan,Metro,49,251,3.9,Every 10 mins,Cairo Metro Authority,Metro service between Giza and Aswan
+44,Giza,Red Sea,Car Rental,578,383,8.61,On Demand,Budget,Car Rental service between Giza and Red Sea
+45,Giza,New Valley,Car Rental,702,466,10.16,On Demand,Budget,Car Rental service between Giza and New Valley
+46,Giza,Matrouh,River Transport,124,143,5.33,Every 1-2 hours,Nile Transport Co.,River Transport service between Giza and Matrouh
+47,Giza,North Sinai,Bus,112,330,10.34,Hourly,Super Jet,Bus service between Giza and North Sinai
+48,Giza,South Sinai,Car Rental,626,426,9.51,On Demand,Budget,Car Rental service between Giza and South Sinai
+49,Giza,Port Said,Bus,251,601,18.86,Hourly,Super Jet,Bus service between Giza and Port Said
+50,Giza,Suez,Flight,1812,718,2.04,1-4 times daily,Nile Air,Flight service between Giza and Suez
+51,Giza,Ismailia,Car Rental,300,198,4.58,On Demand,Avis,Car Rental service between Giza and Ismailia
+52,Giza,Damietta,Bus,205,477,14.71,Hourly,Super Jet,Bus service between Giza and Damietta
+53,Alexandria,Cairo,Bus,47,135,4.89,Hourly,Go Bus,Bus service between Alexandria and Cairo
+54,Alexandria,Giza,Flight,1930,772,1.56,1-4 times daily,Air Cairo,Flight service between Alexandria and Giza
+55,Alexandria,Qalyubia,Car Rental,1075,707,15.04,On Demand,Avis,Car Rental service between Alexandria and Qalyubia
+56,Alexandria,Sharqia,River Transport,559,682,24.14,Every 1-2 hours,Nile Transport Co.,River Transport service between Alexandria and Sharqia
+57,Alexandria,Dakahlia,Bus,260,606,18.91,Hourly,Go Bus,Bus service between Alexandria and Dakahlia
+58,Alexandria,Beheira,Car Rental,1050,705,14.93,On Demand,Budget,Car Rental service between Alexandria and Beheira
+59,Alexandria,Kafr El Sheikh,Bus,145,351,11.04,Hourly,Super Jet,Bus service between Alexandria and Kafr El Sheikh
+60,Alexandria,Gharbia,Flight,1703,680,1.96,1-4 times daily,Nile Air,Flight service between Alexandria and Gharbia
+61,Alexandria,Monufia,Car Rental,1217,799,16.83,On Demand,Avis,Car Rental service between Alexandria and Monufia
+62,Alexandria,Fayoum,River Transport,611,774,27.77,Every 1-2 hours,Nile Transport Co.,River Transport service between Alexandria and Fayoum
+63,Alexandria,Beni Suef,Train,460,789,16.36,2-3 times daily,Egyptian Railways,Train service between Alexandria and Beni Suef
+64,Alexandria,Minya,River Transport,475,598,21.69,Every 1-2 hours,Nile Transport Co.,River Transport service between Alexandria and Minya
+65,Alexandria,Assiut,Car Rental,1344,895,18.26,On Demand,Budget,Car Rental service between Alexandria and Assiut
+66,Alexandria,Sohag,Car Rental,1048,694,14.24,On Demand,Sixt,Car Rental service between Alexandria and Sohag
+67,Alexandria,Qena,River Transport,633,800,28.33,Every 1-2 hours,Nile Transport Co.,River Transport service between Alexandria and Qena
+68,Alexandria,Luxor,River Transport,715,897,31.72,Every 1-2 hours,Nile Transport Co.,River Transport service between Alexandria and Luxor
+69,Alexandria,Aswan,Car Rental,1062,708,14.33,On Demand,Avis,Car Rental service between Alexandria and Aswan
+70,Alexandria,Red Sea,River Transport,359,461,16.67,Every 1-2 hours,Nile Transport Co.,River Transport service between Alexandria and Red Sea
+71,Alexandria,New Valley,Flight,751,298,1.2,1-4 times daily,EgyptAir,Flight service between Alexandria and New Valley
+72,Alexandria,Matrouh,Metro,64,322,5.81,Every 10 mins,Cairo Metro Authority,Metro service between Alexandria and Matrouh
+73,Alexandria,North Sinai,Car Rental,275,191,4.74,On Demand,Avis,Car Rental service between Alexandria and North Sinai
+74,Alexandria,South Sinai,Taxi,1645,814,20.96,On Demand,Careem,Taxi service between Alexandria and South Sinai
+75,Alexandria,Port Said,Flight,2019,800,1.89,1-4 times daily,Air Cairo,Flight service between Alexandria and Port Said
+76,Alexandria,Suez,Metro,62,251,3.88,Every 10 mins,Cairo Metro Authority,Metro service between Alexandria and Suez
+77,Alexandria,Ismailia,Taxi,1372,693,17.71,On Demand,Careem,Taxi service between Alexandria and Ismailia
+78,Alexandria,Damietta,Metro,137,644,9.76,Every 10 mins,Cairo Metro Authority,Metro service between Alexandria and Damietta
+79,Qalyubia,Cairo,Train,428,725,15.29,2-3 times daily,Egyptian Railways,Train service between Qalyubia and Cairo
+80,Qalyubia,Giza,Flight,326,133,0.56,1-4 times daily,EgyptAir,Flight service between Qalyubia and Giza
+81,Qalyubia,Alexandria,Train,70,107,2.45,2-3 times daily,Egyptian Railways,Train service between Qalyubia and Alexandria
+82,Qalyubia,Sharqia,Metro,81,459,7.65,Every 10 mins,Cairo Metro Authority,Metro service between Qalyubia and Sharqia
+83,Qalyubia,Dakahlia,Bus,206,480,14.85,Hourly,Go Bus,Bus service between Qalyubia and Dakahlia
+84,Qalyubia,Beheira,Metro,175,876,13.3,Every 10 mins,Cairo Metro Authority,Metro service between Qalyubia and Beheira
+85,Qalyubia,Kafr El Sheikh,Bus,154,413,12.66,Hourly,Super Jet,Bus service between Qalyubia and Kafr El Sheikh
+86,Qalyubia,Gharbia,Taxi,633,314,8.22,On Demand,Local Taxi,Taxi service between Qalyubia and Gharbia
+87,Qalyubia,Monufia,Bus,219,499,15.91,Hourly,Super Jet,Bus service between Qalyubia and Monufia
+88,Qalyubia,Fayoum,Taxi,736,377,10.31,On Demand,Careem,Taxi service between Qalyubia and Fayoum
+89,Qalyubia,Beni Suef,Flight,955,384,1.06,1-4 times daily,EgyptAir,Flight service between Qalyubia and Beni Suef
+90,Qalyubia,Minya,Car Rental,1279,851,17.83,On Demand,Avis,Car Rental service between Qalyubia and Minya
+91,Qalyubia,Assiut,Taxi,837,415,11.26,On Demand,Uber,Taxi service between Qalyubia and Assiut
+92,Qalyubia,Sohag,Train,116,194,4.55,2-3 times daily,Egyptian Railways,Train service between Qalyubia and Sohag
+93,Qalyubia,Qena,Flight,1120,449,1.27,1-4 times daily,EgyptAir,Flight service between Qalyubia and Qena
+94,Qalyubia,Luxor,Train,135,243,5.82,2-3 times daily,Egyptian Railways,Train service between Qalyubia and Luxor
+95,Qalyubia,Aswan,Bus,308,797,24.29,Hourly,Go Bus,Bus service between Qalyubia and Aswan
+96,Qalyubia,Red Sea,Car Rental,1116,746,15.33,On Demand,Budget,Car Rental service between Qalyubia and Red Sea
+97,Qalyubia,New Valley,Taxi,951,484,13.06,On Demand,Careem,Taxi service between Qalyubia and New Valley
+98,Qalyubia,Matrouh,Car Rental,1171,776,15.75,On Demand,Avis,Car Rental service between Qalyubia and Matrouh
+99,Qalyubia,North Sinai,Taxi,989,501,13.4,On Demand,Uber,Taxi service between Qalyubia and North Sinai
+100,Qalyubia,South Sinai,Metro,77,309,4.78,Every 10 mins,Cairo Metro Authority,Metro service between Qalyubia and South Sinai
+101,Qalyubia,Port Said,Taxi,1123,568,15.18,On Demand,Uber,Taxi service between Qalyubia and Port Said
+102,Qalyubia,Suez,Metro,125,567,8.75,Every 10 mins,Cairo Metro Authority,Metro service between Qalyubia and Suez
+103,Qalyubia,Ismailia,Train,550,884,18,2-3 times daily,Egyptian Railways,Train service between Qalyubia and Ismailia
+104,Qalyubia,Damietta,Taxi,1754,886,22.39,On Demand,Local Taxi,Taxi service between Qalyubia and Damietta
+105,Sharqia,Cairo,Car Rental,241,151,3.85,On Demand,Sixt,Car Rental service between Sharqia and Cairo
+106,Sharqia,Giza,Bus,83,192,6.48,Hourly,Super Jet,Bus service between Sharqia and Giza
+107,Sharqia,Alexandria,Flight,1084,437,1.6,1-4 times daily,Nile Air,Flight service between Sharqia and Alexandria
+108,Sharqia,Qalyubia,Bus,125,318,10.16,Hourly,Go Bus,Bus service between Sharqia and Qalyubia
+109,Sharqia,Dakahlia,Bus,68,206,6.37,Hourly,Super Jet,Bus service between Sharqia and Dakahlia
+110,Sharqia,Beheira,Metro,166,821,13.08,Every 10 mins,Cairo Metro Authority,Metro service between Sharqia and Beheira
+111,Sharqia,Kafr El Sheikh,River Transport,496,600,21.55,Every 1-2 hours,Nile Transport Co.,River Transport service between Sharqia and Kafr El Sheikh
+112,Sharqia,Gharbia,Bus,285,674,21.06,Hourly,Go Bus,Bus service between Sharqia and Gharbia
+113,Sharqia,Monufia,Flight,260,106,0.27,1-4 times daily,Nile Air,Flight service between Sharqia and Monufia
+114,Sharqia,Fayoum,Taxi,822,419,11.38,On Demand,Careem,Taxi service between Sharqia and Fayoum
+115,Sharqia,Beni Suef,Metro,3,105,2.31,Every 10 mins,Cairo Metro Authority,Metro service between Sharqia and Beni Suef
+116,Sharqia,Minya,Bus,88,214,6.6,Hourly,Go Bus,Bus service between Sharqia and Minya
+117,Sharqia,Assiut,River Transport,465,592,21.58,Every 1-2 hours,Nile Transport Co.,River Transport service between Sharqia and Assiut
+118,Sharqia,Sohag,Train,348,598,12.9,2-3 times daily,Egyptian Railways,Train service between Sharqia and Sohag
+119,Sharqia,Qena,Car Rental,322,213,4.48,On Demand,Avis,Car Rental service between Sharqia and Qena
+120,Sharqia,Luxor,Bus,212,582,17.84,Hourly,Super Jet,Bus service between Sharqia and Luxor
+121,Sharqia,Aswan,Bus,328,871,26.67,Hourly,Super Jet,Bus service between Sharqia and Aswan
+122,Sharqia,Red Sea,Flight,2061,821,2.07,1-4 times daily,EgyptAir,Flight service between Sharqia and Red Sea
+123,Sharqia,New Valley,Metro,145,816,13.2,Every 10 mins,Cairo Metro Authority,Metro service between Sharqia and New Valley
+124,Sharqia,Matrouh,Flight,1526,606,1.19,1-4 times daily,EgyptAir,Flight service between Sharqia and Matrouh
+125,Sharqia,North Sinai,Car Rental,1121,736,15.11,On Demand,Budget,Car Rental service between Sharqia and North Sinai
+126,Sharqia,South Sinai,Flight,1584,628,1.82,1-4 times daily,Air Cairo,Flight service between Sharqia and South Sinai
+127,Sharqia,Port Said,Taxi,1306,647,17.06,On Demand,Careem,Taxi service between Sharqia and Port Said
+128,Sharqia,Suez,Bus,196,509,15.77,Hourly,Go Bus,Bus service between Sharqia and Suez
+129,Sharqia,Ismailia,Taxi,1238,621,16.39,On Demand,Local Taxi,Taxi service between Sharqia and Ismailia
+130,Sharqia,Damietta,Train,71,145,3.23,2-3 times daily,Egyptian Railways,Train service between Sharqia and Damietta
+131,Dakahlia,Cairo,Taxi,574,278,7.49,On Demand,Uber,Taxi service between Dakahlia and Cairo
+132,Dakahlia,Giza,Metro,37,286,4.48,Every 10 mins,Cairo Metro Authority,Metro service between Dakahlia and Giza
+133,Dakahlia,Alexandria,Bus,312,821,25.58,Hourly,Super Jet,Bus service between Dakahlia and Alexandria
+134,Dakahlia,Qalyubia,Metro,144,754,11.51,Every 10 mins,Cairo Metro Authority,Metro service between Dakahlia and Qalyubia
+135,Dakahlia,Sharqia,Metro,72,376,6.63,Every 10 mins,Cairo Metro Authority,Metro service between Dakahlia and Sharqia
+136,Dakahlia,Beheira,Taxi,596,306,8.26,On Demand,Uber,Taxi service between Dakahlia and Beheira
+137,Dakahlia,Kafr El Sheikh,Flight,370,141,0.69,1-4 times daily,Air Cairo,Flight service between Dakahlia and Kafr El Sheikh
+138,Dakahlia,Gharbia,River Transport,523,644,23.17,Every 1-2 hours,Nile Transport Co.,River Transport service between Dakahlia and Gharbia
+139,Dakahlia,Monufia,Train,487,792,16.5,2-3 times daily,Egyptian Railways,Train service between Dakahlia and Monufia
+140,Dakahlia,Fayoum,Flight,811,326,0.82,1-4 times daily,Air Cairo,Flight service between Dakahlia and Fayoum
+141,Dakahlia,Beni Suef,Flight,1439,573,1.71,1-4 times daily,EgyptAir,Flight service between Dakahlia and Beni Suef
+142,Dakahlia,Minya,Metro,37,138,2.8,Every 10 mins,Cairo Metro Authority,Metro service between Dakahlia and Minya
+143,Dakahlia,Assiut,Flight,985,400,1.06,1-4 times daily,EgyptAir,Flight service between Dakahlia and Assiut
+144,Dakahlia,Sohag,Metro,100,524,8.19,Every 10 mins,Cairo Metro Authority,Metro service between Dakahlia and Sohag
+145,Dakahlia,Qena,Taxi,1218,616,15.77,On Demand,Careem,Taxi service between Dakahlia and Qena
+146,Dakahlia,Luxor,Flight,689,277,1.09,1-4 times daily,Nile Air,Flight service between Dakahlia and Luxor
+147,Dakahlia,Aswan,Metro,137,625,9.51,Every 10 mins,Cairo Metro Authority,Metro service between Dakahlia and Aswan
+148,Dakahlia,Red Sea,Flight,2167,868,2.14,1-4 times daily,Nile Air,Flight service between Dakahlia and Red Sea
+149,Dakahlia,New Valley,Metro,33,250,4.63,Every 10 mins,Cairo Metro Authority,Metro service between Dakahlia and New Valley
+150,Dakahlia,Matrouh,Taxi,1081,543,14.21,On Demand,Local Taxi,Taxi service between Dakahlia and Matrouh
+151,Dakahlia,North Sinai,Taxi,1030,510,13.03,On Demand,Uber,Taxi service between Dakahlia and North Sinai
+152,Dakahlia,South Sinai,Flight,987,394,1.37,1-4 times daily,Nile Air,Flight service between Dakahlia and South Sinai
+153,Dakahlia,Port Said,Car Rental,238,149,3.27,On Demand,Avis,Car Rental service between Dakahlia and Port Said
+154,Dakahlia,Suez,Bus,195,453,14.34,Hourly,Go Bus,Bus service between Dakahlia and Suez
+155,Dakahlia,Ismailia,Flight,1127,443,1.54,1-4 times daily,EgyptAir,Flight service between Dakahlia and Ismailia
+156,Dakahlia,Damietta,River Transport,511,616,22.08,Every 1-2 hours,Nile Transport Co.,River Transport service between Dakahlia and Damietta
+157,Beheira,Cairo,Flight,321,133,0.86,1-4 times daily,Nile Air,Flight service between Beheira and Cairo
+158,Beheira,Giza,Train,133,247,5.56,2-3 times daily,Egyptian Railways,Train service between Beheira and Giza
+159,Beheira,Alexandria,Metro,169,863,13.55,Every 10 mins,Cairo Metro Authority,Metro service between Beheira and Alexandria
+160,Beheira,Qalyubia,Metro,171,755,11.46,Every 10 mins,Cairo Metro Authority,Metro service between Beheira and Qalyubia
+161,Beheira,Sharqia,Bus,55,123,4.4,Hourly,Go Bus,Bus service between Beheira and Sharqia
+162,Beheira,Dakahlia,Taxi,475,228,6.36,On Demand,Careem,Taxi service between Beheira and Dakahlia
+163,Beheira,Kafr El Sheikh,Bus,221,540,16.3,Hourly,Super Jet,Bus service between Beheira and Kafr El Sheikh
+164,Beheira,Gharbia,River Transport,434,555,20.27,Every 1-2 hours,Nile Transport Co.,River Transport service between Beheira and Gharbia
+165,Beheira,Monufia,Flight,531,208,0.46,1-4 times daily,Nile Air,Flight service between Beheira and Monufia
+166,Beheira,Fayoum,Metro,51,319,5.6,Every 10 mins,Cairo Metro Authority,Metro service between Beheira and Fayoum
+167,Beheira,Beni Suef,Train,518,894,18.59,2-3 times daily,Egyptian Railways,Train service between Beheira and Beni Suef
+168,Beheira,Minya,Car Rental,520,342,7.23,On Demand,Avis,Car Rental service between Beheira and Minya
+169,Beheira,Assiut,Bus,169,427,13.7,Hourly,Go Bus,Bus service between Beheira and Assiut
+170,Beheira,Sohag,Bus,329,818,25.03,Hourly,Go Bus,Bus service between Beheira and Sohag
+171,Beheira,Qena,Train,200,317,6.96,2-3 times daily,Egyptian Railways,Train service between Beheira and Qena
+172,Beheira,Luxor,Car Rental,353,229,5.38,On Demand,Sixt,Car Rental service between Beheira and Luxor
+173,Beheira,Aswan,Metro,127,727,11.63,Every 10 mins,Cairo Metro Authority,Metro service between Beheira and Aswan
+174,Beheira,Red Sea,River Transport,651,802,28.47,Every 1-2 hours,Nile Transport Co.,River Transport service between Beheira and Red Sea
+175,Beheira,New Valley,River Transport,522,651,22.96,Every 1-2 hours,Nile Transport Co.,River Transport service between Beheira and New Valley
+176,Beheira,Matrouh,Car Rental,281,185,4.13,On Demand,Sixt,Car Rental service between Beheira and Matrouh
+177,Beheira,North Sinai,River Transport,268,311,11.4,Every 1-2 hours,Nile Transport Co.,River Transport service between Beheira and North Sinai
+178,Beheira,South Sinai,Metro,70,354,6.24,Every 10 mins,Cairo Metro Authority,Metro service between Beheira and South Sinai
+179,Beheira,Port Said,Flight,1643,662,1.81,1-4 times daily,Nile Air,Flight service between Beheira and Port Said
+180,Beheira,Suez,Car Rental,1031,675,14.28,On Demand,Sixt,Car Rental service between Beheira and Suez
+181,Beheira,Ismailia,Metro,134,675,10.81,Every 10 mins,Cairo Metro Authority,Metro service between Beheira and Ismailia
+182,Beheira,Damietta,Metro,37,171,3.39,Every 10 mins,Cairo Metro Authority,Metro service between Beheira and Damietta
+183,Kafr El Sheikh,Cairo,Metro,148,649,9.94,Every 10 mins,Cairo Metro Authority,Metro service between Kafr El Sheikh and Cairo
+184,Kafr El Sheikh,Giza,Metro,107,514,8.04,Every 10 mins,Cairo Metro Authority,Metro service between Kafr El Sheikh and Giza
+185,Kafr El Sheikh,Alexandria,Car Rental,693,466,9.93,On Demand,Sixt,Car Rental service between Kafr El Sheikh and Alexandria
+186,Kafr El Sheikh,Qalyubia,Train,181,289,6.25,2-3 times daily,Egyptian Railways,Train service between Kafr El Sheikh and Qalyubia
+187,Kafr El Sheikh,Sharqia,Flight,1702,688,1.18,1-4 times daily,Nile Air,Flight service between Kafr El Sheikh and Sharqia
+188,Kafr El Sheikh,Dakahlia,Taxi,555,285,7.92,On Demand,Careem,Taxi service between Kafr El Sheikh and Dakahlia
+189,Kafr El Sheikh,Beheira,Metro,73,346,5.66,Every 10 mins,Cairo Metro Authority,Metro service between Kafr El Sheikh and Beheira
+190,Kafr El Sheikh,Gharbia,Flight,443,176,0.72,1-4 times daily,Nile Air,Flight service between Kafr El Sheikh and Gharbia
+191,Kafr El Sheikh,Monufia,River Transport,588,719,25.38,Every 1-2 hours,Nile Transport Co.,River Transport service between Kafr El Sheikh and Monufia
+192,Kafr El Sheikh,Fayoum,River Transport,691,881,31.39,Every 1-2 hours,Nile Transport Co.,River Transport service between Kafr El Sheikh and Fayoum
+193,Kafr El Sheikh,Beni Suef,Flight,939,380,0.96,1-4 times daily,Nile Air,Flight service between Kafr El Sheikh and Beni Suef
+194,Kafr El Sheikh,Minya,Train,508,855,17.36,2-3 times daily,Egyptian Railways,Train service between Kafr El Sheikh and Minya
+195,Kafr El Sheikh,Assiut,Car Rental,503,340,7.67,On Demand,Sixt,Car Rental service between Kafr El Sheikh and Assiut
+196,Kafr El Sheikh,Sohag,Taxi,1347,678,17.59,On Demand,Uber,Taxi service between Kafr El Sheikh and Sohag
+197,Kafr El Sheikh,Qena,Taxi,1303,658,17.14,On Demand,Local Taxi,Taxi service between Kafr El Sheikh and Qena
+198,Kafr El Sheikh,Luxor,Taxi,462,223,6.09,On Demand,Careem,Taxi service between Kafr El Sheikh and Luxor
+199,Kafr El Sheikh,Aswan,Flight,2065,825,1.85,1-4 times daily,Air Cairo,Flight service between Kafr El Sheikh and Aswan
+200,Kafr El Sheikh,Red Sea,Bus,224,573,17.66,Hourly,Go Bus,Bus service between Kafr El Sheikh and Red Sea
+201,Kafr El Sheikh,New Valley,Taxi,547,282,7.39,On Demand,Careem,Taxi service between Kafr El Sheikh and New Valley
+202,Kafr El Sheikh,Matrouh,Bus,153,413,12.55,Hourly,Go Bus,Bus service between Kafr El Sheikh and Matrouh
+203,Kafr El Sheikh,North Sinai,Car Rental,1338,896,18.31,On Demand,Avis,Car Rental service between Kafr El Sheikh and North Sinai
+204,Kafr El Sheikh,South Sinai,Car Rental,273,169,4.01,On Demand,Budget,Car Rental service between Kafr El Sheikh and South Sinai
+205,Kafr El Sheikh,Port Said,Taxi,1221,606,15.7,On Demand,Local Taxi,Taxi service between Kafr El Sheikh and Port Said
+206,Kafr El Sheikh,Suez,Taxi,580,289,7.66,On Demand,Uber,Taxi service between Kafr El Sheikh and Suez
+207,Kafr El Sheikh,Ismailia,Car Rental,257,184,4.38,On Demand,Budget,Car Rental service between Kafr El Sheikh and Ismailia
+208,Kafr El Sheikh,Damietta,Bus,329,871,26.95,Hourly,Go Bus,Bus service between Kafr El Sheikh and Damietta
+209,Gharbia,Cairo,Metro,86,484,7.86,Every 10 mins,Cairo Metro Authority,Metro service between Gharbia and Cairo
+210,Gharbia,Giza,Metro,86,334,5.87,Every 10 mins,Cairo Metro Authority,Metro service between Gharbia and Giza
+211,Gharbia,Alexandria,Bus,114,298,9.76,Hourly,Super Jet,Bus service between Gharbia and Alexandria
+212,Gharbia,Qalyubia,River Transport,305,399,14.44,Every 1-2 hours,Nile Transport Co.,River Transport service between Gharbia and Qalyubia
+213,Gharbia,Sharqia,Metro,168,752,12.22,Every 10 mins,Cairo Metro Authority,Metro service between Gharbia and Sharqia
+214,Gharbia,Dakahlia,River Transport,122,129,4.68,Every 1-2 hours,Nile Transport Co.,River Transport service between Gharbia and Dakahlia
+215,Gharbia,Beheira,Train,80,165,3.54,2-3 times daily,Egyptian Railways,Train service between Gharbia and Beheira
+216,Gharbia,Kafr El Sheikh,Metro,161,868,13.57,Every 10 mins,Cairo Metro Authority,Metro service between Gharbia and Kafr El Sheikh
+217,Gharbia,Monufia,Flight,670,260,1.21,1-4 times daily,Nile Air,Flight service between Gharbia and Monufia
+218,Gharbia,Fayoum,Bus,201,487,14.78,Hourly,Super Jet,Bus service between Gharbia and Fayoum
+219,Gharbia,Beni Suef,Train,434,742,15.32,2-3 times daily,Egyptian Railways,Train service between Gharbia and Beni Suef
+220,Gharbia,Minya,Flight,1633,651,1.25,1-4 times daily,Nile Air,Flight service between Gharbia and Minya
+221,Gharbia,Assiut,Bus,116,338,10.27,Hourly,Go Bus,Bus service between Gharbia and Assiut
+222,Gharbia,Sohag,Metro,83,369,6.29,Every 10 mins,Cairo Metro Authority,Metro service between Gharbia and Sohag
+223,Gharbia,Qena,Train,346,591,12.3,2-3 times daily,Egyptian Railways,Train service between Gharbia and Qena
+224,Gharbia,Luxor,Metro,184,879,13.46,Every 10 mins,Cairo Metro Authority,Metro service between Gharbia and Luxor
+225,Gharbia,Aswan,River Transport,587,749,26.44,Every 1-2 hours,Nile Transport Co.,River Transport service between Gharbia and Aswan
+226,Gharbia,Red Sea,Taxi,1316,667,17.35,On Demand,Careem,Taxi service between Gharbia and Red Sea
+227,Gharbia,New Valley,Taxi,627,309,8.23,On Demand,Uber,Taxi service between Gharbia and New Valley
+228,Gharbia,Matrouh,Bus,86,231,7.37,Hourly,Go Bus,Bus service between Gharbia and Matrouh
+229,Gharbia,North Sinai,Bus,135,299,9.37,Hourly,Go Bus,Bus service between Gharbia and North Sinai
+230,Gharbia,South Sinai,River Transport,329,392,14.36,Every 1-2 hours,Nile Transport Co.,River Transport service between Gharbia and South Sinai
+231,Gharbia,Port Said,Train,152,262,5.57,2-3 times daily,Egyptian Railways,Train service between Gharbia and Port Said
+232,Gharbia,Suez,Car Rental,1301,880,18.54,On Demand,Budget,Car Rental service between Gharbia and Suez
+233,Gharbia,Ismailia,Metro,92,366,5.62,Every 10 mins,Cairo Metro Authority,Metro service between Gharbia and Ismailia
+234,Gharbia,Damietta,Car Rental,576,387,7.87,On Demand,Sixt,Car Rental service between Gharbia and Damietta
+235,Monufia,Cairo,Taxi,981,488,12.79,On Demand,Careem,Taxi service between Monufia and Cairo
+236,Monufia,Giza,River Transport,676,826,29.43,Every 1-2 hours,Nile Transport Co.,River Transport service between Monufia and Giza
+237,Monufia,Alexandria,Car Rental,998,676,13.9,On Demand,Avis,Car Rental service between Monufia and Alexandria
+238,Monufia,Qalyubia,River Transport,337,437,15.82,Every 1-2 hours,Nile Transport Co.,River Transport service between Monufia and Qalyubia
+239,Monufia,Sharqia,Metro,43,283,5,Every 10 mins,Cairo Metro Authority,Metro service between Monufia and Sharqia
+240,Monufia,Dakahlia,Bus,174,428,13.47,Hourly,Super Jet,Bus service between Monufia and Dakahlia
+241,Monufia,Beheira,Taxi,1674,846,21.7,On Demand,Local Taxi,Taxi service between Monufia and Beheira
+242,Monufia,Kafr El Sheikh,Car Rental,870,578,11.83,On Demand,Sixt,Car Rental service between Monufia and Kafr El Sheikh
+243,Monufia,Gharbia,Flight,2229,888,1.84,1-4 times daily,Nile Air,Flight service between Monufia and Gharbia
+244,Monufia,Fayoum,Train,242,424,8.84,2-3 times daily,Egyptian Railways,Train service between Monufia and Fayoum
+245,Monufia,Beni Suef,River Transport,619,793,28.57,Every 1-2 hours,Nile Transport Co.,River Transport service between Monufia and Beni Suef
+246,Monufia,Minya,Metro,36,149,2.42,Every 10 mins,Cairo Metro Authority,Metro service between Monufia and Minya
+247,Monufia,Assiut,Bus,307,722,21.89,Hourly,Super Jet,Bus service between Monufia and Assiut
+248,Monufia,Sohag,Bus,244,632,19.69,Hourly,Super Jet,Bus service between Monufia and Sohag
+249,Monufia,Qena,Car Rental,609,399,8.24,On Demand,Budget,Car Rental service between Monufia and Qena
+250,Monufia,Luxor,Train,91,167,3.75,2-3 times daily,Egyptian Railways,Train service between Monufia and Luxor
+251,Monufia,Aswan,Taxi,1455,732,19.26,On Demand,Local Taxi,Taxi service between Monufia and Aswan
+252,Monufia,Red Sea,Train,498,818,16.55,2-3 times daily,Egyptian Railways,Train service between Monufia and Red Sea
+253,Monufia,New Valley,Car Rental,801,522,11.31,On Demand,Sixt,Car Rental service between Monufia and New Valley
+254,Monufia,Matrouh,Flight,2058,816,1.52,1-4 times daily,Nile Air,Flight service between Monufia and Matrouh
+255,Monufia,North Sinai,Flight,1109,451,1.06,1-4 times daily,EgyptAir,Flight service between Monufia and North Sinai
+256,Monufia,South Sinai,River Transport,590,762,27.65,Every 1-2 hours,Nile Transport Co.,River Transport service between Monufia and South Sinai
+257,Monufia,Port Said,Taxi,1082,533,13.78,On Demand,Local Taxi,Taxi service between Monufia and Port Said
+258,Monufia,Suez,Car Rental,1190,803,16.37,On Demand,Avis,Car Rental service between Monufia and Suez
+259,Monufia,Ismailia,Bus,133,362,11.79,Hourly,Super Jet,Bus service between Monufia and Ismailia
+260,Monufia,Damietta,River Transport,480,585,21.31,Every 1-2 hours,Nile Transport Co.,River Transport service between Monufia and Damietta
+261,Fayoum,Cairo,Flight,2117,844,1.9,1-4 times daily,Air Cairo,Flight service between Fayoum and Cairo
+262,Fayoum,Giza,Train,99,186,4.7,2-3 times daily,Egyptian Railways,Train service between Fayoum and Giza
+263,Fayoum,Alexandria,Train,385,636,13.05,2-3 times daily,Egyptian Railways,Train service between Fayoum and Alexandria
+264,Fayoum,Qalyubia,Metro,150,738,12.05,Every 10 mins,Cairo Metro Authority,Metro service between Fayoum and Qalyubia
+265,Fayoum,Sharqia,Flight,1454,575,1.47,1-4 times daily,EgyptAir,Flight service between Fayoum and Sharqia
+266,Fayoum,Dakahlia,Bus,152,340,10.8,Hourly,Go Bus,Bus service between Fayoum and Dakahlia
+267,Fayoum,Beheira,Flight,1090,441,1.36,1-4 times daily,Nile Air,Flight service between Fayoum and Beheira
+268,Fayoum,Kafr El Sheikh,River Transport,525,635,22.63,Every 1-2 hours,Nile Transport Co.,River Transport service between Fayoum and Kafr El Sheikh
+269,Fayoum,Gharbia,Train,62,119,2.82,2-3 times daily,Egyptian Railways,Train service between Fayoum and Gharbia
+270,Fayoum,Monufia,River Transport,528,662,23.71,Every 1-2 hours,Nile Transport Co.,River Transport service between Fayoum and Monufia
+271,Fayoum,Beni Suef,Taxi,1238,629,16.48,On Demand,Uber,Taxi service between Fayoum and Beni Suef
+272,Fayoum,Minya,River Transport,449,550,20.05,Every 1-2 hours,Nile Transport Co.,River Transport service between Fayoum and Minya
+273,Fayoum,Assiut,Metro,146,803,12.92,Every 10 mins,Cairo Metro Authority,Metro service between Fayoum and Assiut
+274,Fayoum,Sohag,Bus,271,707,21.9,Hourly,Super Jet,Bus service between Fayoum and Sohag
+275,Fayoum,Qena,Taxi,207,107,3,On Demand,Uber,Taxi service between Fayoum and Qena
+276,Fayoum,Luxor,Bus,179,440,13.97,Hourly,Go Bus,Bus service between Fayoum and Luxor
+277,Fayoum,Aswan,Bus,176,460,14.02,Hourly,Go Bus,Bus service between Fayoum and Aswan
+278,Fayoum,Red Sea,Car Rental,938,636,13.44,On Demand,Sixt,Car Rental service between Fayoum and Red Sea
+279,Fayoum,New Valley,Bus,93,224,7.19,Hourly,Super Jet,Bus service between Fayoum and New Valley
+280,Fayoum,Matrouh,Metro,55,309,5.34,Every 10 mins,Cairo Metro Authority,Metro service between Fayoum and Matrouh
+281,Fayoum,North Sinai,Train,264,422,8.54,2-3 times daily,Egyptian Railways,Train service between Fayoum and North Sinai
+282,Fayoum,South Sinai,Bus,89,243,8.22,Hourly,Super Jet,Bus service between Fayoum and South Sinai
+283,Fayoum,Port Said,Metro,5,128,2.18,Every 10 mins,Cairo Metro Authority,Metro service between Fayoum and Port Said
+284,Fayoum,Suez,River Transport,226,308,11.42,Every 1-2 hours,Nile Transport Co.,River Transport service between Fayoum and Suez
+285,Fayoum,Ismailia,Bus,78,163,5.25,Hourly,Super Jet,Bus service between Fayoum and Ismailia
+286,Fayoum,Damietta,Car Rental,434,293,6.43,On Demand,Budget,Car Rental service between Fayoum and Damietta
+287,Beni Suef,Cairo,Metro,112,544,8.31,Every 10 mins,Cairo Metro Authority,Metro service between Beni Suef and Cairo
+288,Beni Suef,Giza,Car Rental,767,506,10.42,On Demand,Avis,Car Rental service between Beni Suef and Giza
+289,Beni Suef,Alexandria,Train,330,528,11.42,2-3 times daily,Egyptian Railways,Train service between Beni Suef and Alexandria
+290,Beni Suef,Qalyubia,Car Rental,753,490,10.38,On Demand,Avis,Car Rental service between Beni Suef and Qalyubia
+291,Beni Suef,Sharqia,River Transport,120,133,5.45,Every 1-2 hours,Nile Transport Co.,River Transport service between Beni Suef and Sharqia
+292,Beni Suef,Dakahlia,Car Rental,632,432,9.57,On Demand,Sixt,Car Rental service between Beni Suef and Dakahlia
+293,Beni Suef,Beheira,Car Rental,826,542,10.96,On Demand,Avis,Car Rental service between Beni Suef and Beheira
+294,Beni Suef,Kafr El Sheikh,Flight,1926,771,1.34,1-4 times daily,Air Cairo,Flight service between Beni Suef and Kafr El Sheikh
+295,Beni Suef,Gharbia,Taxi,661,328,8.88,On Demand,Careem,Taxi service between Beni Suef and Gharbia
+296,Beni Suef,Monufia,Flight,390,159,0.62,1-4 times daily,Air Cairo,Flight service between Beni Suef and Monufia
+297,Beni Suef,Fayoum,Metro,65,300,5.06,Every 10 mins,Cairo Metro Authority,Metro service between Beni Suef and Fayoum
+298,Beni Suef,Minya,Train,359,607,12.43,2-3 times daily,Egyptian Railways,Train service between Beni Suef and Minya
+299,Beni Suef,Assiut,Taxi,1184,587,15.42,On Demand,Local Taxi,Taxi service between Beni Suef and Assiut
+300,Beni Suef,Sohag,Metro,188,844,13.35,Every 10 mins,Cairo Metro Authority,Metro service between Beni Suef and Sohag
+301,Beni Suef,Qena,Taxi,1591,788,20.39,On Demand,Uber,Taxi service between Beni Suef and Qena
+302,Beni Suef,Luxor,River Transport,595,768,27.45,Every 1-2 hours,Nile Transport Co.,River Transport service between Beni Suef and Luxor
+303,Beni Suef,Aswan,Taxi,1575,791,20.31,On Demand,Uber,Taxi service between Beni Suef and Aswan
+304,Beni Suef,Red Sea,River Transport,161,187,6.7,Every 1-2 hours,Nile Transport Co.,River Transport service between Beni Suef and Red Sea
+305,Beni Suef,New Valley,River Transport,667,847,30.34,Every 1-2 hours,Nile Transport Co.,River Transport service between Beni Suef and New Valley
+306,Beni Suef,Matrouh,Taxi,1225,606,16.12,On Demand,Local Taxi,Taxi service between Beni Suef and Matrouh
+307,Beni Suef,North Sinai,River Transport,633,772,27.66,Every 1-2 hours,Nile Transport Co.,River Transport service between Beni Suef and North Sinai
+308,Beni Suef,South Sinai,Flight,2167,862,1.54,1-4 times daily,EgyptAir,Flight service between Beni Suef and South Sinai
+309,Beni Suef,Port Said,Flight,1762,698,1.21,1-4 times daily,Air Cairo,Flight service between Beni Suef and Port Said
+310,Beni Suef,Suez,River Transport,146,181,6.89,Every 1-2 hours,Nile Transport Co.,River Transport service between Beni Suef and Suez
+311,Beni Suef,Ismailia,Metro,180,889,14.17,Every 10 mins,Cairo Metro Authority,Metro service between Beni Suef and Ismailia
+312,Beni Suef,Damietta,Taxi,764,372,10.12,On Demand,Careem,Taxi service between Beni Suef and Damietta
+313,Minya,Cairo,Bus,334,860,25.94,Hourly,Super Jet,Bus service between Minya and Cairo
+314,Minya,Giza,Flight,2050,819,1.95,1-4 times daily,Air Cairo,Flight service between Minya and Giza
+315,Minya,Alexandria,Train,233,386,8.26,2-3 times daily,Egyptian Railways,Train service between Minya and Alexandria
+316,Minya,Qalyubia,Taxi,409,199,5.67,On Demand,Local Taxi,Taxi service between Minya and Qalyubia
+317,Minya,Sharqia,River Transport,681,862,30.65,Every 1-2 hours,Nile Transport Co.,River Transport service between Minya and Sharqia
+318,Minya,Dakahlia,River Transport,400,482,17.26,Every 1-2 hours,Nile Transport Co.,River Transport service between Minya and Dakahlia
+319,Minya,Beheira,Train,221,355,8.05,2-3 times daily,Egyptian Railways,Train service between Minya and Beheira
+320,Minya,Kafr El Sheikh,Metro,33,104,1.98,Every 10 mins,Cairo Metro Authority,Metro service between Minya and Kafr El Sheikh
+321,Minya,Gharbia,Metro,145,642,9.93,Every 10 mins,Cairo Metro Authority,Metro service between Minya and Gharbia
+322,Minya,Monufia,Train,162,267,5.82,2-3 times daily,Egyptian Railways,Train service between Minya and Monufia
+323,Minya,Fayoum,Car Rental,533,347,7.8,On Demand,Avis,Car Rental service between Minya and Fayoum
+324,Minya,Beni Suef,Flight,325,133,0.37,1-4 times daily,EgyptAir,Flight service between Minya and Beni Suef
+325,Minya,Assiut,Car Rental,390,268,5.71,On Demand,Avis,Car Rental service between Minya and Assiut
+326,Minya,Sohag,River Transport,163,210,7.7,Every 1-2 hours,Nile Transport Co.,River Transport service between Minya and Sohag
+327,Minya,Qena,Flight,1775,714,2.04,1-4 times daily,Nile Air,Flight service between Minya and Qena
+328,Minya,Luxor,Metro,40,298,5.17,Every 10 mins,Cairo Metro Authority,Metro service between Minya and Luxor
+329,Minya,Aswan,Metro,89,348,6.18,Every 10 mins,Cairo Metro Authority,Metro service between Minya and Aswan
+330,Minya,Red Sea,Bus,242,622,19.58,Hourly,Super Jet,Bus service between Minya and Red Sea
+331,Minya,New Valley,Car Rental,766,523,10.86,On Demand,Sixt,Car Rental service between Minya and New Valley
+332,Minya,Matrouh,Taxi,288,152,4.75,On Demand,Uber,Taxi service between Minya and Matrouh
+333,Minya,North Sinai,Bus,122,335,10.63,Hourly,Super Jet,Bus service between Minya and North Sinai
+334,Minya,South Sinai,Taxi,1512,764,20.08,On Demand,Uber,Taxi service between Minya and South Sinai
+335,Minya,Port Said,Train,85,168,3.89,2-3 times daily,Egyptian Railways,Train service between Minya and Port Said
+336,Minya,Suez,River Transport,606,779,27.97,Every 1-2 hours,Nile Transport Co.,River Transport service between Minya and Suez
+337,Minya,Ismailia,Metro,36,173,3.44,Every 10 mins,Cairo Metro Authority,Metro service between Minya and Ismailia
+338,Minya,Damietta,Flight,1543,623,1.68,1-4 times daily,EgyptAir,Flight service between Minya and Damietta
+339,Assiut,Cairo,Taxi,1741,866,22.51,On Demand,Careem,Taxi service between Assiut and Cairo
+340,Assiut,Giza,Metro,131,715,10.98,Every 10 mins,Cairo Metro Authority,Metro service between Assiut and Giza
+341,Assiut,Alexandria,Metro,142,671,10.91,Every 10 mins,Cairo Metro Authority,Metro service between Assiut and Alexandria
+342,Assiut,Qalyubia,Bus,323,834,25.85,Hourly,Super Jet,Bus service between Assiut and Qalyubia
+343,Assiut,Sharqia,River Transport,164,205,7.8,Every 1-2 hours,Nile Transport Co.,River Transport service between Assiut and Sharqia
+344,Assiut,Dakahlia,Flight,2187,871,1.59,1-4 times daily,Air Cairo,Flight service between Assiut and Dakahlia
+345,Assiut,Beheira,Train,240,390,8.22,2-3 times daily,Egyptian Railways,Train service between Assiut and Beheira
+346,Assiut,Kafr El Sheikh,Car Rental,466,324,7.24,On Demand,Budget,Car Rental service between Assiut and Kafr El Sheikh
+347,Assiut,Gharbia,Metro,54,226,3.63,Every 10 mins,Cairo Metro Authority,Metro service between Assiut and Gharbia
+348,Assiut,Monufia,River Transport,126,157,6.45,Every 1-2 hours,Nile Transport Co.,River Transport service between Assiut and Monufia
+349,Assiut,Fayoum,Flight,852,342,1.46,1-4 times daily,Air Cairo,Flight service between Assiut and Fayoum
+350,Assiut,Beni Suef,Train,216,364,7.5,2-3 times daily,Egyptian Railways,Train service between Assiut and Beni Suef
+351,Assiut,Minya,Car Rental,337,234,4.81,On Demand,Budget,Car Rental service between Assiut and Minya
+352,Assiut,Sohag,Metro,46,246,4.07,Every 10 mins,Cairo Metro Authority,Metro service between Assiut and Sohag
+353,Assiut,Qena,Metro,145,646,9.85,Every 10 mins,Cairo Metro Authority,Metro service between Assiut and Qena
+354,Assiut,Luxor,Metro,127,597,9.87,Every 10 mins,Cairo Metro Authority,Metro service between Assiut and Luxor
+355,Assiut,Aswan,Flight,1204,480,0.99,1-4 times daily,Air Cairo,Flight service between Assiut and Aswan
+356,Assiut,Red Sea,Metro,176,858,13.12,Every 10 mins,Cairo Metro Authority,Metro service between Assiut and Red Sea
+357,Assiut,New Valley,Bus,199,492,15.16,Hourly,Super Jet,Bus service between Assiut and New Valley
+358,Assiut,Matrouh,Taxi,530,260,7.35,On Demand,Careem,Taxi service between Assiut and Matrouh
+359,Assiut,North Sinai,Metro,38,187,3.74,Every 10 mins,Cairo Metro Authority,Metro service between Assiut and North Sinai
+360,Assiut,South Sinai,Flight,1055,429,1.58,1-4 times daily,EgyptAir,Flight service between Assiut and South Sinai
+361,Assiut,Port Said,Flight,2228,898,1.72,1-4 times daily,EgyptAir,Flight service between Assiut and Port Said
+362,Assiut,Suez,Bus,235,606,18.55,Hourly,Go Bus,Bus service between Assiut and Suez
+363,Assiut,Ismailia,Train,90,165,3.56,2-3 times daily,Egyptian Railways,Train service between Assiut and Ismailia
+364,Assiut,Damietta,Bus,362,860,26.65,Hourly,Super Jet,Bus service between Assiut and Damietta
+365,Sohag,Cairo,Flight,1370,544,0.93,1-4 times daily,Air Cairo,Flight service between Sohag and Cairo
+366,Sohag,Giza,Taxi,589,301,8.41,On Demand,Local Taxi,Taxi service between Sohag and Giza
+367,Sohag,Alexandria,Bus,91,180,6.21,Hourly,Go Bus,Bus service between Sohag and Alexandria
+368,Sohag,Qalyubia,Car Rental,1016,673,13.85,On Demand,Budget,Car Rental service between Sohag and Qalyubia
+369,Sohag,Sharqia,River Transport,497,603,21.88,Every 1-2 hours,Nile Transport Co.,River Transport service between Sohag and Sharqia
+370,Sohag,Dakahlia,River Transport,408,532,19.25,Every 1-2 hours,Nile Transport Co.,River Transport service between Sohag and Dakahlia
+371,Sohag,Beheira,Train,167,260,5.64,2-3 times daily,Egyptian Railways,Train service between Sohag and Beheira
+372,Sohag,Kafr El Sheikh,Flight,1667,670,1.67,1-4 times daily,Nile Air,Flight service between Sohag and Kafr El Sheikh
+373,Sohag,Gharbia,Bus,360,871,26.33,Hourly,Super Jet,Bus service between Sohag and Gharbia
+374,Sohag,Monufia,Metro,26,229,4.05,Every 10 mins,Cairo Metro Authority,Metro service between Sohag and Monufia
+375,Sohag,Fayoum,Flight,2217,893,1.96,1-4 times daily,EgyptAir,Flight service between Sohag and Fayoum
+376,Sohag,Beni Suef,Car Rental,1290,850,17.36,On Demand,Avis,Car Rental service between Sohag and Beni Suef
+377,Sohag,Minya,Flight,1508,607,1.18,1-4 times daily,Nile Air,Flight service between Sohag and Minya
+378,Sohag,Assiut,Flight,1592,642,1.42,1-4 times daily,Air Cairo,Flight service between Sohag and Assiut
+379,Sohag,Qena,Flight,1703,680,1.75,1-4 times daily,EgyptAir,Flight service between Sohag and Qena
+380,Sohag,Luxor,Flight,1414,568,1.15,1-4 times daily,Air Cairo,Flight service between Sohag and Luxor
+381,Sohag,Aswan,Bus,195,482,14.68,Hourly,Go Bus,Bus service between Sohag and Aswan
+382,Sohag,Red Sea,River Transport,557,711,25.04,Every 1-2 hours,Nile Transport Co.,River Transport service between Sohag and Red Sea
+383,Sohag,New Valley,Bus,293,761,22.98,Hourly,Go Bus,Bus service between Sohag and New Valley
+384,Sohag,Matrouh,Car Rental,1146,770,16.21,On Demand,Sixt,Car Rental service between Sohag and Matrouh
+385,Sohag,North Sinai,Car Rental,829,560,12.1,On Demand,Budget,Car Rental service between Sohag and North Sinai
+386,Sohag,South Sinai,Metro,55,345,5.28,Every 10 mins,Cairo Metro Authority,Metro service between Sohag and South Sinai
+387,Sohag,Port Said,Flight,488,191,1.17,1-4 times daily,Nile Air,Flight service between Sohag and Port Said
+388,Sohag,Suez,Bus,49,163,5.76,Hourly,Super Jet,Bus service between Sohag and Suez
+389,Sohag,Ismailia,Bus,296,770,23.4,Hourly,Super Jet,Bus service between Sohag and Ismailia
+390,Sohag,Damietta,River Transport,554,700,25.29,Every 1-2 hours,Nile Transport Co.,River Transport service between Sohag and Damietta
+391,Qena,Cairo,Car Rental,682,449,9.75,On Demand,Budget,Car Rental service between Qena and Cairo
+392,Qena,Giza,Bus,342,834,25.86,Hourly,Super Jet,Bus service between Qena and Giza
+393,Qena,Alexandria,Flight,690,284,0.82,1-4 times daily,EgyptAir,Flight service between Qena and Alexandria
+394,Qena,Qalyubia,Flight,895,360,0.67,1-4 times daily,EgyptAir,Flight service between Qena and Qalyubia
+395,Qena,Sharqia,Car Rental,867,573,11.66,On Demand,Sixt,Car Rental service between Qena and Sharqia
+396,Qena,Dakahlia,Bus,209,526,15.97,Hourly,Super Jet,Bus service between Qena and Dakahlia
+397,Qena,Beheira,Bus,289,705,21.38,Hourly,Go Bus,Bus service between Qena and Beheira
+398,Qena,Kafr El Sheikh,Taxi,1111,555,14.02,On Demand,Local Taxi,Taxi service between Qena and Kafr El Sheikh
+399,Qena,Gharbia,Car Rental,400,274,6.03,On Demand,Budget,Car Rental service between Qena and Gharbia
+400,Qena,Monufia,Train,459,796,16.04,2-3 times daily,Egyptian Railways,Train service between Qena and Monufia
+401,Qena,Fayoum,Train,402,702,14.54,2-3 times daily,Egyptian Railways,Train service between Qena and Fayoum
+402,Qena,Beni Suef,Flight,433,168,1.21,1-4 times daily,Air Cairo,Flight service between Qena and Beni Suef
+403,Qena,Minya,Bus,119,336,10.76,Hourly,Super Jet,Bus service between Qena and Minya
+404,Qena,Assiut,Flight,534,212,0.63,1-4 times daily,Nile Air,Flight service between Qena and Assiut
+405,Qena,Sohag,River Transport,395,499,18.06,Every 1-2 hours,Nile Transport Co.,River Transport service between Qena and Sohag
+406,Qena,Luxor,Metro,138,609,9.44,Every 10 mins,Cairo Metro Authority,Metro service between Qena and Luxor
+407,Qena,Aswan,Car Rental,1294,865,17.82,On Demand,Avis,Car Rental service between Qena and Aswan
+408,Qena,Red Sea,Taxi,1741,868,22.65,On Demand,Careem,Taxi service between Qena and Red Sea
+409,Qena,New Valley,Train,243,394,8.47,2-3 times daily,Egyptian Railways,Train service between Qena and New Valley
+410,Qena,Matrouh,Metro,88,543,8.67,Every 10 mins,Cairo Metro Authority,Metro service between Qena and Matrouh
+411,Qena,North Sinai,Taxi,1204,612,15.78,On Demand,Uber,Taxi service between Qena and North Sinai
+412,Qena,South Sinai,Car Rental,208,150,3.84,On Demand,Avis,Car Rental service between Qena and South Sinai
+413,Qena,Port Said,Metro,109,559,9.04,Every 10 mins,Cairo Metro Authority,Metro service between Qena and Port Said
+414,Qena,Suez,Car Rental,244,172,3.55,On Demand,Avis,Car Rental service between Qena and Suez
+415,Qena,Ismailia,Flight,1737,693,1.52,1-4 times daily,EgyptAir,Flight service between Qena and Ismailia
+416,Qena,Damietta,River Transport,480,578,20.98,Every 1-2 hours,Nile Transport Co.,River Transport service between Qena and Damietta
+417,Luxor,Cairo,Bus,198,493,15.32,Hourly,Go Bus,Bus service between Luxor and Cairo
+418,Luxor,Giza,Flight,1837,743,1.84,1-4 times daily,EgyptAir,Flight service between Luxor and Giza
+419,Luxor,Alexandria,Car Rental,283,186,4.72,On Demand,Budget,Car Rental service between Luxor and Alexandria
+420,Luxor,Qalyubia,Flight,1053,429,1.38,1-4 times daily,Nile Air,Flight service between Luxor and Qalyubia
+421,Luxor,Sharqia,Train,415,673,13.79,2-3 times daily,Egyptian Railways,Train service between Luxor and Sharqia
+422,Luxor,Dakahlia,Bus,42,155,4.99,Hourly,Go Bus,Bus service between Luxor and Dakahlia
+423,Luxor,Beheira,Metro,168,761,12.27,Every 10 mins,Cairo Metro Authority,Metro service between Luxor and Beheira
+424,Luxor,Kafr El Sheikh,River Transport,640,815,29.27,Every 1-2 hours,Nile Transport Co.,River Transport service between Luxor and Kafr El Sheikh
+425,Luxor,Gharbia,Metro,22,106,1.95,Every 10 mins,Cairo Metro Authority,Metro service between Luxor and Gharbia
+426,Luxor,Monufia,Car Rental,499,341,7.2,On Demand,Budget,Car Rental service between Luxor and Monufia
+427,Luxor,Fayoum,Car Rental,661,452,10.03,On Demand,Avis,Car Rental service between Luxor and Fayoum
+428,Luxor,Beni Suef,River Transport,143,168,6.88,Every 1-2 hours,Nile Transport Co.,River Transport service between Luxor and Beni Suef
+429,Luxor,Minya,Car Rental,735,493,10.78,On Demand,Budget,Car Rental service between Luxor and Minya
+430,Luxor,Assiut,Metro,25,120,2.13,Every 10 mins,Cairo Metro Authority,Metro service between Luxor and Assiut
+431,Luxor,Sohag,Flight,1661,669,1.46,1-4 times daily,Nile Air,Flight service between Luxor and Sohag
+432,Luxor,Qena,Taxi,925,470,12.72,On Demand,Careem,Taxi service between Luxor and Qena
+433,Luxor,Aswan,Flight,1523,607,1.87,1-4 times daily,Nile Air,Flight service between Luxor and Aswan
+434,Luxor,Red Sea,Bus,331,815,25.18,Hourly,Super Jet,Bus service between Luxor and Red Sea
+435,Luxor,New Valley,Train,373,612,12.52,2-3 times daily,Egyptian Railways,Train service between Luxor and New Valley
+436,Luxor,Matrouh,Flight,1830,733,1.97,1-4 times daily,Air Cairo,Flight service between Luxor and Matrouh
+437,Luxor,North Sinai,Taxi,1309,647,16.7,On Demand,Careem,Taxi service between Luxor and North Sinai
+438,Luxor,South Sinai,Metro,86,524,8.35,Every 10 mins,Cairo Metro Authority,Metro service between Luxor and South Sinai
+439,Luxor,Port Said,Metro,20,164,2.88,Every 10 mins,Cairo Metro Authority,Metro service between Luxor and Port Said
+440,Luxor,Suez,Flight,1266,504,1.59,1-4 times daily,EgyptAir,Flight service between Luxor and Suez
+441,Luxor,Ismailia,Metro,35,219,4.14,Every 10 mins,Cairo Metro Authority,Metro service between Luxor and Ismailia
+442,Luxor,Damietta,Car Rental,1220,824,17.31,On Demand,Sixt,Car Rental service between Luxor and Damietta
+443,Aswan,Cairo,Metro,48,303,5.07,Every 10 mins,Cairo Metro Authority,Metro service between Aswan and Cairo
+444,Aswan,Giza,Bus,121,332,10.31,Hourly,Go Bus,Bus service between Aswan and Giza
+445,Aswan,Alexandria,Bus,180,414,12.57,Hourly,Go Bus,Bus service between Aswan and Alexandria
+446,Aswan,Qalyubia,River Transport,696,866,30.62,Every 1-2 hours,Nile Transport Co.,River Transport service between Aswan and Qalyubia
+447,Aswan,Sharqia,Train,257,424,9.4,2-3 times daily,Egyptian Railways,Train service between Aswan and Sharqia
+448,Aswan,Dakahlia,Flight,2052,822,1.67,1-4 times daily,Nile Air,Flight service between Aswan and Dakahlia
+449,Aswan,Beheira,Train,341,572,11.57,2-3 times daily,Egyptian Railways,Train service between Aswan and Beheira
+450,Aswan,Kafr El Sheikh,Car Rental,882,592,12.49,On Demand,Avis,Car Rental service between Aswan and Kafr El Sheikh
+451,Aswan,Gharbia,Flight,904,364,0.95,1-4 times daily,Air Cairo,Flight service between Aswan and Gharbia
+452,Aswan,Monufia,Car Rental,349,241,5.13,On Demand,Sixt,Car Rental service between Aswan and Monufia
+453,Aswan,Fayoum,Metro,78,469,7.59,Every 10 mins,Cairo Metro Authority,Metro service between Aswan and Fayoum
+454,Aswan,Beni Suef,Taxi,1779,884,23.09,On Demand,Careem,Taxi service between Aswan and Beni Suef
+455,Aswan,Minya,Car Rental,846,569,11.58,On Demand,Avis,Car Rental service between Aswan and Minya
+456,Aswan,Assiut,Bus,275,675,20.49,Hourly,Go Bus,Bus service between Aswan and Assiut
+457,Aswan,Sohag,Train,133,251,5.24,2-3 times daily,Egyptian Railways,Train service between Aswan and Sohag
+458,Aswan,Qena,Metro,85,481,8.04,Every 10 mins,Cairo Metro Authority,Metro service between Aswan and Qena
+459,Aswan,Luxor,River Transport,564,714,25.5,Every 1-2 hours,Nile Transport Co.,River Transport service between Aswan and Luxor
+460,Aswan,Red Sea,Car Rental,949,623,13.3,On Demand,Budget,Car Rental service between Aswan and Red Sea
+461,Aswan,New Valley,Metro,68,284,5.17,Every 10 mins,Cairo Metro Authority,Metro service between Aswan and New Valley
+462,Aswan,Matrouh,Flight,339,136,0.47,1-4 times daily,Nile Air,Flight service between Aswan and Matrouh
+463,Aswan,North Sinai,Train,207,378,8.41,2-3 times daily,Egyptian Railways,Train service between Aswan and North Sinai
+464,Aswan,South Sinai,River Transport,516,644,22.65,Every 1-2 hours,Nile Transport Co.,River Transport service between Aswan and South Sinai
+465,Aswan,Port Said,Taxi,360,189,4.97,On Demand,Local Taxi,Taxi service between Aswan and Port Said
+466,Aswan,Suez,Car Rental,811,547,11.62,On Demand,Avis,Car Rental service between Aswan and Suez
+467,Aswan,Ismailia,River Transport,153,186,7.41,Every 1-2 hours,Nile Transport Co.,River Transport service between Aswan and Ismailia
+468,Aswan,Damietta,Taxi,1302,656,17.2,On Demand,Uber,Taxi service between Aswan and Damietta
+469,Red Sea,Cairo,River Transport,265,351,12.44,Every 1-2 hours,Nile Transport Co.,River Transport service between Red Sea and Cairo
+470,Red Sea,Giza,Flight,2152,863,2.26,1-4 times daily,EgyptAir,Flight service between Red Sea and Giza
+471,Red Sea,Alexandria,Metro,183,877,13.3,Every 10 mins,Cairo Metro Authority,Metro service between Red Sea and Alexandria
+472,Red Sea,Qalyubia,River Transport,170,220,7.96,Every 1-2 hours,Nile Transport Co.,River Transport service between Red Sea and Qalyubia
+473,Red Sea,Sharqia,River Transport,553,693,24.57,Every 1-2 hours,Nile Transport Co.,River Transport service between Red Sea and Sharqia
+474,Red Sea,Dakahlia,Metro,53,363,5.64,Every 10 mins,Cairo Metro Authority,Metro service between Red Sea and Dakahlia
+475,Red Sea,Beheira,River Transport,283,352,12.65,Every 1-2 hours,Nile Transport Co.,River Transport service between Red Sea and Beheira
+476,Red Sea,Kafr El Sheikh,Car Rental,895,592,12.33,On Demand,Avis,Car Rental service between Red Sea and Kafr El Sheikh
+477,Red Sea,Gharbia,River Transport,582,711,24.99,Every 1-2 hours,Nile Transport Co.,River Transport service between Red Sea and Gharbia
+478,Red Sea,Monufia,River Transport,192,216,8.02,Every 1-2 hours,Nile Transport Co.,River Transport service between Red Sea and Monufia
+479,Red Sea,Fayoum,Car Rental,790,538,11.09,On Demand,Sixt,Car Rental service between Red Sea and Fayoum
+480,Red Sea,Beni Suef,Flight,2095,838,1.9,1-4 times daily,EgyptAir,Flight service between Red Sea and Beni Suef
+481,Red Sea,Minya,Train,430,725,15.41,2-3 times daily,Egyptian Railways,Train service between Red Sea and Minya
+482,Red Sea,Assiut,Flight,2251,897,1.55,1-4 times daily,Air Cairo,Flight service between Red Sea and Assiut
+483,Red Sea,Sohag,Taxi,1006,507,13.5,On Demand,Careem,Taxi service between Red Sea and Sohag
+484,Red Sea,Qena,River Transport,631,776,27.69,Every 1-2 hours,Nile Transport Co.,River Transport service between Red Sea and Qena
+485,Red Sea,Luxor,Flight,1322,535,0.91,1-4 times daily,EgyptAir,Flight service between Red Sea and Luxor
+486,Red Sea,Aswan,Metro,168,761,12.24,Every 10 mins,Cairo Metro Authority,Metro service between Red Sea and Aswan
+487,Red Sea,New Valley,Metro,46,234,3.92,Every 10 mins,Cairo Metro Authority,Metro service between Red Sea and New Valley
+488,Red Sea,Matrouh,River Transport,404,506,18.26,Every 1-2 hours,Nile Transport Co.,River Transport service between Red Sea and Matrouh
+489,Red Sea,North Sinai,Flight,1086,437,0.95,1-4 times daily,Air Cairo,Flight service between Red Sea and North Sinai
+490,Red Sea,South Sinai,Flight,1717,681,1.89,1-4 times daily,EgyptAir,Flight service between Red Sea and South Sinai
+491,Red Sea,Port Said,Bus,214,587,18.37,Hourly,Go Bus,Bus service between Red Sea and Port Said
+492,Red Sea,Suez,Taxi,218,110,3.06,On Demand,Local Taxi,Taxi service between Red Sea and Suez
+493,Red Sea,Ismailia,Train,244,431,8.96,2-3 times daily,Egyptian Railways,Train service between Red Sea and Ismailia
+494,Red Sea,Damietta,Bus,55,107,3.51,Hourly,Super Jet,Bus service between Red Sea and Damietta
+495,New Valley,Cairo,Flight,2003,798,2.09,1-4 times daily,Nile Air,Flight service between New Valley and Cairo
+496,New Valley,Giza,Bus,255,638,19.81,Hourly,Super Jet,Bus service between New Valley and Giza
+497,New Valley,Alexandria,Flight,2086,839,2.09,1-4 times daily,Air Cairo,Flight service between New Valley and Alexandria
+498,New Valley,Qalyubia,Metro,139,766,12.2,Every 10 mins,Cairo Metro Authority,Metro service between New Valley and Qalyubia
+499,New Valley,Sharqia,Taxi,973,479,12.72,On Demand,Uber,Taxi service between New Valley and Sharqia
+500,New Valley,Dakahlia,Train,386,667,13.97,2-3 times daily,Egyptian Railways,Train service between New Valley and Dakahlia
+501,New Valley,Beheira,Train,189,303,6.73,2-3 times daily,Egyptian Railways,Train service between New Valley and Beheira
+502,New Valley,Kafr El Sheikh,Bus,179,472,14.45,Hourly,Go Bus,Bus service between New Valley and Kafr El Sheikh
+503,New Valley,Gharbia,River Transport,500,636,22.67,Every 1-2 hours,Nile Transport Co.,River Transport service between New Valley and Gharbia
+504,New Valley,Monufia,Flight,371,156,0.98,1-4 times daily,EgyptAir,Flight service between New Valley and Monufia
+505,New Valley,Fayoum,Metro,64,242,4.48,Every 10 mins,Cairo Metro Authority,Metro service between New Valley and Fayoum
+506,New Valley,Beni Suef,Taxi,1035,509,13.64,On Demand,Local Taxi,Taxi service between New Valley and Beni Suef
+507,New Valley,Minya,River Transport,96,132,5.31,Every 1-2 hours,Nile Transport Co.,River Transport service between New Valley and Minya
+508,New Valley,Assiut,Flight,1309,530,1.53,1-4 times daily,Air Cairo,Flight service between New Valley and Assiut
+509,New Valley,Sohag,Flight,927,363,0.84,1-4 times daily,Air Cairo,Flight service between New Valley and Sohag
+510,New Valley,Qena,Train,326,560,11.65,2-3 times daily,Egyptian Railways,Train service between New Valley and Qena
+511,New Valley,Luxor,River Transport,252,334,12.61,Every 1-2 hours,Nile Transport Co.,River Transport service between New Valley and Luxor
+512,New Valley,Aswan,Car Rental,825,547,11.2,On Demand,Sixt,Car Rental service between New Valley and Aswan
+513,New Valley,Red Sea,Train,239,400,8.16,2-3 times daily,Egyptian Railways,Train service between New Valley and Red Sea
+514,New Valley,Matrouh,Flight,977,387,0.84,1-4 times daily,Air Cairo,Flight service between New Valley and Matrouh
+515,New Valley,North Sinai,Train,296,528,11.44,2-3 times daily,Egyptian Railways,Train service between New Valley and North Sinai
+516,New Valley,South Sinai,Car Rental,1324,889,18.45,On Demand,Budget,Car Rental service between New Valley and South Sinai
+517,New Valley,Port Said,Metro,11,108,1.8,Every 10 mins,Cairo Metro Authority,Metro service between New Valley and Port Said
+518,New Valley,Suez,Flight,563,229,0.49,1-4 times daily,Air Cairo,Flight service between New Valley and Suez
+519,New Valley,Ismailia,River Transport,333,428,15.54,Every 1-2 hours,Nile Transport Co.,River Transport service between New Valley and Ismailia
+520,New Valley,Damietta,River Transport,468,596,21.76,Every 1-2 hours,Nile Transport Co.,River Transport service between New Valley and Damietta
+521,Matrouh,Cairo,Taxi,1153,586,14.76,On Demand,Local Taxi,Taxi service between Matrouh and Cairo
+522,Matrouh,Giza,Train,286,481,10.25,2-3 times daily,Egyptian Railways,Train service between Matrouh and Giza
+523,Matrouh,Alexandria,Bus,255,621,18.94,Hourly,Go Bus,Bus service between Matrouh and Alexandria
+524,Matrouh,Qalyubia,Taxi,1781,890,23.05,On Demand,Uber,Taxi service between Matrouh and Qalyubia
+525,Matrouh,Sharqia,Taxi,728,371,10.27,On Demand,Uber,Taxi service between Matrouh and Sharqia
+526,Matrouh,Dakahlia,Taxi,817,406,10.64,On Demand,Local Taxi,Taxi service between Matrouh and Dakahlia
+527,Matrouh,Beheira,Train,494,824,17,2-3 times daily,Egyptian Railways,Train service between Matrouh and Beheira
+528,Matrouh,Kafr El Sheikh,River Transport,187,226,8.57,Every 1-2 hours,Nile Transport Co.,River Transport service between Matrouh and Kafr El Sheikh
+529,Matrouh,Gharbia,River Transport,681,853,30.85,Every 1-2 hours,Nile Transport Co.,River Transport service between Matrouh and Gharbia
+530,Matrouh,Monufia,Taxi,883,445,11.42,On Demand,Careem,Taxi service between Matrouh and Monufia
+531,Matrouh,Fayoum,Train,187,316,6.46,2-3 times daily,Egyptian Railways,Train service between Matrouh and Fayoum
+532,Matrouh,Beni Suef,River Transport,347,427,15.48,Every 1-2 hours,Nile Transport Co.,River Transport service between Matrouh and Beni Suef
+533,Matrouh,Minya,River Transport,471,600,21.92,Every 1-2 hours,Nile Transport Co.,River Transport service between Matrouh and Minya
+534,Matrouh,Assiut,Metro,168,798,12.44,Every 10 mins,Cairo Metro Authority,Metro service between Matrouh and Assiut
+535,Matrouh,Sohag,Train,308,496,10.23,2-3 times daily,Egyptian Railways,Train service between Matrouh and Sohag
+536,Matrouh,Qena,Train,368,648,13.82,2-3 times daily,Egyptian Railways,Train service between Matrouh and Qena
+537,Matrouh,Luxor,Train,314,531,11.27,2-3 times daily,Egyptian Railways,Train service between Matrouh and Luxor
+538,Matrouh,Aswan,Bus,227,615,19.31,Hourly,Super Jet,Bus service between Matrouh and Aswan
+539,Matrouh,Red Sea,Metro,131,699,11.29,Every 10 mins,Cairo Metro Authority,Metro service between Matrouh and Red Sea
+540,Matrouh,New Valley,Bus,113,319,10.4,Hourly,Super Jet,Bus service between Matrouh and New Valley
+541,Matrouh,North Sinai,Bus,281,681,20.8,Hourly,Go Bus,Bus service between Matrouh and North Sinai
+542,Matrouh,South Sinai,River Transport,475,569,20.27,Every 1-2 hours,Nile Transport Co.,River Transport service between Matrouh and South Sinai
+543,Matrouh,Port Said,Car Rental,904,596,12.17,On Demand,Sixt,Car Rental service between Matrouh and Port Said
+544,Matrouh,Suez,Metro,101,438,7.35,Every 10 mins,Cairo Metro Authority,Metro service between Matrouh and Suez
+545,Matrouh,Ismailia,River Transport,682,857,30.82,Every 1-2 hours,Nile Transport Co.,River Transport service between Matrouh and Ismailia
+546,Matrouh,Damietta,River Transport,117,137,5.59,Every 1-2 hours,Nile Transport Co.,River Transport service between Matrouh and Damietta
+547,North Sinai,Cairo,Flight,1978,789,2.11,1-4 times daily,Nile Air,Flight service between North Sinai and Cairo
+548,North Sinai,Giza,River Transport,721,879,31.56,Every 1-2 hours,Nile Transport Co.,River Transport service between North Sinai and Giza
+549,North Sinai,Alexandria,Bus,199,485,15.1,Hourly,Super Jet,Bus service between North Sinai and Alexandria
+550,North Sinai,Qalyubia,Metro,140,678,10.43,Every 10 mins,Cairo Metro Authority,Metro service between North Sinai and Qalyubia
+551,North Sinai,Sharqia,River Transport,378,497,18.3,Every 1-2 hours,Nile Transport Co.,River Transport service between North Sinai and Sharqia
+552,North Sinai,Dakahlia,Bus,239,645,20.07,Hourly,Super Jet,Bus service between North Sinai and Dakahlia
+553,North Sinai,Beheira,Metro,110,535,8.7,Every 10 mins,Cairo Metro Authority,Metro service between North Sinai and Beheira
+554,North Sinai,Kafr El Sheikh,Metro,156,705,11.45,Every 10 mins,Cairo Metro Authority,Metro service between North Sinai and Kafr El Sheikh
+555,North Sinai,Gharbia,Train,537,868,18.31,2-3 times daily,Egyptian Railways,Train service between North Sinai and Gharbia
+556,North Sinai,Monufia,Metro,152,778,11.95,Every 10 mins,Cairo Metro Authority,Metro service between North Sinai and Monufia
+557,North Sinai,Fayoum,Metro,82,336,5.99,Every 10 mins,Cairo Metro Authority,Metro service between North Sinai and Fayoum
+558,North Sinai,Beni Suef,Taxi,1474,740,18.91,On Demand,Uber,Taxi service between North Sinai and Beni Suef
+559,North Sinai,Minya,Taxi,1446,721,18.34,On Demand,Local Taxi,Taxi service between North Sinai and Minya
+560,North Sinai,Assiut,Car Rental,680,445,9.43,On Demand,Sixt,Car Rental service between North Sinai and Assiut
+561,North Sinai,Sohag,Train,458,744,15.63,2-3 times daily,Egyptian Railways,Train service between North Sinai and Sohag
+562,North Sinai,Qena,Flight,1231,498,1.21,1-4 times daily,EgyptAir,Flight service between North Sinai and Qena
+563,North Sinai,Luxor,Bus,312,809,24.81,Hourly,Go Bus,Bus service between North Sinai and Luxor
+564,North Sinai,Aswan,River Transport,190,248,9.64,Every 1-2 hours,Nile Transport Co.,River Transport service between North Sinai and Aswan
+565,North Sinai,Red Sea,Train,511,862,18.23,2-3 times daily,Egyptian Railways,Train service between North Sinai and Red Sea
+566,North Sinai,New Valley,Bus,291,764,23.37,Hourly,Go Bus,Bus service between North Sinai and New Valley
+567,North Sinai,Matrouh,Flight,1415,571,1.53,1-4 times daily,Air Cairo,Flight service between North Sinai and Matrouh
+568,North Sinai,South Sinai,Train,319,529,10.8,2-3 times daily,Egyptian Railways,Train service between North Sinai and South Sinai
+569,North Sinai,Port Said,Train,114,172,3.96,2-3 times daily,Egyptian Railways,Train service between North Sinai and Port Said
+570,North Sinai,Suez,Car Rental,336,235,5.04,On Demand,Avis,Car Rental service between North Sinai and Suez
+571,North Sinai,Ismailia,Train,146,241,5.45,2-3 times daily,Egyptian Railways,Train service between North Sinai and Ismailia
+572,North Sinai,Damietta,Bus,187,478,14.46,Hourly,Go Bus,Bus service between North Sinai and Damietta
+573,South Sinai,Cairo,Bus,363,860,26.54,Hourly,Super Jet,Bus service between South Sinai and Cairo
+574,South Sinai,Giza,Metro,98,432,6.83,Every 10 mins,Cairo Metro Authority,Metro service between South Sinai and Giza
+575,South Sinai,Alexandria,River Transport,673,836,29.45,Every 1-2 hours,Nile Transport Co.,River Transport service between South Sinai and Alexandria
+576,South Sinai,Qalyubia,River Transport,94,101,3.85,Every 1-2 hours,Nile Transport Co.,River Transport service between South Sinai and Qalyubia
+577,South Sinai,Sharqia,Taxi,868,426,11.1,On Demand,Careem,Taxi service between South Sinai and Sharqia
+578,South Sinai,Dakahlia,Metro,53,279,5.14,Every 10 mins,Cairo Metro Authority,Metro service between South Sinai and Dakahlia
+579,South Sinai,Beheira,Car Rental,891,605,12.59,On Demand,Sixt,Car Rental service between South Sinai and Beheira
+580,South Sinai,Kafr El Sheikh,Taxi,904,451,11.92,On Demand,Uber,Taxi service between South Sinai and Kafr El Sheikh
+581,South Sinai,Gharbia,Metro,143,655,10.05,Every 10 mins,Cairo Metro Authority,Metro service between South Sinai and Gharbia
+582,South Sinai,Monufia,Bus,80,176,5.5,Hourly,Super Jet,Bus service between South Sinai and Monufia
+583,South Sinai,Fayoum,Train,219,360,7.8,2-3 times daily,Egyptian Railways,Train service between South Sinai and Fayoum
+584,South Sinai,Beni Suef,Car Rental,1135,754,15.72,On Demand,Avis,Car Rental service between South Sinai and Beni Suef
+585,South Sinai,Minya,Metro,144,652,10.13,Every 10 mins,Cairo Metro Authority,Metro service between South Sinai and Minya
+586,South Sinai,Assiut,Metro,73,350,5.4,Every 10 mins,Cairo Metro Authority,Metro service between South Sinai and Assiut
+587,South Sinai,Sohag,Car Rental,524,350,7.27,On Demand,Avis,Car Rental service between South Sinai and Sohag
+588,South Sinai,Qena,Bus,296,753,23.27,Hourly,Super Jet,Bus service between South Sinai and Qena
+589,South Sinai,Luxor,Bus,311,826,25.62,Hourly,Super Jet,Bus service between South Sinai and Luxor
+590,South Sinai,Aswan,Bus,157,390,11.99,Hourly,Super Jet,Bus service between South Sinai and Aswan
+591,South Sinai,Red Sea,Car Rental,1156,783,15.93,On Demand,Avis,Car Rental service between South Sinai and Red Sea
+592,South Sinai,New Valley,Taxi,532,275,7.24,On Demand,Local Taxi,Taxi service between South Sinai and New Valley
+593,South Sinai,Matrouh,River Transport,129,162,5.78,Every 1-2 hours,Nile Transport Co.,River Transport service between South Sinai and Matrouh
+594,South Sinai,North Sinai,River Transport,611,788,28.42,Every 1-2 hours,Nile Transport Co.,River Transport service between South Sinai and North Sinai
+595,South Sinai,Port Said,Flight,2158,864,2.21,1-4 times daily,Nile Air,Flight service between South Sinai and Port Said
+596,South Sinai,Suez,River Transport,117,123,4.93,Every 1-2 hours,Nile Transport Co.,River Transport service between South Sinai and Suez
+597,South Sinai,Ismailia,Metro,154,672,10.81,Every 10 mins,Cairo Metro Authority,Metro service between South Sinai and Ismailia
+598,South Sinai,Damietta,Car Rental,280,190,4.58,On Demand,Avis,Car Rental service between South Sinai and Damietta
+599,Port Said,Cairo,River Transport,296,355,13.22,Every 1-2 hours,Nile Transport Co.,River Transport service between Port Said and Cairo
+600,Port Said,Giza,River Transport,381,459,16.88,Every 1-2 hours,Nile Transport Co.,River Transport service between Port Said and Giza
+601,Port Said,Alexandria,Bus,47,111,3.99,Hourly,Go Bus,Bus service between Port Said and Alexandria
+602,Port Said,Qalyubia,Flight,1999,804,1.43,1-4 times daily,EgyptAir,Flight service between Port Said and Qalyubia
+603,Port Said,Sharqia,Train,180,303,6.74,2-3 times daily,Egyptian Railways,Train service between Port Said and Sharqia
+604,Port Said,Dakahlia,Train,239,372,7.67,2-3 times daily,Egyptian Railways,Train service between Port Said and Dakahlia
+605,Port Said,Beheira,River Transport,300,353,13.04,Every 1-2 hours,Nile Transport Co.,River Transport service between Port Said and Beheira
+606,Port Said,Kafr El Sheikh,Bus,46,123,4.65,Hourly,Go Bus,Bus service between Port Said and Kafr El Sheikh
+607,Port Said,Gharbia,Train,180,286,6.52,2-3 times daily,Egyptian Railways,Train service between Port Said and Gharbia
+608,Port Said,Monufia,River Transport,439,568,20.08,Every 1-2 hours,Nile Transport Co.,River Transport service between Port Said and Monufia
+609,Port Said,Fayoum,River Transport,627,759,26.8,Every 1-2 hours,Nile Transport Co.,River Transport service between Port Said and Fayoum
+610,Port Said,Beni Suef,Car Rental,611,410,8.72,On Demand,Sixt,Car Rental service between Port Said and Beni Suef
+611,Port Said,Minya,Taxi,538,271,7.1,On Demand,Local Taxi,Taxi service between Port Said and Minya
+612,Port Said,Assiut,Metro,80,338,5.43,Every 10 mins,Cairo Metro Authority,Metro service between Port Said and Assiut
+613,Port Said,Sohag,Metro,11,109,2.5,Every 10 mins,Cairo Metro Authority,Metro service between Port Said and Sohag
+614,Port Said,Qena,Taxi,1383,693,17.58,On Demand,Local Taxi,Taxi service between Port Said and Qena
+615,Port Said,Luxor,Flight,1740,700,1.39,1-4 times daily,Air Cairo,Flight service between Port Said and Luxor
+616,Port Said,Aswan,Metro,75,319,5.18,Every 10 mins,Cairo Metro Authority,Metro service between Port Said and Aswan
+617,Port Said,Red Sea,Taxi,620,318,8.25,On Demand,Uber,Taxi service between Port Said and Red Sea
+618,Port Said,New Valley,River Transport,665,838,30.18,Every 1-2 hours,Nile Transport Co.,River Transport service between Port Said and New Valley
+619,Port Said,Matrouh,Train,230,388,8.18,2-3 times daily,Egyptian Railways,Train service between Port Said and Matrouh
+620,Port Said,North Sinai,Train,269,452,9.69,2-3 times daily,Egyptian Railways,Train service between Port Said and North Sinai
+621,Port Said,South Sinai,Metro,159,846,13.65,Every 10 mins,Cairo Metro Authority,Metro service between Port Said and South Sinai
+622,Port Said,Suez,Train,230,388,8.12,2-3 times daily,Egyptian Railways,Train service between Port Said and Suez
+623,Port Said,Ismailia,Train,426,704,14.92,2-3 times daily,Egyptian Railways,Train service between Port Said and Ismailia
+624,Port Said,Damietta,River Transport,621,786,27.99,Every 1-2 hours,Nile Transport Co.,River Transport service between Port Said and Damietta
+625,Suez,Cairo,Flight,2197,882,2.24,1-4 times daily,EgyptAir,Flight service between Suez and Cairo
+626,Suez,Giza,Flight,874,345,0.97,1-4 times daily,Nile Air,Flight service between Suez and Giza
+627,Suez,Alexandria,Flight,1330,533,0.92,1-4 times daily,EgyptAir,Flight service between Suez and Alexandria
+628,Suez,Qalyubia,Car Rental,804,548,11.17,On Demand,Sixt,Car Rental service between Suez and Qalyubia
+629,Suez,Sharqia,River Transport,613,790,27.83,Every 1-2 hours,Nile Transport Co.,River Transport service between Suez and Sharqia
+630,Suez,Dakahlia,River Transport,307,385,13.89,Every 1-2 hours,Nile Transport Co.,River Transport service between Suez and Dakahlia
+631,Suez,Beheira,Car Rental,384,268,6.3,On Demand,Budget,Car Rental service between Suez and Beheira
+632,Suez,Kafr El Sheikh,Metro,79,407,6.81,Every 10 mins,Cairo Metro Authority,Metro service between Suez and Kafr El Sheikh
+633,Suez,Gharbia,Bus,289,711,21.55,Hourly,Super Jet,Bus service between Suez and Gharbia
+634,Suez,Monufia,Flight,1826,732,1.48,1-4 times daily,Air Cairo,Flight service between Suez and Monufia
+635,Suez,Fayoum,Train,73,144,3.18,2-3 times daily,Egyptian Railways,Train service between Suez and Fayoum
+636,Suez,Beni Suef,Metro,146,750,12.21,Every 10 mins,Cairo Metro Authority,Metro service between Suez and Beni Suef
+637,Suez,Minya,Car Rental,1031,684,14.25,On Demand,Budget,Car Rental service between Suez and Minya
+638,Suez,Assiut,Flight,1626,650,1.35,1-4 times daily,Nile Air,Flight service between Suez and Assiut
+639,Suez,Sohag,Taxi,1311,660,17.08,On Demand,Uber,Taxi service between Suez and Sohag
+640,Suez,Qena,Train,232,401,8.4,2-3 times daily,Egyptian Railways,Train service between Suez and Qena
+641,Suez,Luxor,River Transport,689,840,29.85,Every 1-2 hours,Nile Transport Co.,River Transport service between Suez and Luxor
+642,Suez,Aswan,Metro,78,419,6.81,Every 10 mins,Cairo Metro Authority,Metro service between Suez and Aswan
+643,Suez,Red Sea,River Transport,339,430,15.78,Every 1-2 hours,Nile Transport Co.,River Transport service between Suez and Red Sea
+644,Suez,New Valley,Bus,75,197,6.81,Hourly,Go Bus,Bus service between Suez and New Valley
+645,Suez,Matrouh,Taxi,538,259,7.09,On Demand,Uber,Taxi service between Suez and Matrouh
+646,Suez,North Sinai,Flight,1983,799,1.59,1-4 times daily,EgyptAir,Flight service between Suez and North Sinai
+647,Suez,South Sinai,Bus,238,622,19.15,Hourly,Super Jet,Bus service between Suez and South Sinai
+648,Suez,Port Said,Taxi,938,478,12.1,On Demand,Careem,Taxi service between Suez and Port Said
+649,Suez,Ismailia,Bus,69,224,6.87,Hourly,Go Bus,Bus service between Suez and Ismailia
+650,Suez,Damietta,Train,144,229,5.43,2-3 times daily,Egyptian Railways,Train service between Suez and Damietta
+651,Ismailia,Cairo,Flight,2056,817,1.35,1-4 times daily,EgyptAir,Flight service between Ismailia and Cairo
+652,Ismailia,Giza,Car Rental,956,644,13.03,On Demand,Budget,Car Rental service between Ismailia and Giza
+653,Ismailia,Alexandria,River Transport,191,244,8.91,Every 1-2 hours,Nile Transport Co.,River Transport service between Ismailia and Alexandria
+654,Ismailia,Qalyubia,Train,339,591,12.77,2-3 times daily,Egyptian Railways,Train service between Ismailia and Qalyubia
+655,Ismailia,Sharqia,River Transport,612,763,27.38,Every 1-2 hours,Nile Transport Co.,River Transport service between Ismailia and Sharqia
+656,Ismailia,Dakahlia,Car Rental,829,566,11.51,On Demand,Budget,Car Rental service between Ismailia and Dakahlia
+657,Ismailia,Beheira,Train,511,856,17.45,2-3 times daily,Egyptian Railways,Train service between Ismailia and Beheira
+658,Ismailia,Kafr El Sheikh,Taxi,830,423,11.53,On Demand,Careem,Taxi service between Ismailia and Kafr El Sheikh
+659,Ismailia,Gharbia,Bus,362,880,26.56,Hourly,Go Bus,Bus service between Ismailia and Gharbia
+660,Ismailia,Monufia,Metro,81,395,6.92,Every 10 mins,Cairo Metro Authority,Metro service between Ismailia and Monufia
+661,Ismailia,Fayoum,Train,436,753,15.39,2-3 times daily,Egyptian Railways,Train service between Ismailia and Fayoum
+662,Ismailia,Beni Suef,Bus,364,891,27.02,Hourly,Super Jet,Bus service between Ismailia and Beni Suef
+663,Ismailia,Minya,Metro,104,498,7.88,Every 10 mins,Cairo Metro Authority,Metro service between Ismailia and Minya
+664,Ismailia,Assiut,Flight,1946,781,1.75,1-4 times daily,EgyptAir,Flight service between Ismailia and Assiut
+665,Ismailia,Sohag,Metro,87,413,6.82,Every 10 mins,Cairo Metro Authority,Metro service between Ismailia and Sohag
+666,Ismailia,Qena,Car Rental,1324,896,18.59,On Demand,Avis,Car Rental service between Ismailia and Qena
+667,Ismailia,Luxor,Flight,1726,685,1.13,1-4 times daily,Air Cairo,Flight service between Ismailia and Luxor
+668,Ismailia,Aswan,Bus,319,832,25.87,Hourly,Go Bus,Bus service between Ismailia and Aswan
+669,Ismailia,Red Sea,Taxi,505,247,7.11,On Demand,Careem,Taxi service between Ismailia and Red Sea
+670,Ismailia,New Valley,Metro,74,328,5.05,Every 10 mins,Cairo Metro Authority,Metro service between Ismailia and New Valley
+671,Ismailia,Matrouh,Taxi,551,283,7.44,On Demand,Careem,Taxi service between Ismailia and Matrouh
+672,Ismailia,North Sinai,Train,116,174,4.03,2-3 times daily,Egyptian Railways,Train service between Ismailia and North Sinai
+673,Ismailia,South Sinai,Car Rental,1105,733,15.03,On Demand,Avis,Car Rental service between Ismailia and South Sinai
+674,Ismailia,Port Said,Bus,252,676,20.82,Hourly,Super Jet,Bus service between Ismailia and Port Said
+675,Ismailia,Suez,Train,423,700,14.35,2-3 times daily,Egyptian Railways,Train service between Ismailia and Suez
+676,Ismailia,Damietta,Bus,130,299,9.81,Hourly,Go Bus,Bus service between Ismailia and Damietta
+677,Damietta,Cairo,Car Rental,492,330,6.81,On Demand,Sixt,Car Rental service between Damietta and Cairo
+678,Damietta,Giza,River Transport,291,377,14.17,Every 1-2 hours,Nile Transport Co.,River Transport service between Damietta and Giza
+679,Damietta,Alexandria,Train,523,846,17.04,2-3 times daily,Egyptian Railways,Train service between Damietta and Alexandria
+680,Damietta,Qalyubia,Taxi,1164,589,14.96,On Demand,Local Taxi,Taxi service between Damietta and Qalyubia
+681,Damietta,Sharqia,Bus,161,358,11.69,Hourly,Super Jet,Bus service between Damietta and Sharqia
+682,Damietta,Dakahlia,Train,226,348,7.72,2-3 times daily,Egyptian Railways,Train service between Damietta and Dakahlia
+683,Damietta,Beheira,River Transport,480,609,22.24,Every 1-2 hours,Nile Transport Co.,River Transport service between Damietta and Beheira
+684,Damietta,Kafr El Sheikh,River Transport,374,456,16.17,Every 1-2 hours,Nile Transport Co.,River Transport service between Damietta and Kafr El Sheikh
+685,Damietta,Gharbia,River Transport,176,202,7.41,Every 1-2 hours,Nile Transport Co.,River Transport service between Damietta and Gharbia
+686,Damietta,Monufia,Car Rental,822,536,10.94,On Demand,Avis,Car Rental service between Damietta and Monufia
+687,Damietta,Fayoum,Taxi,1712,861,21.94,On Demand,Careem,Taxi service between Damietta and Fayoum
+688,Damietta,Beni Suef,Taxi,1473,730,18.54,On Demand,Careem,Taxi service between Damietta and Beni Suef
+689,Damietta,Minya,Taxi,1098,541,14.2,On Demand,Careem,Taxi service between Damietta and Minya
+690,Damietta,Assiut,Taxi,474,246,6.43,On Demand,Uber,Taxi service between Damietta and Assiut
+691,Damietta,Sohag,Metro,93,479,8.02,Every 10 mins,Cairo Metro Authority,Metro service between Damietta and Sohag
+692,Damietta,Qena,Train,488,842,17.49,2-3 times daily,Egyptian Railways,Train service between Damietta and Qena
+693,Damietta,Luxor,Train,456,762,15.7,2-3 times daily,Egyptian Railways,Train service between Damietta and Luxor
+694,Damietta,Aswan,Taxi,228,113,3.42,On Demand,Careem,Taxi service between Damietta and Aswan
+695,Damietta,Red Sea,River Transport,115,167,6.01,Every 1-2 hours,Nile Transport Co.,River Transport service between Damietta and Red Sea
+696,Damietta,New Valley,Train,130,213,4.41,2-3 times daily,Egyptian Railways,Train service between Damietta and New Valley
+697,Damietta,Matrouh,Bus,345,816,24.73,Hourly,Go Bus,Bus service between Damietta and Matrouh
+698,Damietta,North Sinai,Taxi,1519,756,19.85,On Demand,Careem,Taxi service between Damietta and North Sinai
+699,Damietta,South Sinai,River Transport,689,887,31.27,Every 1-2 hours,Nile Transport Co.,River Transport service between Damietta and South Sinai
+700,Damietta,Port Said,Train,260,459,9.65,2-3 times daily,Egyptian Railways,Train service between Damietta and Port Said
+701,Damietta,Suez,River Transport,694,852,30.12,Every 1-2 hours,Nile Transport Co.,River Transport service between Damietta and Suez
+702,Damietta,Ismailia,Train,427,704,14.41,2-3 times daily,Egyptian Railways,Train service between Damietta and Ismailia

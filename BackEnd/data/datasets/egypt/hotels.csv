@@ -1,0 +1,201 @@
+Hotel Name,City,Amenities,Price (EGP),Rating
+Ritz-Carlton Cairo,Cairo,"Business Center, Air Conditioning, 24-hour Front Desk, Beach Access, Room Service, Airport Transfer, Conference Facilities, Parking, Fitness Center, Concierge",3258,4.8
+Four Seasons Nile Plaza,Cairo,"Parking, Conference Facilities, Fitness Center, Pool, Beach Access, Air Conditioning, Airport Transfer, Business Center, 24-hour Front Desk, Breakfast Included, Bar/Lounge, Concierge",2413,4.3
+Marriott Mena House,Cairo,"Terrace/Balcony, Air Conditioning, Pool, Business Center, Room Service, Restaurant, Spa, Concierge, Beach Access, Airport Transfer",3943,4.2
+Fairmont Nile City,Cairo,"Restaurant, Concierge, Parking, Breakfast Included, Spa, 24-hour Front Desk, Terrace/Balcony, Business Center, Beach Access, Bar/Lounge",2240,4.4
+Kempinski Nile Hotel,Cairo,"Parking, Business Center, 24-hour Front Desk, Room Service, Spa, Pool, Terrace/Balcony, Conference Facilities, Bar/Lounge, Concierge",2528,4.2
+Sofitel Cairo Nile El Gezirah,Cairo,"Fitness Center, Breakfast Included, Beach Access, Airport Transfer, Business Center, 24-hour Front Desk, Spa, Conference Facilities, Restaurant, Air Conditioning, Bar/Lounge, Parking",2288,4.1
+InterContinental Cairo Semiramis,Cairo,"Bar/Lounge, Business Center, Pool, Terrace/Balcony, 24-hour Front Desk, Airport Transfer, Beach Access, Spa, Restaurant, Room Service, Parking, Concierge",4981,4.4
+Conrad Cairo,Cairo,"24-hour Front Desk, Room Service, Conference Facilities, Restaurant, Airport Transfer, Bar/Lounge, Business Center, Breakfast Included, Pool, Fitness Center, Spa",2892,4.2
+St. Regis Cairo,Cairo,"Conference Facilities, Airport Transfer, Terrace/Balcony, Bar/Lounge, Business Center, Beach Access, Restaurant, Breakfast Included, Air Conditioning, Spa",2647,4.6
+Dusit Thani LakeView,Cairo,"Concierge, Room Service, Bar/Lounge, Terrace/Balcony, 24-hour Front Desk, Business Center, Restaurant, Fitness Center, Pool, Breakfast Included, Conference Facilities, Spa",4931,4.8
+Le Meridien Pyramids,Giza,"Air Conditioning, Breakfast Included, 24-hour Front Desk, Conference Facilities, Business Center, Fitness Center, Airport Transfer, Beach Access, Pool, Restaurant",1638,4.6
+Steigenberger Pyramids,Giza,"Fitness Center, Bar/Lounge, Free WiFi, Pool, 24-hour Front Desk, Breakfast Included, Air Conditioning",635,4.5
+Pyramids View Inn,Giza,"Pool, Breakfast Included, Free WiFi",327,3.6
+Hayat Pyramids View,Giza,"24-hour Front Desk, Parking, Pool",359,3.5
+Panorama Pyramids Inn,Giza,"Parking, Pool, 24-hour Front Desk",417,3.4
+Cataract Pyramids Resort,Giza,"Airport Transfer, Breakfast Included, Air Conditioning, Fitness Center, Free WiFi, Bar/Lounge",1353,3.6
+Guardian Guest House,Giza,"Air Conditioning, Breakfast Included, Parking, 24-hour Front Desk",425,3.9
+Great Pyramid Inn,Giza,"Pool, Free WiFi, 24-hour Front Desk",445,3.4
+MÃ¶venpick Cairo Media City,Giza,"Terrace/Balcony, Breakfast Included, Bar/Lounge, Free WiFi, Pool, Airport Transfer, Fitness Center",941,3.9
+Swiss Inn Pyramids Golf,Giza,"Bar/Lounge, Air Conditioning, Parking, Fitness Center, Free WiFi, Restaurant, Terrace/Balcony, Pool",746,4.2
+Hilton Luxor Resort,Luxor,"Air Conditioning, Conference Facilities, 24-hour Front Desk, Restaurant, Pool, Spa, Beach Access, Room Service, Parking, Airport Transfer, Terrace/Balcony",2403,4.1
+Sofitel Winter Palace,Luxor,"Parking, Restaurant, Fitness Center, Pool, Business Center, Spa, Beach Access, Air Conditioning, 24-hour Front Desk, Conference Facilities, Room Service, Concierge",4677,4.1
+Steigenberger Nile Palace,Luxor,"Fitness Center, Parking, 24-hour Front Desk, Pool, Restaurant, Free WiFi, Bar/Lounge, Air Conditioning",1080,4.3
+Pavillon Winter Luxor,Luxor,"Pool, 24-hour Front Desk, Free WiFi",267,3.7
+Jolie Ville Kings Island,Luxor,"Air Conditioning, Breakfast Included, Pool",316,3.7
+Sonesta St. George,Luxor,"Parking, Fitness Center, Breakfast Included, Restaurant, Airport Transfer, Pool, Free WiFi, Terrace/Balcony",1046,3.7
+Achti Resort Luxor,Luxor,"Breakfast Included, Airport Transfer, Free WiFi, Terrace/Balcony, Air Conditioning, 24-hour Front Desk",652,4.1
+Iberotel Luxor,Luxor,"Free WiFi, Bar/Lounge, Pool, Restaurant, 24-hour Front Desk, Air Conditioning, Fitness Center",1336,4.1
+Nefertiti Hotel,Luxor,"24-hour Front Desk, Breakfast Included, Free WiFi",202,3.3
+Aracan Eatabe Luxor Hotel,Luxor,"Parking, Pool, Breakfast Included, Bar/Lounge, Terrace/Balcony, Airport Transfer, Air Conditioning, Restaurant",1427,3.9
+Sofitel Legend Old Cataract,Aswan,"Business Center, Beach Access, Terrace/Balcony, Breakfast Included, Room Service, Spa, Concierge, Fitness Center, Conference Facilities, Bar/Lounge, 24-hour Front Desk",2388,4.1
+Movenpick Resort Aswan,Aswan,"24-hour Front Desk, Parking, Pool, Free WiFi, Restaurant, Bar/Lounge, Fitness Center",1008,4.4
+Basma Hotel Aswan,Aswan,"Parking, Breakfast Included, Air Conditioning, 24-hour Front Desk",374,3.1
+Helnan Aswan,Aswan,"Parking, Fitness Center, Air Conditioning, 24-hour Front Desk, Breakfast Included, Pool",1410,3.9
+Obelisk Nile Hotel,Aswan,"Airport Transfer, Fitness Center, Restaurant, Bar/Lounge, Pool, Breakfast Included",515,3.8
+Citymax Hotel Aswan,Aswan,"Free WiFi, Terrace/Balcony, Air Conditioning, Breakfast Included, Bar/Lounge, 24-hour Front Desk, Pool",1427,3.7
+Pyramisa Isis Island Aswan,Aswan,"Free WiFi, Fitness Center, Airport Transfer, Air Conditioning, Terrace/Balcony, Breakfast Included, Parking, Bar/Lounge",620,4.2
+Nile Hotel Aswan,Aswan,"Parking, Free WiFi, Pool",202,3.3
+Keylany Hotel,Aswan,"Parking, Breakfast Included, 24-hour Front Desk",443,3.6
+Hapi Hotel Aswan,Aswan,"Free WiFi, Parking, Breakfast Included, Pool",475,4
+Savoy Sharm El Sheikh,Sharm El Sheikh,"Pool, Breakfast Included, Air Conditioning, Free WiFi",438,3.7
+Rixos Sharm El Sheikh,Sharm El Sheikh,"Breakfast Included, Air Conditioning, Parking",293,3.2
+Baron Resort,Sharm El Sheikh,"24-hour Front Desk, Free WiFi, Restaurant, Airport Transfer, Air Conditioning, Fitness Center",784,3.9
+Four Seasons Resort,Sharm El Sheikh,"Bar/Lounge, Air Conditioning, Conference Facilities, Pool, Business Center, Airport Transfer, Parking, Spa, Room Service, Terrace/Balcony, Beach Access",4108,4.7
+Sunrise Arabian Beach,Sharm El Sheikh,"Restaurant, Fitness Center, Breakfast Included, 24-hour Front Desk, Pool, Terrace/Balcony, Air Conditioning, Airport Transfer",1230,3.9
+Grand Rotana Resort,Sharm El Sheikh,"Breakfast Included, Spa, 24-hour Front Desk, Business Center, Parking, Pool, Air Conditioning, Concierge, Beach Access, Room Service, Restaurant",4771,4.4
+Jolie Ville Golf & Resort,Sharm El Sheikh,"24-hour Front Desk, Pool, Bar/Lounge, Airport Transfer, Fitness Center, Free WiFi, Breakfast Included, Parking",1008,3.6
+Sierra Hotel,Sharm El Sheikh,"Parking, Free WiFi, 24-hour Front Desk",359,3.4
+Monte Carlo Sharm,Sharm El Sheikh,"Pool, 24-hour Front Desk, Parking, Air Conditioning",388,3.7
+Royal Savoy Sharm,Sharm El Sheikh,"Free WiFi, Air Conditioning, 24-hour Front Desk, Parking",397,3.2
+Steigenberger Al Dau,Hurghada,"Free WiFi, Restaurant, Terrace/Balcony, Breakfast Included, 24-hour Front Desk, Pool, Bar/Lounge, Parking",575,3.8
+Jaz Aquamarine,Hurghada,"Terrace/Balcony, 24-hour Front Desk, Airport Transfer, Restaurant, Pool, Free WiFi",848,4.5
+Sheraton Miramar,Hurghada,"Free WiFi, Parking, Breakfast Included, 24-hour Front Desk",207,3.8
+Sunrise Crystal Bay,Hurghada,"Air Conditioning, 24-hour Front Desk, Breakfast Included, Restaurant, Free WiFi, Pool, Airport Transfer",1230,3.6
+Desert Rose Resort,Hurghada,"Breakfast Included, Airport Transfer, Terrace/Balcony, Restaurant, Air Conditioning, Fitness Center",888,4.5
+Titanic Beach Spa & Aqua Park,Hurghada,"Restaurant, 24-hour Front Desk, Terrace/Balcony, Pool, Airport Transfer, Free WiFi",1399,4
+Dana Beach Resort,Hurghada,"Terrace/Balcony, Pool, Bar/Lounge, Air Conditioning, Breakfast Included, Restaurant, 24-hour Front Desk",644,3.9
+Albatros Palace Resort,Hurghada,"24-hour Front Desk, Air Conditioning, Free WiFi, Restaurant, Parking, Pool",1268,3.5
+Tropitel Sahl Hasheesh,Hurghada,"24-hour Front Desk, Air Conditioning, Airport Transfer, Fitness Center, Bar/Lounge, Breakfast Included",1370,4.5
+Jaz Makadi Saraya,Hurghada,"Breakfast Included, 24-hour Front Desk, Airport Transfer, Parking, Air Conditioning, Bar/Lounge, Fitness Center",840,4.5
+Four Seasons Alexandria,Alexandria,"Room Service, Bar/Lounge, Breakfast Included, 24-hour Front Desk, Pool, Air Conditioning, Parking, Terrace/Balcony, Airport Transfer, Beach Access, Conference Facilities",2007,4.7
+Hilton Alexandria Corniche,Alexandria,"Spa, Room Service, Pool, Business Center, Conference Facilities, Fitness Center, Terrace/Balcony, Parking, Restaurant, Airport Transfer, Breakfast Included",4431,4.1
+Steigenberger Cecil,Alexandria,"Restaurant, Pool, Free WiFi, Air Conditioning, Fitness Center, Breakfast Included, Parking, Airport Transfer",1103,3.7
+Paradise Inn Windsor,Alexandria,"24-hour Front Desk, Breakfast Included, Parking",455,3.2
+Tolip Hotel,Alexandria,"Pool, Air Conditioning, 24-hour Front Desk",402,3.4
+Radisson Blu Alexandria,Alexandria,"Air Conditioning, Free WiFi, Pool",324,3.8
+Sheraton Montazah,Alexandria,"Pool, 24-hour Front Desk, Free WiFi",263,3.8
+San Giovanni Stanly,Alexandria,"24-hour Front Desk, Free WiFi, Pool",267,3.2
+Romance Alexandria,Alexandria,"Parking, Breakfast Included, Air Conditioning",329,3.9
+Helnan Palestine Hotel,Alexandria,"Air Conditioning, Pool, Bar/Lounge, Airport Transfer, Parking, Terrace/Balcony, Free WiFi",1422,4.1
+Hilton Nubian Resort,Marsa Alam,"Room Service, Pool, Beach Access, Business Center, Bar/Lounge, Terrace/Balcony, Restaurant, Breakfast Included, Airport Transfer, Spa, Conference Facilities",3460,4.8
+Jaz Lamaya,Marsa Alam,"Bar/Lounge, Free WiFi, Fitness Center, Restaurant, Parking, 24-hour Front Desk, Terrace/Balcony",569,3.6
+The Three Corners Fayrouz,Marsa Alam,"24-hour Front Desk, Terrace/Balcony, Air Conditioning, Airport Transfer, Bar/Lounge, Pool",724,4.2
+Concorde Moreen Beach,Marsa Alam,"Parking, 24-hour Front Desk, Fitness Center, Airport Transfer, Bar/Lounge, Free WiFi, Pool, Restaurant",1331,4
+Steigenberger Coraya,Marsa Alam,"Free WiFi, Fitness Center, 24-hour Front Desk, Parking, Pool, Air Conditioning, Terrace/Balcony",545,4.2
+Malikia Resort Abu Dabbab,Marsa Alam,"Fitness Center, Free WiFi, Terrace/Balcony, Parking, Breakfast Included, 24-hour Front Desk",1356,3.6
+Marina Lodge at Port Ghalib,Marsa Alam,"Restaurant, Breakfast Included, Airport Transfer, Free WiFi, Fitness Center, Pool",951,4.1
+Elphistone Resort,Marsa Alam,"Breakfast Included, Terrace/Balcony, Bar/Lounge, Parking, Free WiFi, Pool, Airport Transfer",512,3.6
+Blue Reef Marsa Alam,Marsa Alam,"Air Conditioning, Bar/Lounge, Free WiFi, Fitness Center, Pool, Terrace/Balcony, Airport Transfer, 24-hour Front Desk",1356,4.4
+Brayka Bay Reef Resort,Marsa Alam,"Air Conditioning, Restaurant, Bar/Lounge, Free WiFi, 24-hour Front Desk, Fitness Center",979,4
+Le Meridien Dahab,Dahab,"Airport Transfer, Terrace/Balcony, Parking, Room Service, Concierge, Business Center, Fitness Center, 24-hour Front Desk, Bar/Lounge, Conference Facilities, Beach Access, Breakfast Included",3911,4.1
+Ecotel Dahab,Dahab,"Free WiFi, Parking, Breakfast Included",415,3.2
+Swiss Inn Resort,Dahab,"Air Conditioning, Airport Transfer, Bar/Lounge, Restaurant, Breakfast Included, 24-hour Front Desk",1088,4.1
+Tropitel Dahab Oasis,Dahab,"Fitness Center, 24-hour Front Desk, Pool, Airport Transfer, Terrace/Balcony, Air Conditioning, Breakfast Included, Bar/Lounge",1305,4.1
+Ganet Sinai,Dahab,"Air Conditioning, Free WiFi, 24-hour Front Desk",478,4
+Dahab Paradise,Dahab,"Parking, 24-hour Front Desk, Breakfast Included, Air Conditioning",267,3.9
+Happy Life Village,Dahab,"Restaurant, Terrace/Balcony, Pool, Free WiFi, Breakfast Included, Fitness Center, Air Conditioning",1496,3.7
+Red Sea Relax Resort,Dahab,"Parking, Airport Transfer, Terrace/Balcony, Restaurant, Air Conditioning, Free WiFi",1030,4.1
+Sheikh Ali Dahab,Dahab,"Air Conditioning, 24-hour Front Desk, Breakfast Included",445,3.7
+Blue Beach Club,Dahab,"Restaurant, Free WiFi, Air Conditioning, Parking, 24-hour Front Desk, Fitness Center, Airport Transfer, Pool",940,4.3
+Strand Beach Resort,Taba,"Bar/Lounge, Restaurant, Air Conditioning, Airport Transfer, Pool, Fitness Center",1130,3.9
+Movenpick Resort Taba,Taba,"Terrace/Balcony, Parking, Breakfast Included, Bar/Lounge, Airport Transfer, Fitness Center, Restaurant, 24-hour Front Desk",599,4.4
+Taba Hotel & Nelson Village,Taba,"Breakfast Included, 24-hour Front Desk, Free WiFi, Fitness Center, Air Conditioning, Restaurant",1103,3.8
+Tolip Taba Resort,Taba,"Fitness Center, Free WiFi, Airport Transfer, Bar/Lounge, 24-hour Front Desk, Breakfast Included",1385,4
+Sofitel Taba Heights,Taba,"Terrace/Balcony, Pool, Room Service, 24-hour Front Desk, Concierge, Air Conditioning, Restaurant, Breakfast Included, Conference Facilities, Parking",2957,4.6
+Bayview Taba Heights,Taba,"Parking, Restaurant, 24-hour Front Desk, Pool, Bar/Lounge, Airport Transfer",1315,3.9
+El Wekala Aqua Park Resort,Taba,"Air Conditioning, Restaurant, Free WiFi, Breakfast Included, Terrace/Balcony, Bar/Lounge, 24-hour Front Desk, Pool",1189,4.4
+Helnan Taba,Taba,"Bar/Lounge, Air Conditioning, Terrace/Balcony, Airport Transfer, Breakfast Included, Restaurant, Parking, Pool",503,4.5
+Coral Bay Resort,Taba,"Terrace/Balcony, Airport Transfer, Breakfast Included, Bar/Lounge, Restaurant, Free WiFi",585,4.5
+Adrere Amellal,Siwa,"24-hour Front Desk, Air Conditioning, Pool, Free WiFi",482,3.7
+Siwa Shali Resort,Siwa,"Terrace/Balcony, Fitness Center, 24-hour Front Desk, Restaurant, Free WiFi, Pool, Parking, Breakfast Included",1094,4.5
+Taziry Eco Lodge,Siwa,"Parking, Airport Transfer, Pool, Restaurant, Air Conditioning, Fitness Center, Terrace/Balcony",1144,4.3
+Albabenshal Lodge,Siwa,"Airport Transfer, Fitness Center, Pool, Restaurant, Terrace/Balcony, Parking, Air Conditioning, 24-hour Front Desk",1115,3.6
+Ghaliet Ecolodge,Siwa,"Breakfast Included, Restaurant, Airport Transfer, Air Conditioning, Parking, Bar/Lounge",1334,4
+Shali Lodge Siwa,Siwa,"Bar/Lounge, Parking, Free WiFi, 24-hour Front Desk, Pool, Restaurant",861,4.2
+Dream Lodge Siwa,Siwa,"Airport Transfer, Parking, Restaurant, Fitness Center, 24-hour Front Desk, Pool, Bar/Lounge, Air Conditioning",1314,4.4
+Siwa Safari Paradise,Siwa,"24-hour Front Desk, Pool, Free WiFi, Air Conditioning",272,3.8
+Kenooz Siwa Resort,Siwa,"24-hour Front Desk, Pool, Fitness Center, Bar/Lounge, Restaurant, Free WiFi, Airport Transfer",1483,4
+Helnan Auberge Fayoum,Fayoum,"Parking, Airport Transfer, Restaurant, Free WiFi, Fitness Center, Breakfast Included, Bar/Lounge",525,3.7
+Kom El Dikka Agri Lodge,Fayoum,"Terrace/Balcony, Airport Transfer, Pool, Free WiFi, 24-hour Front Desk, Parking",765,3.7
+Tunis Village Lodge,Fayoum,"Restaurant, Parking, Air Conditioning, Bar/Lounge, Fitness Center, Pool, Terrace/Balcony, 24-hour Front Desk",1077,4
+Lazib Inn Resort & Spa,Fayoum,"Pool, Bar/Lounge, Parking, Breakfast Included, Terrace/Balcony, Air Conditioning",553,4.3
+Byoum Lakeside Hotel,Fayoum,"Pool, Free WiFi, 24-hour Front Desk",259,3.5
+Zad El Mosafer Lodge,Fayoum,"Fitness Center, Air Conditioning, 24-hour Front Desk, Parking, Free WiFi, Airport Transfer, Pool, Bar/Lounge",1179,4.2
+New Panorama Resort,Fayoum,"Airport Transfer, Breakfast Included, Pool, Air Conditioning, Terrace/Balcony, Restaurant, Parking, Fitness Center",679,4.2
+Stella Di Mare Grand,Ain Sokhna,"Breakfast Included, Pool, Free WiFi",208,3.7
+Jaz Little Venice,Ain Sokhna,"Pool, Air Conditioning, Bar/Lounge, Fitness Center, Free WiFi, Breakfast Included, Terrace/Balcony, Parking",1136,3.8
+Cancun Sokhna Resort,Ain Sokhna,"24-hour Front Desk, Pool, Fitness Center, Airport Transfer, Free WiFi, Restaurant, Breakfast Included, Air Conditioning",1201,4
+Porto Sokhna Hotel,Ain Sokhna,"24-hour Front Desk, Fitness Center, Bar/Lounge, Pool, Restaurant, Breakfast Included, Airport Transfer",939,3.9
+Teda Swiss Inn Plaza,Ain Sokhna,"Free WiFi, Breakfast Included, Airport Transfer, Fitness Center, Restaurant, Air Conditioning",725,3.8
+Horizon El Wadi,Ain Sokhna,"Breakfast Included, 24-hour Front Desk, Free WiFi, Air Conditioning",228,3.7
+Ein Bay Resort,Ain Sokhna,"24-hour Front Desk, Breakfast Included, Air Conditioning, Terrace/Balcony, Restaurant, Bar/Lounge, Fitness Center, Pool",822,3.8
+Elite Residence Tulip,Ain Sokhna,"24-hour Front Desk, Parking, Air Conditioning, Free WiFi",338,3.7
+Resta Port Said,Port Said,"Free WiFi, Air Conditioning, Breakfast Included, 24-hour Front Desk",377,3.6
+Port Said Hotel & Apartments,Port Said,"Pool, 24-hour Front Desk, Air Conditioning",362,3
+Helnan Port Said,Port Said,"Breakfast Included, Fitness Center, 24-hour Front Desk, Terrace/Balcony, Air Conditioning, Parking, Pool, Airport Transfer",859,3.7
+Palace Hotel Port Said,Port Said,"24-hour Front Desk, Terrace/Balcony, Restaurant, Parking, Free WiFi, Bar/Lounge, Fitness Center, Pool",850,3.9
+Holiday Hotel Port Said,Port Said,"24-hour Front Desk, Air Conditioning, Parking, Breakfast Included",252,3.4
+De La Poste Hotel,Port Said,"Pool, Air Conditioning, Parking",393,3.8
+Light House Hotel,Port Said,"Breakfast Included, 24-hour Front Desk, Air Conditioning, Free WiFi",445,3.5
+Mercure Ismailia Forsan Island,Ismailia,"Bar/Lounge, Restaurant, Free WiFi, Fitness Center, Airport Transfer, Terrace/Balcony",1164,4
+Tolip El Forsan,Ismailia,"Free WiFi, Parking, Air Conditioning, Breakfast Included",401,3.1
+Six Corners Resort,Ismailia,"Terrace/Balcony, Free WiFi, 24-hour Front Desk, Breakfast Included, Bar/Lounge, Pool, Airport Transfer, Fitness Center",622,4
+Sporting Club Ismailia,Ismailia,"Pool, Terrace/Balcony, Free WiFi, Fitness Center, Restaurant, Airport Transfer, 24-hour Front Desk",538,4
+Salam Hotel,Ismailia,"Air Conditioning, Free WiFi, 24-hour Front Desk, Breakfast Included",344,3.8
+Assiut Hotel,Asyut,"Free WiFi, Pool, Air Conditioning, 24-hour Front Desk",341,3.7
+Al Waha Hotel,Asyut,"24-hour Front Desk, Parking, Air Conditioning",370,3.4
+Arabia Hotel Assiut,Asyut,"Parking, Free WiFi, 24-hour Front Desk",370,3.6
+Royal Palace Assiut,Asyut,"Terrace/Balcony, Free WiFi, Breakfast Included, Bar/Lounge, Parking, Pool, Air Conditioning, Airport Transfer",1257,4
+Grand Hotel Assiut,Asyut,"Free WiFi, 24-hour Front Desk, Breakfast Included, Pool",229,3.5
+Sohag Hotel,Sohag,"Air Conditioning, Breakfast Included, 24-hour Front Desk",478,3.2
+House of Life Abydos,Sohag,"Parking, Pool, Breakfast Included",253,3.9
+Lotus Hotel Sohag,Sohag,"Air Conditioning, Pool, Free WiFi, Breakfast Included",324,4
+El Safa Hotel,Sohag,"Breakfast Included, Air Conditioning, Pool, Parking",385,3.4
+Blue Nile Hotel,Sohag,"Free WiFi, Pool, Air Conditioning, 24-hour Front Desk",402,3.8
+Minya Palace Hotel,Minya,"Airport Transfer, Breakfast Included, Fitness Center, Bar/Lounge, Parking, Restaurant, 24-hour Front Desk, Air Conditioning",1329,4.1
+Grand Aton Hotel,Minya,"Air Conditioning, Breakfast Included, Pool",370,3.8
+New Helnan Minya,Minya,"Terrace/Balcony, Bar/Lounge, Fitness Center, 24-hour Front Desk, Restaurant, Breakfast Included, Air Conditioning, Free WiFi",1454,3.9
+Royal Minya Hotel,Minya,"Free WiFi, Breakfast Included, 24-hour Front Desk",201,3.5
+City Hotel Minya,Minya,"Parking, 24-hour Front Desk, Free WiFi, Pool",300,3.4
+Jaz Crystal Resort,Matrouh,"Parking, Restaurant, Breakfast Included, Airport Transfer, Pool, Free WiFi, Terrace/Balcony, Air Conditioning",1043,4
+Carols Beau Rivage,Matrouh,"Free WiFi, Parking, Breakfast Included",282,3.4
+Beau Site Belle Vue,Matrouh,"Breakfast Included, Parking, 24-hour Front Desk, Pool",497,3.9
+Negresco Matrouh,Matrouh,"24-hour Front Desk, Pool, Free WiFi",242,3.4
+Porto Matrouh Beach Resort,Matrouh,"Fitness Center, 24-hour Front Desk, Free WiFi, Terrace/Balcony, Airport Transfer, Air Conditioning, Restaurant",1182,4.1
+Qalyubia Business Hotel,Qalyubia,"Free Wi-Fi, Parking, Restaurant",1100,3.9
+Benha View Inn,Qalyubia,"Air Conditioning, Room Service, Gym",1250,4
+Mansoura Grand Hotel,Dakahlia,"Free Wi-Fi, Restaurant, Laundry Service",1300,4.2
+Nile Breeze Hotel,Dakahlia,"Parking, Terrace, Room Service",1150,3.8
+Damanhour Plaza,Beheira,"Wi-Fi, Gym, Parking",1200,4
+Zagazig Comfort Inn,Sharqia,"Wi-Fi, Breakfast Included, Parking",1000,3.7
+Menouf Executive Suites,Monufia,"Free Wi-Fi, AC, Restaurant",950,3.9
+Tanta Business Hotel,Gharbia,"Wi-Fi, Gym, Business Center",1350,4.1
+Delta Garden Inn,Kafr El-Sheikh,"Terrace, Breakfast Included, Parking",1050,4
+Nile Side Hotel,Beni Suef,"Wi-Fi, AC, Room Service",980,3.8
+Assiut Central Hotel,Assiut,"Restaurant, Free Wi-Fi, Parking",1100,4
+Qena Heritage Inn,Qena,"Terrace, Local Cuisine, Free Wi-Fi",950,4.1
+Coral Bay Resort,Red Sea,"Beach Access, Pool, Spa, Restaurant",3200,4.6
+Kharga Oasis Lodge,New Valley,"Cultural Tours, Balcony, Free Wi-Fi",1150,4.3
+Mediterranean Breeze Hotel,Matrouh,"Beach View, Parking, Breakfast Included",1500,4.4
+North Sinai Eco Lodge,North Sinai,"Local Cuisine, Guided Tours, Wi-Fi",1400,4.2
+South Sinai Retreat,South Sinai,"Mountain View, Terrace, Free Wi-Fi",1600,4.5
+Suez Canal View Hotel,Suez,"Business Center, Restaurant, Free Wi-Fi",1700,4.1
+Damietta Seaside Inn,Damietta,"Sea View, Breakfast Included, Wi-Fi",1450,4.2
+Nile Crown Hotel,Cairo,"WiFi, Pool, Gym, Restaurant",2200,4.5
+Mediterranean Pearl,Alexandria,"Beach Access, Spa, Bar",1800,4.2
+Pharaoh’s Palace,Luxor,"Rooftop View, Tour Desk, Free Breakfast",1500,4.3
+Nile Valley Resort,Aswan,"River View, Restaurant, Shuttle Service",1700,4.4
+Oasis Lake Inn,Fayoum,"Nature Trails, Local Cuisine, Free Parking",1300,4.1
+Dahab Blue Waves,Dahab,"Diving School, Beachfront, Lounge",1900,4.6
+Coral Sands Hotel,Hurghada,"Pool, Buffet, Snorkeling Trips",2400,4.7
+Red Sea Retreat,Marsa Alam,"Private Beach, Spa, Sunset Cruises",2100,4.5
+Gouna Bay Resort,Gouna,"Yacht Access, Eco-friendly, Kids Club",2600,4.3
+Desert Breeze Nuweiba,Nuweiba,"Secluded Beach, Hammocks, BBQ Grill",1200,4
+Reefside Inn,Sharm El Sheikh,"Diving Center, Live Entertainment, Pool Bar",2300,4.6
+Siwa Moon Lodge,Siwa,"Desert Safari, Salt Lake Views, WiFi",1400,4.4
+Sokhna Pearl Hotel,Ain El Sokhna,"Beach Volleyball, Spa, Infinity Pool",2000,4.2
+White Dunes Resort,Marsa Matrouh,"Sea View, Kids Playground, Breakfast Buffet",1600,4.3
+Gouna Marina Suites,Gouna,"Yacht View, Rooftop Pool, Free WiFi",2500,4.6
+Gouna Palm Resort,Gouna,"Spa, Lagoon Access, Fitness Center",2700,4.5
+Red Sea Breeze Hotel,Gouna,"Beachfront, Water Sports, All-Inclusive",2800,4.7
+Nuweiba Relax Camp,Nuweiba,"Eco-Lodge, Hammocks, Sunset Dinners",1100,4.2
+Coral Camp Nuweiba,Nuweiba,"Snorkeling, Seaview Huts, WiFi",1300,4.3
+Bedouin Star Hotel,Nuweiba,"Desert Tours, Chill-out Zone, BBQ Nights",1200,4.1
+Sokhna Sunrise Resort,Ain El Sokhna,"Infinity Pool, Spa, Beach Access",2300,4.4
+El Sokhna Paradise Inn,Ain El Sokhna,"Gym, Breakfast Included, Free Parking",2100,4.3
+Sokhna View Hotel,Ain El Sokhna,"Sea View Rooms, Family Friendly, WiFi",2200,4.5
+Matrouh Beachside Inn,Marsa Matrouh,"Private Beach, Breakfast Buffet, WiFi",1500,4.2
+Matrouh Sunset Hotel,Marsa Matrouh,"Rooftop Dining, Sea View, Air Conditioning",1600,4.1
+White Pearl Matrouh,Marsa Matrouh,"Family Suites, Playground, Restaurant",1700,4.3

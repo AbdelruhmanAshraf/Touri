@@ -1,0 +1,21 @@
+Origin,Destination,Airline,Price (SAR)
+Jeddah,Madinah,Saudi Arabia Air,1145
+Riyadh,Jeddah,Saudi Arabia Air,2155
+Makkah,Madinah,Saudi Arabia Air,2509
+Madinah,Jeddah,Saudi Arabia Air,1185
+Jeddah,Dammam,Saudi Arabia Air,1405
+Riyadh,Dammam,Saudi Arabia Air,2787
+Jeddah,Riyadh,Saudi Arabia Air,1009
+Madinah,Dammam,Saudi Arabia Air,767
+Dammam,Riyadh,Saudi Arabia Air,974
+Jeddah,Madinah,Saudi Arabia Air,1922
+Riyadh,Jeddah,Saudi Arabia Air,1991
+Makkah,Dammam,Saudi Arabia Air,2464
+Riyadh,Dammam,Saudi Arabia Air,2723
+Jeddah,Makkah,Saudi Arabia Air,2961
+Madinah,Dammam,Saudi Arabia Air,1538
+Jeddah,Riyadh,Saudi Arabia Air,2296
+Dammam,Riyadh,Saudi Arabia Air,1069
+Jeddah,Makkah,Saudi Arabia Air,2564
+Makkah,Jeddah,Saudi Arabia Air,1720
+Dammam,Riyadh,Saudi Arabia Air,2562
