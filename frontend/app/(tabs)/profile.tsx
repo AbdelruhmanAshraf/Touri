@@ -10,10 +10,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -26,17 +26,34 @@ import { useRouter } from 'expo-router';
 import { applyLanguage, type AppLanguage } from '@/i18n';
 import { GUEST_LIMITS, useAuth } from '@/hooks/useAuth';
 import { api, getOrCreateUserId, type PersonaWrite, type UserPersona } from '@/services/api';
-
-const PRIMARY = '#00A896';
-const BG = '#F2F2F7';
-const SURFACE = '#FFFFFF';
-const BORDER = '#E5E5EA';
-const TEXT = '#1C1C1E';
-const MUTED = '#8E8E93';
+import { EGYPT_GOVERNORATES } from '@/constants/Governorates';
+import NotionAvatar from '@/components/NotionAvatar';
+import {
+  PRIMARY,
+  BG,
+  SURFACE,
+  BORDER_COLOR,
+  TEXT,
+  MUTED,
+  PLACEHOLDER,
+  ERROR,
+  RADIUS,
+  RADIUS_SM,
+  RADIUS_PILL,
+  SPACING,
+} from '@/theme/tokens';
 
 const TOURISM_OPTS: { value: 'leisure' | 'medical'; en: string; ar: string; icon: keyof typeof Ionicons.glyphMap }[] = [
   { value: 'leisure', en: 'Leisure',  ar: 'ترفيهية', icon: 'sunny-outline' },
   { value: 'medical', en: 'Medical',  ar: 'علاجية',  icon: 'medkit-outline' },
+];
+
+const ALLERGY_OPTS: { value: string; en: string; ar: string }[] = [
+  { value: 'nuts',    en: 'Nuts',    ar: 'مكسرات' },
+  { value: 'dairy',   en: 'Dairy',   ar: 'ألبان' },
+  { value: 'gluten',  en: 'Gluten',  ar: 'جلوتين' },
+  { value: 'seafood', en: 'Seafood', ar: 'مأكولات بحرية' },
+  { value: 'none',    en: 'None',    ar: 'لا يوجد' },
 ];
 
 const BUDGET_OPTS: {
@@ -84,7 +101,7 @@ const propStyles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 18, paddingVertical: 14, minHeight: 52,
   },
-  divider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: BORDER },
+  divider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: BORDER_COLOR },
   left: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
   label: { fontSize: 14, fontWeight: '500', color: TEXT },
   right: { flex: 1.2, alignItems: 'flex-end' },
@@ -126,10 +143,60 @@ function ToggleGroup<T extends string>({
 const toggleStyles = StyleSheet.create({
   chip: {
     paddingHorizontal: 10, paddingVertical: 5,
-    borderRadius: 20, borderWidth: 1.5, borderColor: BORDER,
+    borderRadius: 20, borderWidth: 1.5, borderColor: BORDER_COLOR,
   },
   txt: { fontSize: 12, fontWeight: '600', color: MUTED },
 });
+
+// ── Multi-select chip group (for allergies) ───────────────────────────────────
+function MultiChipGroup({
+  selected,
+  options,
+  onChange,
+}: {
+  selected: string[];
+  options: { value: string; label: string; color?: string }[];
+  onChange: (values: string[]) => void;
+}) {
+  const toggle = (val: string) => {
+    if (val === 'none') {
+      // Selecting "none" clears all others
+      onChange(selected.includes('none') ? [] : ['none']);
+      return;
+    }
+    // Remove "none" if selecting an actual allergy
+    let next = selected.filter((v) => v !== 'none');
+    if (next.includes(val)) {
+      next = next.filter((v) => v !== val);
+    } else {
+      next = [...next, val];
+    }
+    onChange(next);
+  };
+
+  return (
+    <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+      {options.map((opt) => {
+        const active = selected.includes(opt.value);
+        const col = opt.color ?? '#DC2626';
+        return (
+          <TouchableOpacity
+            key={opt.value}
+            style={[
+              toggleStyles.chip,
+              active && { backgroundColor: `${col}15`, borderColor: col },
+            ]}
+            onPress={() => toggle(opt.value)}
+          >
+            <Text style={[toggleStyles.txt, active && { color: col, fontWeight: '700' }]}>
+              {opt.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
 
 // ── Section card ──────────────────────────────────────────────────────────────
 function Section({ label, children }: { label?: string; children: React.ReactNode }) {
@@ -143,7 +210,7 @@ function Section({ label, children }: { label?: string; children: React.ReactNod
 const sectionStyles = StyleSheet.create({
   wrap: { gap: 6 },
   label: { fontSize: 11, fontWeight: '700', color: MUTED, textTransform: 'uppercase', letterSpacing: 0.8, paddingHorizontal: 4 },
-  card: { backgroundColor: SURFACE, borderRadius: 16, borderWidth: 1, borderColor: BORDER, overflow: 'hidden' },
+  card: { backgroundColor: SURFACE, borderRadius: RADIUS, borderWidth: 1, borderColor: BORDER_COLOR, overflow: 'hidden' },
 });
 
 // ── Main screen ───────────────────────────────────────────────────────────────
@@ -156,7 +223,7 @@ export default function ProfileScreen() {
   const [persona, setPersona] = useState<UserPersona | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [editDest, setEditDest] = useState(false);
+  const [destModalOpen, setDestModalOpen] = useState(false);
   const savingAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -215,16 +282,13 @@ export default function ProfileScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* ── Avatar + identity block ── */}
+        {/* ── Avatar + identity block (Notion-style B&W line art) ── */}
         <View style={styles.identityBlock}>
           <View style={styles.avatarShell}>
-            {user?.photoURL ? (
-              <Image source={{ uri: user.photoURL }} style={styles.avatarImg} contentFit="cover" transition={200} />
-            ) : (
-              <View style={styles.avatarFallback}>
-                <Text style={styles.avatarLetters}>{avatarLetters}</Text>
-              </View>
-            )}
+            <NotionAvatar
+              id={user?.uid ?? user?.email ?? 'guest'}
+              size={56}
+            />
           </View>
           <View style={styles.identityText}>
             <Text style={styles.displayName}>{displayName}</Text>
@@ -261,28 +325,12 @@ export default function ProfileScreen() {
             <Section label={isAr ? 'التفضيلات' : 'Preferences'}>
               {/* Destination */}
               <PropRow icon="location-outline" label={isAr ? 'الوجهة' : 'Destination'}>
-                {editDest ? (
-                  <TextInput
-                    style={styles.inlineInput}
-                    value={persona.preferred_destination ?? ''}
-                    autoFocus
-                    onChangeText={(v) => setPersona((p) => p ? { ...p, preferred_destination: v } : p)}
-                    onBlur={() => {
-                      setEditDest(false);
-                      update({ preferred_destination: persona.preferred_destination || undefined });
-                    }}
-                    placeholder={isAr ? 'اكتب الوجهة' : 'e.g. Cairo'}
-                    placeholderTextColor="#C7C7CC"
-                    textAlign={isAr ? 'right' : 'left'}
-                  />
-                ) : (
-                  <TouchableOpacity onPress={() => setEditDest(true)} style={styles.valuePill}>
-                    <Text style={styles.valuePillTxt} numberOfLines={1}>
-                      {persona.preferred_destination || (isAr ? 'اضغط للتعديل' : 'Tap to set')}
-                    </Text>
-                    <Feather name="edit-2" size={11} color={MUTED} />
-                  </TouchableOpacity>
-                )}
+                <TouchableOpacity onPress={() => setDestModalOpen(true)} style={styles.valuePill}>
+                  <Text style={styles.valuePillTxt} numberOfLines={1}>
+                    {persona.preferred_destination || (isAr ? 'اضغط للتعديل' : 'Tap to set')}
+                  </Text>
+                  <Feather name="chevron-down" size={11} color={MUTED} />
+                </TouchableOpacity>
               </PropRow>
 
               {/* Tourism type */}
@@ -304,7 +352,7 @@ export default function ProfileScreen() {
               </PropRow>
 
               {/* Party size */}
-              <PropRow icon="people-outline" label={isAr ? 'عدد المسافرين' : 'Travelers'} last>
+              <PropRow icon="people-outline" label={isAr ? 'عدد المسافرين' : 'Travelers'}>
                 <View style={styles.stepper}>
                   <TouchableOpacity
                     style={styles.stepBtn}
@@ -320,6 +368,17 @@ export default function ProfileScreen() {
                     <MaterialIcons name="add" size={16} color={TEXT} />
                   </TouchableOpacity>
                 </View>
+              </PropRow>
+
+              {/* Food Allergies */}
+              <PropRow icon="nutrition-outline" label={isAr ? 'الحساسية الغذائية' : 'Food Allergies'} last>
+                <MultiChipGroup
+                  selected={((persona.extras as Record<string, unknown>)?.allergies as string[]) ?? []}
+                  options={ALLERGY_OPTS.map((o) => ({ value: o.value, label: isAr ? o.ar : o.en }))}
+                  onChange={(values) =>
+                    update({ extras: { ...(persona.extras || {}), allergies: values } })
+                  }
+                />
               </PropRow>
             </Section>
 
@@ -351,17 +410,51 @@ export default function ProfileScreen() {
         <Section label={isAr ? 'الحساب' : 'Account'}>
           <TouchableOpacity style={styles.actionRow} onPress={handleSignOut}>
             <View style={styles.actionLeft}>
-              <Ionicons name="log-out-outline" size={16} color="#FF3B30" style={{ width: 20 }} />
-              <Text style={[styles.actionTxt, { color: '#FF3B30' }]}>
+              <Ionicons name="log-out-outline" size={16} color={ERROR} style={{ width: 20 }} />
+              <Text style={[styles.actionTxt, { color: ERROR }]}>
                 {isAr ? 'تسجيل الخروج' : 'Sign Out'}
               </Text>
             </View>
-            <Feather name="chevron-right" size={16} color="#FF3B30" />
+            <Feather name="chevron-right" size={16} color={ERROR} />
           </TouchableOpacity>
         </Section>
 
         <Text style={styles.version}>Tripmind v1.0 · Egypt Travel AI</Text>
       </ScrollView>
+
+      {/* ── Governorate picker modal ── */}
+      <Modal visible={destModalOpen} animationType="slide" transparent presentationStyle="overFullScreen">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={[styles.modalHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+              <Text style={styles.modalTitle}>{isAr ? 'اختر المحافظة' : 'Select Governorate'}</Text>
+              <TouchableOpacity onPress={() => setDestModalOpen(false)}>
+                <Feather name="x" size={22} color={MUTED} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {EGYPT_GOVERNORATES.map((gov) => {
+                const active = persona?.preferred_destination === gov;
+                return (
+                  <TouchableOpacity
+                    key={gov}
+                    style={[styles.modalRow, active && { backgroundColor: `${PRIMARY}10` }]}
+                    onPress={() => {
+                      update({ preferred_destination: gov });
+                      setDestModalOpen(false);
+                    }}
+                  >
+                    <Text style={[styles.modalRowTxt, active && { color: PRIMARY, fontWeight: '700' }]}>
+                      {gov}
+                    </Text>
+                    {active && <Feather name="check" size={16} color={PRIMARY} />}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -380,8 +473,8 @@ const styles = StyleSheet.create({
   // ── Identity block ──
   identityBlock: {
     flexDirection: 'row', alignItems: 'center', gap: 14,
-    backgroundColor: SURFACE, borderRadius: 16,
-    padding: 16, borderWidth: 1, borderColor: BORDER,
+    backgroundColor: SURFACE, borderRadius: RADIUS,
+    padding: SPACING, borderWidth: 1, borderColor: BORDER_COLOR,
   },
   avatarShell: { position: 'relative' },
   avatarImg: { width: 52, height: 52, borderRadius: 26 },
@@ -395,18 +488,18 @@ const styles = StyleSheet.create({
   displayName: { fontSize: 17, fontWeight: '700', color: TEXT },
   emailLine: { fontSize: 13, color: MUTED },
   verifiedBadge: {
-    width: 20, height: 20, borderRadius: 10,
+    width: 20, height: 20, borderRadius: RADIUS_SM,
     backgroundColor: PRIMARY, alignItems: 'center', justifyContent: 'center',
   },
 
-  errTxt: { color: '#FF3B30', fontSize: 13, textAlign: 'center', marginTop: -8 },
+  errTxt: { color: ERROR, fontSize: 13, textAlign: 'center', marginTop: -8 },
 
   // ── Guest block ──
   guestBlock: {
     alignItems: 'center', gap: 10, padding: 24,
   },
   guestIconWrap: {
-    width: 52, height: 52, borderRadius: 16,
+    width: 52, height: 52, borderRadius: RADIUS,
     backgroundColor: `${PRIMARY}15`, alignItems: 'center', justifyContent: 'center',
   },
   guestTitle: { fontSize: 16, fontWeight: '700', color: TEXT, textAlign: 'center' },
@@ -420,30 +513,25 @@ const styles = StyleSheet.create({
   // ── Value pill (inline edit trigger) ──
   valuePill: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
-    backgroundColor: BG, borderRadius: 10,
+    backgroundColor: BG, borderRadius: RADIUS_SM,
     paddingHorizontal: 10, paddingVertical: 6,
     maxWidth: 180,
   },
   valuePillTxt: { fontSize: 13, fontWeight: '600', color: TEXT, flex: 1, textAlign: 'right' },
-  inlineInput: {
-    fontSize: 13, color: TEXT, fontWeight: '600',
-    borderBottomWidth: 1.5, borderBottomColor: PRIMARY,
-    minWidth: 120, textAlign: 'right', paddingVertical: 2,
-  },
 
   // ── Stepper ──
   stepper: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   stepBtn: {
-    width: 30, height: 30, borderRadius: 10,
+    width: 30, height: 30, borderRadius: RADIUS_SM,
     backgroundColor: BG, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: BORDER,
+    borderWidth: 1, borderColor: BORDER_COLOR,
   },
   stepVal: { fontSize: 17, fontWeight: '800', color: TEXT, minWidth: 24, textAlign: 'center' },
 
   // ── Language buttons ──
   langBtn: {
     paddingHorizontal: 14, paddingVertical: 6,
-    borderRadius: 20, borderWidth: 1.5, borderColor: BORDER,
+    borderRadius: 20, borderWidth: 1.5, borderColor: BORDER_COLOR,
   },
   langBtnActive: { backgroundColor: PRIMARY, borderColor: PRIMARY },
   langTxt: { fontSize: 13, fontWeight: '700', color: MUTED },
@@ -457,5 +545,31 @@ const styles = StyleSheet.create({
   actionLeft: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   actionTxt: { fontSize: 15, fontWeight: '600' },
 
-  version: { textAlign: 'center', fontSize: 11, color: '#C7C7CC', paddingBottom: 8 },
+  version: { textAlign: 'center', fontSize: 11, color: PLACEHOLDER, paddingBottom: 8 },
+
+  // ── Modal ──
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'flex-end',
+  },
+  modalCard: {
+    backgroundColor: SURFACE,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingTop: 16,
+    paddingBottom: 40,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 20, paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: BORDER_COLOR,
+  },
+  modalTitle: { fontSize: 16, fontWeight: '700', color: TEXT },
+  modalRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 20, paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: BORDER_COLOR,
+  },
+  modalRowTxt: { fontSize: 14, color: TEXT, fontWeight: '500' },
 });

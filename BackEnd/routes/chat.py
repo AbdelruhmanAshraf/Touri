@@ -13,16 +13,18 @@ from __future__ import annotations
 import json
 import logging
 import uuid
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Path, WebSocket, WebSocketDisconnect
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
-from agents.graph import run_chat
+from agents.gemini_chat import run_multimodal_chat, stream_gemini_chat
+from agents.graph import run_chat, stream_chat
 from agents.llm import FAST_MODEL, get_llm, lang_directive
 from agents.state import AgentStep, ChatMessage, fresh_state
-from memory.firebase_client import is_ready as firebase_ready
+from memory.firebase_client import get_db, is_ready as firebase_ready
 from memory.user_persona import (
     BudgetBracket,
     TourismType,
@@ -38,12 +40,22 @@ router = APIRouter(prefix="/api", tags=["chat"])
 
 
 # ── Request / response schemas ────────────────────────────────────────────────
+class MultimodalPart(BaseModel):
+    """One attachment chunk: image, audio, video, or PDF as base64."""
+
+    mime_type: str = Field(..., min_length=3)
+    data: str = Field(..., description="Base64-encoded blob (no data: prefix).")
+
+
 class ChatRequest(BaseModel):
     user_id: str
     message: str
     session_id: Optional[str] = None
     language: str = Field(default="en", pattern=r"^(en|ar)$")
     history: List[ChatMessage] = Field(default_factory=list)
+    # Optional multimodal attachments. When present, the request is routed to
+    # the native Gemini multimodal handler instead of the LangGraph workflow.
+    parts: List[MultimodalPart] = Field(default_factory=list)
 
 
 class ChatResponse(BaseModel):
@@ -84,6 +96,10 @@ async def _auto_generate_trip(uid: str, persona: "UserPersona") -> None:
     Background task: fires a synthetic trip-planning chat right after
     onboarding persona is saved, so the Itinerary tab has content immediately.
 
+    The full agent output (message, itinerary, budget breakdown, suggestions)
+    is persisted to ``users/{uid}/trips/initial`` in Firestore. The frontend
+    Itinerary tab fetches this on mount so the user lands on a populated page.
+
     Runs silently — errors are logged but never surfaced to the caller.
     """
     try:
@@ -108,10 +124,29 @@ async def _auto_generate_trip(uid: str, persona: "UserPersona") -> None:
             language="en",
             chat_history=[],
         )
-        logger.info(
-            "[auto_trip] generated for uid=%s dest=%s agent=%s",
-            uid, dest, state.get("active_agent"),
-        )
+
+        # ── Persist to Firestore so the Itinerary tab can fetch it on mount.
+        trip_doc = {
+            "session_id": sid,
+            "destination": dest,
+            "party_size": party,
+            "tourism_type": tourism,
+            "budget_bracket": budget_label,
+            "message": state.get("response_text", ""),
+            "itinerary": state.get("itinerary"),
+            "budget_breakdown": state.get("budget_breakdown"),
+            "suggestions": state.get("suggestions", []),
+            "agent": state.get("active_agent"),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "source": "auto_onboarding",
+        }
+        try:
+            db = get_db()
+            db.collection("users").document(uid).collection("trips").document("initial").set(trip_doc)
+            logger.info("[auto_trip] persisted users/%s/trips/initial (dest=%s)", uid, dest)
+        except Exception as fs_exc:  # noqa: BLE001
+            logger.warning("[auto_trip] firestore persist failed for uid=%s: %s", uid, fs_exc)
+
     except Exception as exc:  # noqa: BLE001
         logger.warning("[auto_trip] background generation failed for uid=%s: %s", uid, exc)
 
@@ -133,17 +168,33 @@ def _persona_to_dict(p: UserPersona) -> Dict[str, Any]:
 @router.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest) -> ChatResponse:
     session_id = req.session_id or str(uuid.uuid4())
-    try:
-        state = await run_chat(
-            user_id=req.user_id,
-            session_id=session_id,
-            user_message=req.message,
-            language=req.language,
-            chat_history=req.history,
-        )
-    except Exception as exc:  # noqa: BLE001
-        logger.error("[chat] graph failed: %s", exc, exc_info=True)
-        raise HTTPException(status_code=500, detail=str(exc))
+
+    # Branch 1: multimodal — hand off to the native Gemini handler.
+    if req.parts:
+        try:
+            state = await run_multimodal_chat(
+                user_id=req.user_id,
+                session_id=session_id,
+                text=req.message,
+                parts=[p.model_dump() for p in req.parts],
+                language=req.language,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.error("[chat] multimodal failed: %s", exc, exc_info=True)
+            raise HTTPException(status_code=500, detail=str(exc))
+    else:
+        # Branch 2: standard LangGraph multi-agent workflow.
+        try:
+            state = await run_chat(
+                user_id=req.user_id,
+                session_id=session_id,
+                user_message=req.message,
+                language=req.language,
+                chat_history=req.history,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.error("[chat] graph failed: %s", exc, exc_info=True)
+            raise HTTPException(status_code=500, detail=str(exc))
 
     return ChatResponse(
         session_id=session_id,
@@ -201,43 +252,43 @@ async def delete_persona_route(uid: str = Path(..., min_length=1)) -> Dict[str, 
     return {"deleted": deleted}
 
 
-# ── WebSocket: streaming chat ─────────────────────────────────────────────────
-async def _stream_final_message(
-    websocket: WebSocket, language: str, response_text: str
-) -> None:
+# ── REST: trips ──────────────────────────────────────────────────────────────
+@router.get("/user/{uid}/trips/initial")
+async def get_initial_trip(uid: str = Path(..., min_length=1)) -> Dict[str, Any]:
     """
-    Re-stream the agent's finalised reply token-by-token through Gemini.
-
-    The LangGraph agents return a fully composed ``response_text``; for the
-    mobile UI we want the *appearance* of token streaming. We feed the reply
-    back through Gemini with a one-shot "echo this" instruction so the
-    frontend receives small chunks in real time.
+    Fetch the auto-generated trip that was created in the background right
+    after onboarding completion. Returns an empty payload if the document
+    doesn't exist yet (still generating, or generation failed).
     """
-    if not response_text:
-        return
-    llm = get_llm(model=FAST_MODEL, streaming=True, temperature=0.0)
-    echo_prompt = (
-        "Repeat the following text exactly, preserving wording, formatting "
-        "and line breaks. Do not add commentary.\n\n" + response_text
-    )
+    _require_firebase()
     try:
-        async for chunk in llm.astream(
-            [
-                SystemMessage(content=lang_directive(language)),
-                HumanMessage(content=echo_prompt),
-            ]
-        ):
-            token = getattr(chunk, "content", "") or ""
-            if token:
-                await websocket.send_json({"type": "token", "content": token})
+        db = get_db()
+        snap = db.collection("users").document(uid).collection("trips").document("initial").get()
+        if not snap.exists:
+            return {"found": False}
+        data = snap.to_dict() or {}
+        return {"found": True, **data}
     except Exception as exc:  # noqa: BLE001
-        # If streaming fails for any reason, deliver the full text in one shot.
-        logger.warning("[ws] token stream failed (%s) — sending full reply.", exc)
-        await websocket.send_json({"type": "token", "content": response_text})
+        logger.error("[trips] fetch failed for uid=%s: %s", uid, exc)
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
+# ── WebSocket: streaming chat ─────────────────────────────────────────────────
 @router.websocket("/chat/ws")
 async def chat_ws(websocket: WebSocket) -> None:
+    """
+    Streaming chat WebSocket — Phase 4 native Gemini SDK pipeline.
+
+    Path A (multimodal OR plain text): we stream tokens directly out of
+    ``stream_gemini_chat``, which calls
+    ``model.generate_content_async(stream=True)`` natively against
+    ``gemini-2.5-flash`` (Gemma cannot do multimodal/tool-calling).
+
+    Path B (legacy LangGraph workflow): retained for the rich itinerary +
+    budget agents. The structured output is still streamed back to the UI so
+    the typing animation stays smooth, but tokens come from Gemini's native
+    stream rather than a LangChain echo step.
+    """
     await websocket.accept()
     logger.info("[ws] client connected")
     try:
@@ -252,68 +303,164 @@ async def chat_ws(websocket: WebSocket) -> None:
             user_id = str(payload.get("user_id") or "").strip()
             message = str(payload.get("message") or "").strip()
             language = payload.get("language") or "en"
+            language = language if language in ("en", "ar") else "en"
             session_id = str(payload.get("session_id") or uuid.uuid4())
             history_raw = payload.get("history") or []
+            parts_raw = payload.get("parts") or []
+            is_multimodal = (
+                payload.get("type") == "multimodal" or bool(parts_raw)
+            )
+            # Allow the client to opt-in / out of LangGraph for plain text turns.
+            use_graph = bool(payload.get("use_graph", False))
 
-            if not user_id or not message:
+            if not user_id or (not message and not parts_raw):
                 await websocket.send_json(
-                    {"type": "error", "message": "user_id and message are required."}
+                    {"type": "error", "message": "user_id and message (or parts) are required."}
                 )
                 continue
 
             await websocket.send_json(
-                {
-                    "type": "status",
-                    "phase": "thinking",
-                    "session_id": session_id,
-                }
+                {"type": "status", "phase": "thinking", "session_id": session_id}
             )
 
+            # ── Path A: native Gemini streaming (multimodal OR fast text) ──
+            if is_multimodal or not use_graph:
+                response_text = ""
+                trace_steps: List[Dict[str, Any]] = []
+                final_payload: Optional[Dict[str, Any]] = None
+
+                await websocket.send_json(
+                    {"type": "status", "phase": "streaming", "agent": "Gemini"}
+                )
+
+                try:
+                    async for evt in stream_gemini_chat(
+                        user_id=user_id,
+                        session_id=session_id,
+                        text=message,
+                        parts=parts_raw,
+                        language=language,
+                        enable_tools=True,
+                    ):
+                        kind = evt.get("type")
+                        if kind == "token":
+                            response_text += evt["content"]
+                            await websocket.send_json(
+                                {"type": "token", "content": evt["content"]}
+                            )
+                        elif kind == "trace":
+                            trace_steps.append(evt["step"])
+                            await websocket.send_json(
+                                {"type": "trace", "step": evt["step"]}
+                            )
+                        elif kind == "final":
+                            final_payload = evt
+                except Exception as exc:  # noqa: BLE001
+                    logger.error("[ws] gemini stream failed: %s", exc, exc_info=True)
+                    await websocket.send_json({"type": "error", "message": str(exc)})
+                    continue
+
+                final_text = (final_payload or {}).get("text") or response_text
+                await websocket.send_json(
+                    {
+                        "type": "final",
+                        "session_id": session_id,
+                        "message": final_text,
+                        "agent": (final_payload or {}).get("agent", "Gemini"),
+                        "intent": (final_payload or {}).get("intent", "general"),
+                        "language": language,
+                        "agent_trace": trace_steps,
+                        "itinerary": None,
+                        "budget_breakdown": None,
+                        "suggestions": [],
+                    }
+                )
+                continue
+
+            # ── Path B: full LangGraph workflow with live streaming ─────────
             try:
-                state = await run_chat(
+                all_trace: List[Dict[str, Any]] = []
+                final_state: Dict[str, Any] = {}
+
+                async for evt in stream_chat(
                     user_id=user_id,
                     session_id=session_id,
                     user_message=message,
-                    language=language if language in ("en", "ar") else "en",
+                    language=language,
                     chat_history=history_raw,
-                )
+                ):
+                    evt_type = evt.get("type")
+
+                    if evt_type == "node_start":
+                        # Stream the active agent node label to the UI
+                        await websocket.send_json(
+                            {
+                                "type": "status",
+                                "phase": "streaming",
+                                "agent": evt.get("label", ""),
+                                "status_msg": evt.get("status_msg", ""),
+                                "node": evt.get("node", ""),
+                            }
+                        )
+
+                    elif evt_type == "trace":
+                        step = evt.get("step", {})
+                        all_trace.append(step)
+                        await websocket.send_json({"type": "trace", "step": step})
+
+                    elif evt_type == "node_end":
+                        node_state = evt.get("state", {})
+                        final_state.update(node_state)
+
+                    elif evt_type == "final":
+                        final_state.update(evt.get("state", {}))
+
             except Exception as exc:  # noqa: BLE001
-                logger.error("[ws] graph failed: %s", exc, exc_info=True)
+                logger.error("[ws] graph stream failed: %s", exc, exc_info=True)
                 await websocket.send_json({"type": "error", "message": str(exc)})
                 continue
 
-            # Replay agent_trace steps so the UI can animate the audit panel.
-            for step in state.get("agent_trace", []):
-                await websocket.send_json({"type": "trace", "step": step})
+            # Re-stream the response text token-by-token for smooth UI
+            response_text = final_state.get("response_text", "") or ""
+            if response_text:
+                echo_prompt = (
+                    "Repeat the following text verbatim, preserving wording "
+                    "and line breaks. Do not add commentary.\n\n" + response_text
+                )
+                try:
+                    async for evt in stream_gemini_chat(
+                        user_id=user_id,
+                        session_id=session_id,
+                        text=echo_prompt,
+                        parts=None,
+                        language=language,
+                        enable_tools=False,
+                    ):
+                        if evt.get("type") == "token":
+                            await websocket.send_json(
+                                {"type": "token", "content": evt["content"]}
+                            )
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning(
+                        "[ws] native echo stream failed (%s) — sending full reply.",
+                        exc,
+                    )
+                    await websocket.send_json(
+                        {"type": "token", "content": response_text}
+                    )
 
-            # Stream the response text token-by-token.
-            await websocket.send_json(
-                {
-                    "type": "status",
-                    "phase": "streaming",
-                    "agent": state.get("active_agent"),
-                    "intent": state.get("intent"),
-                }
-            )
-            await _stream_final_message(
-                websocket,
-                language=state.get("language", language),
-                response_text=state.get("response_text", ""),
-            )
-
-            # Final structured payload (so the UI has the full ChatResponse).
             await websocket.send_json(
                 {
                     "type": "final",
                     "session_id": session_id,
-                    "message": state.get("response_text", ""),
-                    "agent": state.get("active_agent"),
-                    "intent": state.get("intent"),
-                    "language": state.get("language"),
-                    "agent_trace": state.get("agent_trace", []),
-                    "itinerary": state.get("itinerary"),
-                    "budget_breakdown": state.get("budget_breakdown"),
-                    "suggestions": state.get("suggestions", []),
+                    "message": response_text,
+                    "agent": final_state.get("active_agent"),
+                    "intent": final_state.get("intent"),
+                    "language": final_state.get("language", language),
+                    "agent_trace": all_trace,
+                    "itinerary": final_state.get("itinerary"),
+                    "budget_breakdown": final_state.get("budget_breakdown"),
+                    "suggestions": final_state.get("suggestions", []),
                 }
             )
     except WebSocketDisconnect:

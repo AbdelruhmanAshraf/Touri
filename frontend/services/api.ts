@@ -14,6 +14,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
 
+import { SECURE_KEYS, deleteSecure, getSecure, setSecure } from './secureStore';
+
 const RAW_BASE =
   process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/$/, '') ??
   'http://localhost:8000';
@@ -72,12 +74,36 @@ export type BudgetBreakdown = {
   [k: string]: unknown;
 };
 
+export type MultimodalPart = {
+  mime_type: string;
+  data: string; // base64-encoded blob, no data: prefix
+};
+
 export type ChatRequest = {
   user_id: string;
   message: string;
   session_id?: string;
   language?: Language;
   history?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  // Optional multimodal attachments — when populated, the backend routes the
+  // request to the native Gemini multimodal handler instead of LangGraph.
+  parts?: MultimodalPart[];
+  type?: 'multimodal' | 'text';
+};
+
+export type InitialTrip = {
+  found: boolean;
+  session_id?: string;
+  destination?: string;
+  party_size?: number;
+  tourism_type?: string;
+  budget_bracket?: string;
+  message?: string;
+  itinerary?: Itinerary | null;
+  budget_breakdown?: BudgetBreakdown | null;
+  suggestions?: string[];
+  agent?: string;
+  generated_at?: string;
 };
 
 export type ChatResponse = {
@@ -155,6 +181,10 @@ export type CatalogHome = {
   popular: CatalogCard[];
   featured_hotels: CatalogCard[];
   local_food: CatalogCard[];
+  // Phase-5 named proximity sections (only present when ``city`` is provided).
+  nearby_suggestions?: CatalogCard[];
+  localized_offers?: CatalogCard[];
+  hot_spots?: CatalogCard[];
   meta: {
     total_attractions: number;
     total_hotels: number;
@@ -198,11 +228,51 @@ export type IntakeData = {
   tourism_type: 'standard' | 'medical';
 };
 
+// ── Session token helpers (Phase 5) ──────────────────────────────────────────
+export type AuthSession = {
+  user_id: string;
+  access_token: string;
+  refresh_token?: string;
+  expires_in: number;
+};
+
+export async function getAccessToken(): Promise<string | null> {
+  return getSecure(SECURE_KEYS.ACCESS_TOKEN);
+}
+
+async function setAccessToken(token: string): Promise<void> {
+  await setSecure(SECURE_KEYS.ACCESS_TOKEN, token);
+}
+
+async function setRefreshToken(token: string): Promise<void> {
+  await setSecure(SECURE_KEYS.REFRESH_TOKEN, token);
+}
+
+export async function clearSessionTokens(): Promise<void> {
+  await Promise.all([
+    deleteSecure(SECURE_KEYS.ACCESS_TOKEN),
+    deleteSecure(SECURE_KEYS.REFRESH_TOKEN),
+  ]);
+}
+
 // ── Fetch helper ──────────────────────────────────────────────────────────────
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...((init?.headers as Record<string, string> | undefined) ?? {}),
+  };
+
+  // Attach the access token automatically when one is stored. Cookies are
+  // also honoured server-side via `credentials: 'include'`.
+  const token = await getAccessToken();
+  if (token && !headers.Authorization) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     ...init,
+    headers,
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
@@ -228,6 +298,8 @@ export const api = {
     request<{ deleted: boolean }>(`/api/user/${encodeURIComponent(uid)}/persona`, {
       method: 'DELETE',
     }),
+  getInitialTrip: (uid: string) =>
+    request<InitialTrip>(`/api/user/${encodeURIComponent(uid)}/trips/initial`),
   health: () =>
     fetch(`${API_BASE_URL}/health`).then(
       (r) => r.json() as Promise<Record<string, unknown>>,
@@ -249,11 +321,41 @@ export const api = {
     ),
   getCatalogCategories: () =>
     request<Record<string, string[]>>('/api/catalog/categories'),
+
+  // ── Auth / Session (Phase 5) ─────────────────────────────────────────────
+  startSession: async (body: { user_id: string; id_token?: string }) => {
+    const data = await request<AuthSession>('/api/auth/session', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+    if (data.access_token) await setAccessToken(data.access_token);
+    if (data.refresh_token) await setRefreshToken(data.refresh_token);
+    return data;
+  },
+  refreshSession: async () => {
+    const data = await request<AuthSession>('/api/auth/refresh', {
+      method: 'POST',
+    });
+    if (data.access_token) await setAccessToken(data.access_token);
+    if (data.refresh_token) await setRefreshToken(data.refresh_token);
+    return data;
+  },
+  logoutSession: async () => {
+    try {
+      await request<{ ok: boolean }>('/api/auth/logout', { method: 'POST' });
+    } finally {
+      await clearSessionTokens();
+    }
+  },
+  getMe: () =>
+    request<{ user_id: string; authenticated: boolean; expires_at?: string }>(
+      '/api/auth/me',
+    ),
 };
 
 // ── WebSocket streaming ───────────────────────────────────────────────────────
 export type WSEvent =
-  | { type: 'status'; phase: 'thinking' | 'streaming'; session_id?: string; agent?: string; intent?: string }
+  | { type: 'status'; phase: 'thinking' | 'streaming'; session_id?: string; agent?: string; intent?: string; status_msg?: string; node?: string }
   | { type: 'trace'; step: AgentStep }
   | { type: 'token'; content: string }
   | {
@@ -273,7 +375,7 @@ export type WSEvent =
 export type StreamHandlers = {
   onToken?: (text: string) => void;
   onTrace?: (step: AgentStep) => void;
-  onStatus?: (status: { phase: string; agent?: string; intent?: string; session_id?: string }) => void;
+  onStatus?: (status: { phase: string; agent?: string; intent?: string; session_id?: string; status_msg?: string; node?: string }) => void;
   onFinal?: (final: Extract<WSEvent, { type: 'final' }>) => void;
   onError?: (error: string) => void;
   onClose?: () => void;

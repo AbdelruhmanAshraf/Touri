@@ -31,15 +31,19 @@ import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Audio } from 'expo-av';
 
 import { Colors } from '@/constants/Colors';
+import { BG, SURFACE, BORDER_COLOR, PRIMARY, PRIMARY_DARK, PRIMARY_LIGHT, TEXT, MUTED, PLACEHOLDER, ERROR, RADIUS, RADIUS_XL, RADIUS_PILL } from '@/theme/tokens';
 import AgentTracePanel from '@/components/AgentTracePanel';
 import { GUEST_LIMITS, useAuth } from '@/hooks/useAuth';
 import {
   api,
   type AgentStep,
   type ChatResponse,
+  type MultimodalPart,
   getOrCreateSessionId,
   getOrCreateUserId,
   openChatStream,
@@ -85,6 +89,7 @@ export default function ChatScreen() {
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [statusText, setStatusText] = useState<string | null>(null);
+  const [activeAgent, setActiveAgent] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [isTraceVisible, setIsTraceVisible] = useState(false);
   const [activeSuggestions, setActiveSuggestions] = useState<string[]>(
@@ -138,6 +143,42 @@ export default function ChatScreen() {
     }
   };
 
+  // ── Document picker (PDFs) ────────────────────────────────────────────────
+  const pickDocument = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
+      if (result.canceled || !result.assets || result.assets.length === 0) return;
+      const asset = result.assets[0];
+      setPendingAttachments((prev) => [
+        ...prev,
+        {
+          uri: asset.uri,
+          mimeType: asset.mimeType ?? 'application/pdf',
+          name: asset.name ?? 'document.pdf',
+        },
+      ]);
+    } catch (e) {
+      console.warn('[chat] document picker error', e);
+    }
+  };
+
+  // ── Base64-encode a local file URI for the WebSocket payload ──────────────
+  const toBase64Part = async (a: Attachment): Promise<MultimodalPart | null> => {
+    try {
+      const data = await FileSystem.readAsStringAsync(a.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return { mime_type: a.mimeType, data };
+    } catch (e) {
+      console.warn('[chat] base64 encode failed for', a.uri, e);
+      return null;
+    }
+  };
+
   // ── Audio recorder ────────────────────────────────────────────────────────
   const toggleRecording = async () => {
     if (isRecording) {
@@ -177,7 +218,8 @@ export default function ChatScreen() {
 
   const send = async (overrideText?: string) => {
     const text = (overrideText ?? input).trim();
-    if (!text || streaming) return;
+    // Allow sending with attachments only (no text), but never with neither.
+    if ((!text && pendingAttachments.length === 0) || streaming) return;
     if (guestLimitReached) {
       setErr(t('chat.guestEnded', { used: userMessageCount, limit: GUEST_LIMITS.maxChatMessagesPerSession }) ?? 'Guest preview ended.');
       return;
@@ -209,14 +251,24 @@ export default function ChatScreen() {
 
     const stream = openChatStream({
       onStatus: (s) => {
-        if (s.phase === 'thinking') setStatusText(t('chat.thinking'));
-        if (s.phase === 'streaming') setStatusText(t('chat.streaming'));
+        if (s.phase === 'thinking') {
+          setStatusText(t('chat.thinking'));
+          setActiveAgent(null);
+        }
+        if (s.phase === 'streaming') {
+          // Show the live agent name + status message from the graph
+          const agentLabel = (s as any).agent || '';
+          const statusMsg = (s as any).status_msg || '';
+          setActiveAgent(agentLabel);
+          setStatusText(statusMsg || agentLabel || t('chat.streaming'));
+        }
       },
       onTrace: (step) => setTrace((prev) => [...prev, step]),
       onToken: appendToken,
       onFinal: async (final) => {
         finalSeen = true;
         setStatusText(null);
+        setActiveAgent(null);
         setStreaming(false);
 
         const suggestions: string[] = final.suggestions ?? [];
@@ -256,6 +308,14 @@ export default function ChatScreen() {
       onClose: () => { if (!finalSeen) setStreaming(false); },
     });
 
+    // Encode all attachments to base64 before sending (parallel for speed).
+    const encoded: MultimodalPart[] = [];
+    if (attachments.length > 0) {
+      const results = await Promise.all(attachments.map(toBase64Part));
+      for (const r of results) if (r) encoded.push(r);
+    }
+    const hasMultimodal = encoded.length > 0;
+
     try {
       await stream.send({
         user_id: uid,
@@ -263,6 +323,7 @@ export default function ChatScreen() {
         message: text,
         language: isAr ? 'ar' : 'en',
         history: turns.map((m) => ({ role: m.role, content: m.text })),
+        ...(hasMultimodal ? { type: 'multimodal', parts: encoded } : {}),
       });
     } catch {
       // WebSocket unavailable — degrade to single-shot REST.
@@ -272,6 +333,7 @@ export default function ChatScreen() {
           session_id: sid,
           message: text,
           language: isAr ? 'ar' : 'en',
+          ...(hasMultimodal ? { type: 'multimodal', parts: encoded } : {}),
         });
         setTurns((prev) =>
           prev.map((m) =>
@@ -337,7 +399,7 @@ export default function ChatScreen() {
           {turns.length === 0 && !streaming && (
             <View style={styles.emptyState}>
               <View style={styles.emptyIcon}>
-                <MaterialIcons name="auto-awesome" size={32} color="#00A896" />
+                <MaterialIcons name="auto-awesome" size={32} color={PRIMARY} />
               </View>
               <Text style={[styles.emptyTitle, { textAlign: isAr ? 'right' : 'left' }]}>
                 {t('chat.emptyTitle')}
@@ -357,9 +419,14 @@ export default function ChatScreen() {
                       {m.attachments.map((a, i) =>
                         a.mimeType.startsWith('image/') ? (
                           <Image key={i} source={{ uri: a.uri }} style={[styles.msgAttachImg, { borderRadius: 12 }]} contentFit="cover" />
+                        ) : a.mimeType === 'application/pdf' ? (
+                          <View key={i} style={styles.msgAttachAudio}>
+                            <Feather name="file-text" size={14} color={PRIMARY} />
+                            <Text style={styles.msgAttachAudioTxt}>{a.name}</Text>
+                          </View>
                         ) : (
                           <View key={i} style={styles.msgAttachAudio}>
-                            <Feather name="mic" size={14} color="#00A896" />
+                            <Feather name="mic" size={14} color={PRIMARY} />
                             <Text style={styles.msgAttachAudioTxt}>Voice note</Text>
                           </View>
                         ),
@@ -390,14 +457,16 @@ export default function ChatScreen() {
             {streaming && statusText && (
               <View style={[styles.statusRow, { justifyContent: isAr ? 'flex-end' : 'flex-start' }]}>
                 <View style={styles.statusDot} />
-                <Text style={styles.statusTxt}>{statusText}</Text>
+                <Text style={styles.statusTxt}>
+                  {activeAgent ? `[${activeAgent}] ${statusText}` : statusText}
+                </Text>
               </View>
             )}
           </View>
 
           {err && (
             <View style={styles.errBanner}>
-              <Ionicons name="warning-outline" size={16} color="#FF3B30" />
+              <Ionicons name="warning-outline" size={16} color={ERROR} />
               <Text style={styles.errTxt}>{err}</Text>
             </View>
           )}
@@ -458,8 +527,10 @@ export default function ChatScreen() {
                 <View key={i} style={styles.attachmentChip}>
                   {a.mimeType.startsWith('image/') ? (
                     <Image source={{ uri: a.uri }} style={styles.attachThumb} contentFit="cover" />
+                  ) : a.mimeType === 'application/pdf' ? (
+                    <Feather name="file-text" size={16} color={PRIMARY} />
                   ) : (
-                    <Feather name="mic" size={14} color="#00A896" />
+                    <Feather name="mic" size={14} color={PRIMARY} />
                   )}
                   <TouchableOpacity
                     style={styles.attachRemove}
@@ -479,7 +550,7 @@ export default function ChatScreen() {
               onPress={toggleRecording}
               disabled={streaming || guestLimitReached}
             >
-              <Feather name="mic" size={18} color={isRecording ? '#fff' : '#8E8E93'} />
+              <Feather name="mic" size={18} color={isRecording ? '#fff' : MUTED} />
             </TouchableOpacity>
 
             {/* Image picker button */}
@@ -488,13 +559,22 @@ export default function ChatScreen() {
               onPress={pickImage}
               disabled={streaming || guestLimitReached}
             >
-              <Feather name="image" size={18} color="#8E8E93" />
+              <Feather name="image" size={18} color={MUTED} />
+            </TouchableOpacity>
+
+            {/* Document picker button (PDF) */}
+            <TouchableOpacity
+              style={styles.mediaBtn}
+              onPress={pickDocument}
+              disabled={streaming || guestLimitReached}
+            >
+              <Feather name="paperclip" size={18} color={MUTED} />
             </TouchableOpacity>
 
             <TextInput
               style={[styles.inputField, { textAlign: isAr ? 'right' : 'left' }]}
               placeholder={t('chat.placeholder')}
-              placeholderTextColor="#C7C7CC"
+              placeholderTextColor={PLACEHOLDER}
               value={input}
               onChangeText={setInput}
               multiline
@@ -523,7 +603,7 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F2F2F7' },
+  safeArea: { flex: 1, backgroundColor: BG },
 
   header: {
     justifyContent: 'space-between',
@@ -537,29 +617,29 @@ const styles = StyleSheet.create({
   headerLeft: { alignItems: 'center', gap: 8 },
   aiDot: {
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: '#00A896', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: PRIMARY, alignItems: 'center', justifyContent: 'center',
   },
-  headerTitle: { fontSize: 18, fontWeight: '800', color: '#1C1C1E', letterSpacing: -0.3 },
+  headerTitle: { fontSize: 18, fontWeight: '800', color: TEXT, letterSpacing: -0.3 },
   traceBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
-    backgroundColor: '#F2F2F7',
-    paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16,
+    backgroundColor: BG,
+    paddingHorizontal: 10, paddingVertical: 6, borderRadius: RADIUS,
   },
-  traceBtnTxt: { color: '#8E8E93', fontWeight: '600', fontSize: 12 },
+  traceBtnTxt: { color: MUTED, fontWeight: '600', fontSize: 12 },
 
   scrollContent: { padding: 20, paddingBottom: 20 },
 
   emptyState: { paddingVertical: 32, alignItems: 'flex-start', gap: 10 },
   emptyIcon: {
     width: 56, height: 56, borderRadius: 18,
-    backgroundColor: '#E6F7F5', alignItems: 'center', justifyContent: 'center', marginBottom: 4,
+    backgroundColor: PRIMARY_LIGHT, alignItems: 'center', justifyContent: 'center', marginBottom: 4,
   },
-  emptyTitle: { fontSize: 22, fontWeight: '800', color: '#1C1C1E', letterSpacing: -0.3 },
-  emptySub: { fontSize: 14, color: '#8E8E93', lineHeight: 22, maxWidth: 320 },
+  emptyTitle: { fontSize: 22, fontWeight: '800', color: TEXT, letterSpacing: -0.3 },
+  emptySub: { fontSize: 14, color: MUTED, lineHeight: 22, maxWidth: 320 },
 
   userRow: { width: '100%' },
   userBubble: {
-    maxWidth: '82%', backgroundColor: '#1C1C1E',
+    maxWidth: '82%', backgroundColor: TEXT,
     paddingHorizontal: 18, paddingVertical: 12, borderRadius: 20,
     borderBottomRightRadius: 4,
   },
@@ -569,67 +649,67 @@ const styles = StyleSheet.create({
   aiMeta: { alignItems: 'center', gap: 6 },
   aiIcon: {
     width: 22, height: 22, borderRadius: 11,
-    backgroundColor: '#00A896', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: PRIMARY, alignItems: 'center', justifyContent: 'center',
   },
-  aiLabel: { fontSize: 12, fontWeight: '700', color: '#00A896' },
+  aiLabel: { fontSize: 12, fontWeight: '700', color: PRIMARY },
   aiBubble: {
-    backgroundColor: '#fff', borderRadius: 20, borderTopLeftRadius: 4,
+    backgroundColor: SURFACE, borderRadius: 20, borderTopLeftRadius: 4,
     paddingHorizontal: 18, paddingVertical: 14,
-    borderWidth: 1, borderColor: '#E5E5EA',
+    borderWidth: 1, borderColor: BORDER_COLOR,
   },
-  aiText: { fontSize: 15, color: '#1C1C1E', lineHeight: 24 },
+  aiText: { fontSize: 15, color: TEXT, lineHeight: 24 },
 
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  statusDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#00A896' },
-  statusTxt: { color: '#8E8E93', fontSize: 13, fontStyle: 'italic' },
+  statusDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: PRIMARY },
+  statusTxt: { color: MUTED, fontSize: 13, fontStyle: 'italic' },
 
   errBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: '#FFF1F0', borderRadius: 12,
     paddingHorizontal: 14, paddingVertical: 10, marginTop: 8,
   },
-  errTxt: { color: '#FF3B30', fontSize: 13, flex: 1 },
+  errTxt: { color: ERROR, fontSize: 13, flex: 1 },
 
   guestBanner: {
     alignItems: 'center', gap: 8,
     marginHorizontal: 16, marginBottom: 8,
     paddingHorizontal: 12, paddingVertical: 10,
-    backgroundColor: '#E6F7F5', borderRadius: 12,
+    backgroundColor: PRIMARY_LIGHT, borderRadius: 12,
   },
-  guestTxt: { flex: 1, fontSize: 12, color: '#028090', fontWeight: '500' },
-  guestSignInBtn: { paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#00A896', borderRadius: 999 },
+  guestTxt: { flex: 1, fontSize: 12, color: PRIMARY_DARK, fontWeight: '500' },
+  guestSignInBtn: { paddingHorizontal: 12, paddingVertical: 6, backgroundColor: PRIMARY, borderRadius: RADIUS_PILL },
   guestSignInTxt: { color: '#fff', fontSize: 12, fontWeight: '700' },
 
   chipsContainer: { paddingBottom: 4 },
   chipsScroll: { paddingHorizontal: 16, gap: 8 },
   chip: {
     paddingHorizontal: 14, paddingVertical: 8,
-    backgroundColor: '#fff', borderRadius: 20,
+    backgroundColor: SURFACE, borderRadius: 20,
     borderWidth: 1.5, borderColor: '#00A89640',
   },
-  chipTxt: { fontSize: 13, fontWeight: '600', color: '#00A896' },
+  chipTxt: { fontSize: 13, fontWeight: '600', color: PRIMARY },
 
   inputArea: {
     padding: 12,
     paddingBottom: Platform.OS === 'ios' ? 16 : 12,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: BG,
   },
   inputRow: {
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: SURFACE,
     borderWidth: 1.5,
-    borderColor: '#E5E5EA',
-    borderRadius: 24,
+    borderColor: BORDER_COLOR,
+    borderRadius: RADIUS_XL,
     paddingHorizontal: 8,
     paddingVertical: 6,
     gap: 6,
   },
   inputField: {
     flex: 1, paddingHorizontal: 8,
-    fontSize: 15, maxHeight: 120, color: '#1C1C1E',
+    fontSize: 15, maxHeight: 120, color: TEXT,
   },
   sendBtn: {
-    width: 38, height: 38, backgroundColor: '#00A896',
+    width: 38, height: 38, backgroundColor: PRIMARY,
     borderRadius: 19, alignItems: 'center', justifyContent: 'center',
   },
   sendBtnDisabled: { opacity: 0.4 },
@@ -640,7 +720,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     backgroundColor: 'transparent',
   },
-  mediaBtnActive: { backgroundColor: '#FF3B30' },
+  mediaBtnActive: { backgroundColor: ERROR },
 
   // ── Pending attachment previews (above input) ──
   attachmentsRow: {
@@ -648,7 +728,7 @@ const styles = StyleSheet.create({
   },
   attachmentChip: {
     width: 52, height: 52, borderRadius: 12,
-    backgroundColor: '#E6F7F5', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: PRIMARY_LIGHT, alignItems: 'center', justifyContent: 'center',
     overflow: 'hidden',
   },
   attachThumb: { width: '100%', height: '100%' },
@@ -666,8 +746,8 @@ const styles = StyleSheet.create({
   msgAttachImg: { width: 120, height: 120 },
   msgAttachAudio: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#E6F7F5', paddingHorizontal: 10, paddingVertical: 6,
+    backgroundColor: PRIMARY_LIGHT, paddingHorizontal: 10, paddingVertical: 6,
     borderRadius: 12,
   },
-  msgAttachAudioTxt: { fontSize: 12, color: '#00A896', fontWeight: '600' },
+  msgAttachAudioTxt: { fontSize: 12, color: PRIMARY, fontWeight: '600' },
 });

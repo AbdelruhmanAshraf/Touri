@@ -122,12 +122,20 @@ def _persona_summary(state: AgentState) -> str:
     p = state.get("user_persona")
     if not p:
         return "(no persona on file)"
-    return (
-        f"tourism_type={p.tourism_type.value}, "
-        f"party_size={p.party_size}, "
-        f"budget={p.budget_bracket.value}, "
-        f"preferred_destination={p.preferred_destination or 'unspecified'}"
-    )
+    parts = [
+        f"tourism_type={p.tourism_type.value}",
+        f"party_size={p.party_size}",
+        f"budget={p.budget_bracket.value}",
+        f"preferred_destination={p.preferred_destination or 'unspecified'}",
+    ]
+    if p.extras:
+        dietary = p.extras.get("dietary_restrictions") or []
+        allergies = p.extras.get("allergies") or []
+        if dietary:
+            parts.append(f"dietary=[{', '.join(str(d) for d in dietary)}]")
+        if allergies:
+            parts.append(f"allergies=[{', '.join(str(a) for a in allergies)}]")
+    return ", ".join(parts)
 
 
 def _extract_json(raw: str) -> Dict[str, Any] | None:

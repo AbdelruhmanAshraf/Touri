@@ -1,6 +1,10 @@
 """
 Router agent: persona load + bilingual intent detection + delegation.
 
+Ingests the text query + current user's Firestore UserPersona (including
+the new ``extras.allergies`` field) and categorizes intent into:
+    trip_planning | budget_query | local_info | general
+
 Output: ``state['intent']``, ``state['active_agent']``, ``state['user_persona']``.
 """
 
@@ -49,7 +53,7 @@ def _heuristic_intent(message: str) -> Optional[Intent]:
 # ── LLM intent detection (fallback) ───────────────────────────────────────────
 _INTENT_PROMPT_EN = """\
 You classify a traveller's chat message into exactly ONE intent for our routing
-graph. Return JSON only: {"intent": "<one of: trip_planning | budget_query | local_info | general>"}.
+graph. Return JSON only: {{"intent": "<one of: trip_planning | budget_query | local_info | general>"}}.
 
 Definitions:
 - trip_planning: user wants an itinerary, day-by-day plan, route, multi-stop tour.
@@ -57,13 +61,16 @@ Definitions:
 - local_info: user asks for restaurants, dining, cafes, events, hidden gems, attractions.
 - general: small talk, greetings, anything not above.
 
+User persona context:
+{persona_context}
+
 Message:
 {message}
 """
 
 _INTENT_PROMPT_AR = """\
 صنّف رسالة المسافر إلى نية واحدة فقط من النوايا التالية. أعد JSON فقط:
-{"intent": "<trip_planning | budget_query | local_info | general>"}
+{{"intent": "<trip_planning | budget_query | local_info | general>"}}
 
 التعريفات:
 - trip_planning: المستخدم يريد خطة رحلة أو جدول يومي.
@@ -71,15 +78,40 @@ _INTENT_PROMPT_AR = """\
 - local_info: سؤال عن المطاعم، الفعاليات، الأماكن المحلية أو الخفية.
 - general: محادثة عامة أو لا تنطبق الفئات السابقة.
 
+سياق ملف المستخدم:
+{persona_context}
+
 الرسالة:
 {message}
 """
 
 
-async def _llm_intent(message: str, language: str) -> Intent:
+def _build_persona_context(persona: Optional[UserPersona]) -> str:
+    """Serialize persona fields (including allergies) for the LLM prompt."""
+    if not persona:
+        return "(no persona on file)"
+    parts = [
+        f"tourism_type={persona.tourism_type.value}",
+        f"party_size={persona.party_size}",
+        f"budget={persona.budget_bracket.value}",
+        f"destination={persona.preferred_destination or 'unspecified'}",
+    ]
+    if persona.extras:
+        dietary = persona.extras.get("dietary_restrictions") or []
+        allergies = persona.extras.get("allergies") or []
+        if dietary:
+            parts.append(f"dietary={','.join(str(d) for d in dietary)}")
+        if allergies:
+            parts.append(f"allergies={','.join(str(a) for a in allergies)}")
+    return " | ".join(parts)
+
+
+async def _llm_intent(message: str, language: str, persona: Optional[UserPersona] = None) -> Intent:
     llm = get_llm(model=FAST_MODEL, temperature=0.0, streaming=False)
+    persona_context = _build_persona_context(persona)
     prompt = (_INTENT_PROMPT_AR if language == "ar" else _INTENT_PROMPT_EN).format(
         message=message,
+        persona_context=persona_context,
     )
     try:
         resp = await llm.ainvoke(
@@ -117,6 +149,14 @@ _AGENT_LABEL = {
     "fallback": "Travel Planner",
 }
 
+_AGENT_LABEL_AR = {
+    "trip_planning": "وكيل التخطيط",
+    "budget_query": "خبير الميزانية",
+    "local_info": "الكونسيرج المحلي",
+    "general": "وكيل التخطيط",
+    "fallback": "وكيل التخطيط",
+}
+
 
 async def route(state: AgentState) -> AgentState:
     """LangGraph node: enriches state with persona + intent + active_agent."""
@@ -124,9 +164,16 @@ async def route(state: AgentState) -> AgentState:
     message = state.get("user_message", "")
     user_id = state.get("user_id", "")
 
-    # 1. Persona
+    # 1. Persona (including allergies from extras)
     persona = await _load_persona(user_id)
     state["user_persona"] = persona
+
+    allergies_str = ""
+    if persona and persona.extras:
+        allergies = persona.extras.get("allergies") or []
+        if allergies:
+            allergies_str = ", ".join(str(a) for a in allergies)
+
     state["agent_trace"].append(
         make_step(
             agent="Router",
@@ -134,21 +181,22 @@ async def route(state: AgentState) -> AgentState:
             tool="firestore",
             reasoning=t(
                 language,
-                "Pulled persona to bias intent (tourism_type, budget bracket, party size).",
-                "تم تحميل ملف المستخدم لتحسين فهم النية (نوع السياحة، الميزانية، عدد المسافرين).",
+                "Pulled persona to bias intent (tourism_type, budget, allergies, dietary).",
+                "تم تحميل ملف المستخدم لتحسين فهم النية (نوع السياحة، الميزانية، الحساسية الغذائية).",
             ),
             result=(
                 f"tourism_type={persona.tourism_type.value}, "
                 f"party_size={persona.party_size}, "
                 f"budget={persona.budget_bracket.value}"
+                + (f", allergies=[{allergies_str}]" if allergies_str else "")
             )
             if persona
             else (None),
         )
     )
 
-    # 2. Intent — try heuristics first, fall back to Gemini
-    intent: Intent = _heuristic_intent(message) or await _llm_intent(message, language)
+    # 2. Intent — try heuristics first, fall back to Gemma-4-27B-IT
+    intent: Intent = _heuristic_intent(message) or await _llm_intent(message, language, persona)
 
     # 3. Persona override: if user is on Medical tourism and intent is generic,
     #    prefer trip planning so the planner can weave in healthcare facilities.
@@ -165,7 +213,7 @@ async def route(state: AgentState) -> AgentState:
             reasoning=t(
                 language,
                 f"Classified message as '{intent}', delegating to {_AGENT_LABEL[intent]}.",
-                f"تم تصنيف الرسالة كـ '{intent}' وتفويض المهمة إلى {_AGENT_LABEL[intent]}.",
+                f"تم تصنيف الرسالة كـ '{intent}' وتفويض المهمة إلى {_AGENT_LABEL_AR[intent]}.",
             ),
             result=intent,
         )

@@ -91,6 +91,8 @@ Constraints:
 - If the persona's tourism_type is medical, insert AT LEAST one healthcare
   facility from the medical section as a 'medical' activity per day, and
   keep the rest of the day calm (no strenuous tours back-to-back).
+- If the persona has food_allergies, ensure any restaurant activities avoid
+  those allergens. Mention "allergy-safe" in the title if relevant.
 - Use names that appear in the grounded knowledge whenever possible.
 - Return ONLY the JSON object — no commentary.
 """
@@ -136,6 +138,7 @@ _PLANNER_PROMPT_AR = """\
 شروط:
 - 2-4 أنشطة لكل يوم.
 - إذا كان نوع السياحة طبيًا، أضف على الأقل منشأة صحية واحدة في كل يوم وحافظ على وتيرة هادئة.
+- إذا كان لدى المستخدم حساسية غذائية، تأكد أن أنشطة المطاعم تتجنب مسببات الحساسية.
 - استخدم الأسماء الموجودة في المعرفة الموثقة قدر الإمكان.
 - أعد JSON فقط بدون أي تعليق.
 """
@@ -145,12 +148,20 @@ def _persona_summary(state: AgentState) -> str:
     p = state.get("user_persona")
     if not p:
         return "(no persona on file)"
-    return (
-        f"tourism_type={p.tourism_type.value}, "
-        f"party_size={p.party_size}, "
-        f"budget={p.budget_bracket.value}, "
-        f"preferred_destination={p.preferred_destination or 'unspecified'}"
-    )
+    parts = [
+        f"tourism_type={p.tourism_type.value}",
+        f"party_size={p.party_size}",
+        f"budget={p.budget_bracket.value}",
+        f"preferred_destination={p.preferred_destination or 'unspecified'}",
+    ]
+    if p.extras:
+        dietary = p.extras.get("dietary_restrictions") or []
+        allergies = p.extras.get("allergies") or []
+        if dietary:
+            parts.append(f"dietary_restrictions=[{', '.join(str(d) for d in dietary)}]")
+        if allergies:
+            parts.append(f"food_allergies=[{', '.join(str(a) for a in allergies)}]")
+    return ", ".join(parts)
 
 
 def _extract_json(raw: str) -> Dict[str, Any] | None:
