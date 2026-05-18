@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import threading
 import urllib.parse
 from pathlib import Path
 from typing import Optional
@@ -35,15 +36,24 @@ logger = logging.getLogger(__name__)
 CACHE_FILE = BACKEND_DIR / "data" / "image_cache.json"
 WIKI_API = "https://en.wikipedia.org/api/rest_v1/page/summary/"
 WIKI_SEARCH = "https://en.wikipedia.org/w/api.php"
+OPENVERSE_API = "https://api.openverse.org/v1/images/"
 
-_UNSPLASH_CATEGORY_KEYWORDS = {
-    "hotel": "luxury,hotel,interior",
-    "restaurant": "restaurant,food,dining",
-    "transport": "train,bus,road,egypt",
-    "flight": "airplane,airport,sky",
-    "event": "festival,crowd,stage,lights",
-    "medical": "clinic,hospital,medical",
-    "attraction": "egypt,landmark,historical",
+# Wikimedia requires a descriptive UA with a contact handle for non-trivial use.
+_HEADERS = {
+    "User-Agent": (
+        "Tripmind/0.1 (catalog image resolver; "
+        "https://github.com/tripmind/tripmind; bot@tripmind.local)"
+    )
+}
+
+_CATEGORY_KEYWORDS = {
+    "hotel": ["hotel interior", "luxury hotel"],
+    "restaurant": ["restaurant interior", "egyptian food", "dining"],
+    "transport": ["egypt train", "bus station", "highway egypt"],
+    "flight": ["egyptair airplane", "airport terminal"],
+    "event": ["festival stage", "concert crowd", "egypt event"],
+    "medical": ["hospital ward", "medical clinic", "doctor"],
+    "attraction": ["egypt landmark", "egypt historical site"],
 }
 
 
@@ -54,6 +64,7 @@ class _Cache:
         self.path = path
         self._data: dict[str, str] = {}
         self._loaded = False
+        self._lock = threading.Lock()
 
     def _load(self) -> None:
         if self._loaded:
@@ -72,12 +83,15 @@ class _Cache:
 
     def set(self, key: str, value: str) -> None:
         self._load()
-        self._data[key] = value
-        try:
-            self.path.parent.mkdir(parents=True, exist_ok=True)
-            self.path.write_text(json.dumps(self._data, ensure_ascii=False, indent=2), "utf-8")
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("[image_cache] failed to write %s: %s", self.path, exc)
+        with self._lock:
+            self._data[key] = value
+            try:
+                self.path.parent.mkdir(parents=True, exist_ok=True)
+                # Snapshot under the lock to avoid "dict changed during iteration".
+                payload = json.dumps(dict(self._data), ensure_ascii=False, indent=2)
+                self.path.write_text(payload, "utf-8")
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("[image_cache] failed to write %s: %s", self.path, exc)
 
 
 _cache = _Cache(CACHE_FILE)
@@ -92,8 +106,7 @@ def _wiki_summary(title: str) -> Optional[str]:
     """Look up a Wikipedia page summary and return ``thumbnail.source`` if present."""
     try:
         url = WIKI_API + urllib.parse.quote(title.replace(" ", "_"))
-        r = httpx.get(url, timeout=4.0, follow_redirects=True,
-                      headers={"User-Agent": "Tripmind/0.1 (catalog image resolver)"})
+        r = httpx.get(url, timeout=4.0, follow_redirects=True, headers=_HEADERS)
         if r.status_code == 200:
             data = r.json()
             thumb = (data.get("thumbnail") or {}).get("source")
@@ -114,8 +127,7 @@ def _wiki_search_then_summary(query: str) -> Optional[str]:
             "action": "query", "list": "search", "srsearch": query,
             "format": "json", "srlimit": 1,
         }
-        r = httpx.get(WIKI_SEARCH, params=params, timeout=4.0,
-                      headers={"User-Agent": "Tripmind/0.1 (catalog image resolver)"})
+        r = httpx.get(WIKI_SEARCH, params=params, timeout=4.0, headers=_HEADERS)
         if r.status_code == 200:
             hits = ((r.json() or {}).get("query") or {}).get("search") or []
             if hits:
@@ -125,18 +137,41 @@ def _wiki_search_then_summary(query: str) -> Optional[str]:
     return None
 
 
-def _unsplash_fallback(category: str, name: str, city: str) -> str:
-    """Build a deterministic source.unsplash.com URL.
+def _openverse_image(query: str) -> Optional[str]:
+    """Search Openverse (CC-licensed image aggregator across Commons, Flickr, etc).
 
-    The endpoint always returns 200 with a different photo per (query, sig) pair.
-    We embed the slug in ``sig`` so the same item always resolves to the same
-    server-picked photo within a session.
+    Free, no API key required. Much broader photo coverage than Wikipedia
+    summaries — handles generic queries like 'hotel interior cairo' well.
     """
-    keywords = _UNSPLASH_CATEGORY_KEYWORDS.get(category, "egypt,travel")
-    parts = [name, city, keywords, "egypt"]
-    query = ",".join(urllib.parse.quote(p) for p in parts if p)
-    sig = re.sub(r"[^a-z0-9]+", "", f"{category}{name}{city}".lower())[:24]
-    return f"https://source.unsplash.com/featured/800x600/?{query}&sig={sig}"
+    try:
+        params = {
+            "q": query,
+            "page_size": 5,
+            "license_type": "all",
+            "mature": "false",
+        }
+        r = httpx.get(OPENVERSE_API, params=params, timeout=6.0, headers=_HEADERS)
+        if r.status_code != 200:
+            return None
+        results = (r.json() or {}).get("results") or []
+        for item in results:
+            url = item.get("thumbnail") or item.get("url")
+            if url and isinstance(url, str) and url.startswith("http"):
+                return url
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("[image] openverse search failed for %s: %s", query, exc)
+    return None
+
+
+def _picsum_fallback(category: str, name: str, city: str) -> str:
+    """Deterministic Picsum URL — always 200, stable per (category, name, city).
+
+    Replaces the dead source.unsplash.com endpoint. Picsum doesn't pick a
+    topical photo, but it always renders a real image so cards never look
+    broken.
+    """
+    sig = re.sub(r"[^a-z0-9]+", "", f"{category}{name}{city}".lower())[:48] or "tripmind"
+    return f"https://picsum.photos/seed/{sig}/800/600"
 
 
 def resolve_image(*, category: str, name: str, city: str = "") -> str:
@@ -149,6 +184,9 @@ def resolve_image(*, category: str, name: str, city: str = "") -> str:
         return ""
     key = _slug_key(category, name, city)
     cached = _cache.get(key)
+    # Discard any stale entries from the dead source.unsplash.com fallback.
+    if cached and "source.unsplash.com" in cached:
+        cached = None
     if cached:
         return cached
 
@@ -163,21 +201,32 @@ def resolve_image(*, category: str, name: str, city: str = "") -> str:
     elif category == "event":
         candidates.append(f"{name} festival")
 
+    # 1) Wikipedia summary by exact title.
     for title in candidates:
         url = _wiki_summary(title)
         if url:
             _cache.set(key, url)
             return url
 
-    # Wikipedia full-text search as a wider net
+    # 2) Wikipedia full-text search.
     url = _wiki_search_then_summary(f"{name} {city}".strip())
     if url:
         _cache.set(key, url)
         return url
 
-    # Last resort — Unsplash keyword. We cache this too so the home feed is
-    # consistent across reloads.
-    url = _unsplash_fallback(category, name, city)
+    # 3) Openverse — broad CC-licensed photo pool. Try the entity, then
+    #    category-generic keywords (e.g. "hotel interior cairo").
+    queries = [f"{name} {city}".strip()]
+    for kw in _CATEGORY_KEYWORDS.get(category, []):
+        queries.append(f"{kw} {city}".strip() if city else kw)
+    for q in queries:
+        url = _openverse_image(q)
+        if url:
+            _cache.set(key, url)
+            return url
+
+    # 4) Last resort — Picsum seeded URL. Always 200, stable per item.
+    url = _picsum_fallback(category, name, city)
     _cache.set(key, url)
     return url
 

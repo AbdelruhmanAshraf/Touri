@@ -42,33 +42,38 @@ class Settings(BaseSettings):
         populate_by_name=True,
     )
 
-    # ── External API keys (required for Phase 1 verification) ─────────────────
-    # AliasChoices lets us accept both the canonical Phase-1 names AND any
-    # legacy names that may already exist in users' .env files.
+    # ── Google Gemini (primary LLM engine) ────────────────────────────────────
     GEMINI_API_KEY: str = Field(
         default="",
         validation_alias=AliasChoices("GEMINI_API_KEY", "GOOGLE_AI_STUDY_API_KEY"),
-        description="Google AI Studio API key (kept for optional embeddings fallback).",
+        description="Google AI Studio API key — required for all chat agents.",
+    )
+    # Override model names via env if needed (defaults live in agents/llm.py).
+    GEMINI_PRO_MODEL: str = Field(
+        default="gemini-2.5-flash-preview-05-20",
+        description="Pro reasoning model for planner / budget agents.",
+    )
+    GEMINI_FAST_MODEL: str = Field(
+        default="gemini-2.0-flash",
+        description="Fast model for router, concierge, and streaming.",
     )
 
-    # ── AgentRouter (OpenAI-compatible) ───────────────────────────────────────
+    # ── AgentRouter (kept for backward-compat — no longer the primary LLM) ───
     AGENT_ROUTER_API_KEY: str = Field(
         default="",
-        description="AgentRouter API key (sk-... format).",
+        description="Legacy AgentRouter key — unused after Gemini migration.",
     )
     AGENT_ROUTER_BASE_URL: str = Field(
         default="https://agentrouter.org/v1",
-        description="AgentRouter OpenAI-compatible base URL.",
+        description="Legacy AgentRouter base URL — unused after Gemini migration.",
     )
-    # Fast model — used for router intent, general chat, and streaming echo.
     AGENT_ROUTER_FAST_MODEL: str = Field(
         default="claude-haiku-4-5-20251001",
-        description="Lighter model for low-latency tasks.",
+        description="Legacy fast model name — unused after Gemini migration.",
     )
-    # Pro model — used for Travel Planner and Budget Specialist.
     AGENT_ROUTER_PRO_MODEL: str = Field(
         default="claude-opus-4-6",
-        description="Heavier model for deep reasoning tasks.",
+        description="Legacy pro model name — unused after Gemini migration.",
     )
 
     TAVILY_API_KEY: str = Field(
@@ -143,15 +148,14 @@ class Settings(BaseSettings):
     def missing_keys(self) -> list[str]:
         """Return the list of required API keys that are still unset."""
         missing: list[str] = []
-        if not self.AGENT_ROUTER_API_KEY:
-            missing.append("AGENT_ROUTER_API_KEY")
+        if not self.GEMINI_API_KEY:
+            missing.append("GEMINI_API_KEY")
         if not self.TAVILY_API_KEY:
             missing.append("TAVILY_API_KEY")
         if not self.OPENWEATHER_API_KEY:
             missing.append("OPENWEATHER_API_KEY")
         if not self.FIREBASE_CREDENTIALS_PATH:
             missing.append("FIREBASE_CREDENTIALS_PATH")
-        # Gemini is now optional (used only as embedding fallback)
         return missing
 
 

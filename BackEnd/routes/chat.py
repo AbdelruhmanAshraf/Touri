@@ -15,7 +15,7 @@ import logging
 import uuid
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, HTTPException, Path, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Path, WebSocket, WebSocketDisconnect
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
@@ -79,6 +79,43 @@ def _require_firebase() -> None:
         )
 
 
+async def _auto_generate_trip(uid: str, persona: "UserPersona") -> None:
+    """
+    Background task: fires a synthetic trip-planning chat right after
+    onboarding persona is saved, so the Itinerary tab has content immediately.
+
+    Runs silently — errors are logged but never surfaced to the caller.
+    """
+    try:
+        dest = persona.preferred_destination or "Egypt"
+        party = persona.party_size or 2
+        budget_label = {
+            "economy": "budget-friendly",
+            "mid_range": "mid-range",
+            "luxury": "luxury",
+        }.get(persona.budget_bracket.value if persona.budget_bracket else "", "mid-range")
+        tourism = persona.tourism_type.value if persona.tourism_type else "leisure"
+        prompt = (
+            f"Plan a 5-day {tourism} trip to {dest} for {party} people "
+            f"with a {budget_label} budget. Include daily activities, "
+            f"accommodation suggestions, and an estimated cost breakdown."
+        )
+        sid = f"auto_{uid[:8]}_{uuid.uuid4().hex[:6]}"
+        state = await run_chat(
+            user_id=uid,
+            session_id=sid,
+            user_message=prompt,
+            language="en",
+            chat_history=[],
+        )
+        logger.info(
+            "[auto_trip] generated for uid=%s dest=%s agent=%s",
+            uid, dest, state.get("active_agent"),
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("[auto_trip] background generation failed for uid=%s: %s", uid, exc)
+
+
 def _persona_to_dict(p: UserPersona) -> Dict[str, Any]:
     return {
         "user_id": p.user_id,
@@ -131,7 +168,9 @@ async def get_persona_route(uid: str = Path(..., min_length=1)) -> Dict[str, Any
 
 @router.post("/user/{uid}/persona")
 async def upsert_persona_route(
-    payload: PersonaWrite, uid: str = Path(..., min_length=1)
+    payload: PersonaWrite,
+    background_tasks: BackgroundTasks,
+    uid: str = Path(..., min_length=1),
 ) -> Dict[str, Any]:
     _require_firebase()
     updates: Dict[str, Any] = {}
@@ -146,6 +185,12 @@ async def upsert_persona_route(
     if payload.extras is not None:
         updates["extras"] = payload.extras
     merged = await update_persona_fields(uid, updates)
+
+    # Trigger a background trip generation so the Itinerary tab is populated
+    # immediately after onboarding completes (fires-and-forgets, never blocks).
+    if payload.preferred_destination:
+        background_tasks.add_task(_auto_generate_trip, uid, merged)
+
     return _persona_to_dict(merged)
 
 

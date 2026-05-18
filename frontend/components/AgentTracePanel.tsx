@@ -117,11 +117,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 20,
+    borderTopWidth: 1,
+    borderColor: '#E5E5EA',
   },
   header: { padding: 16 },
   handle: {

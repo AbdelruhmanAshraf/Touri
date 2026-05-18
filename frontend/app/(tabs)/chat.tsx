@@ -14,6 +14,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   Animated,
   KeyboardAvoidingView,
   Platform,
@@ -24,10 +25,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import { Audio } from 'expo-av';
 
 import { Colors } from '@/constants/Colors';
 import AgentTracePanel from '@/components/AgentTracePanel';
@@ -43,10 +47,13 @@ import {
   setSessionId,
 } from '@/services/api';
 
+type Attachment = { uri: string; mimeType: string; name: string };
+
 type Turn = {
   id: string;
   role: 'user' | 'assistant';
   text: string;
+  attachments?: Attachment[];
   agent?: string;
   suggestions?: string[];
 };
@@ -84,6 +91,10 @@ export default function ChatScreen() {
     isAr ? STARTER_AR : STARTER_EN,
   );
 
+  const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const recordingRef = useRef<Audio.Recording | null>(null);
+
   const userIdRef = useRef<string | null>(null);
   const sessionIdRef = useRef<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
@@ -106,6 +117,61 @@ export default function ChatScreen() {
     }).start();
   }, [input]);
 
+  // ── Image picker ──────────────────────────────────────────────────────────
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission required', 'Camera roll access is needed to attach images.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+      allowsMultipleSelection: false,
+    });
+    if (!result.canceled && result.assets.length > 0) {
+      const asset = result.assets[0];
+      setPendingAttachments((prev) => [
+        ...prev,
+        { uri: asset.uri, mimeType: asset.mimeType ?? 'image/jpeg', name: asset.fileName ?? 'image.jpg' },
+      ]);
+    }
+  };
+
+  // ── Audio recorder ────────────────────────────────────────────────────────
+  const toggleRecording = async () => {
+    if (isRecording) {
+      // Stop and attach the audio
+      try {
+        await recordingRef.current?.stopAndUnloadAsync();
+        const uri = recordingRef.current?.getURI();
+        if (uri) {
+          setPendingAttachments((prev) => [
+            ...prev,
+            { uri, mimeType: 'audio/m4a', name: 'voice.m4a' },
+          ]);
+        }
+      } catch (e) { console.warn('[chat] stop recording error', e); }
+      recordingRef.current = null;
+      setIsRecording(false);
+    } else {
+      // Start recording
+      try {
+        const { status } = await Audio.requestPermissionsAsync();
+        if (status !== 'granted') {
+          Alert.alert('Permission required', 'Microphone access is needed to record voice.');
+          return;
+        }
+        await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+        const { recording } = await Audio.Recording.createAsync(
+          Audio.RecordingOptionsPresets.HIGH_QUALITY,
+        );
+        recordingRef.current = recording;
+        setIsRecording(true);
+      } catch (e) { console.warn('[chat] start recording error', e); }
+    }
+  };
+
   const userMessageCount = turns.filter((m) => m.role === 'user').length;
   const guestLimitReached = isGuest && userMessageCount >= GUEST_LIMITS.maxChatMessagesPerSession;
 
@@ -120,11 +186,13 @@ export default function ChatScreen() {
     const uid = userIdRef.current ?? (await getOrCreateUserId());
     const sid = sessionIdRef.current ?? (await getOrCreateSessionId());
 
-    const userTurn: Turn = { id: `${Date.now()}-u`, role: 'user', text };
+    const attachments = pendingAttachments.slice();
+    const userTurn: Turn = { id: `${Date.now()}-u`, role: 'user', text, attachments };
     const assistantTurnId = `${Date.now()}-a`;
 
     setTurns((prev) => [...prev, userTurn, { id: assistantTurnId, role: 'assistant', text: '' }]);
     setInput('');
+    setPendingAttachments([]);
     setActiveSuggestions([]);
     setStreaming(true);
     setStatusText(t('chat.thinking'));
@@ -284,6 +352,20 @@ export default function ChatScreen() {
             {turns.map((m) =>
               m.role === 'user' ? (
                 <View key={m.id} style={[styles.userRow, { alignItems: isAr ? 'flex-start' : 'flex-end' }]}>
+                  {m.attachments && m.attachments.length > 0 && (
+                    <View style={styles.msgAttachmentsRow}>
+                      {m.attachments.map((a, i) =>
+                        a.mimeType.startsWith('image/') ? (
+                          <Image key={i} source={{ uri: a.uri }} style={[styles.msgAttachImg, { borderRadius: 12 }]} contentFit="cover" />
+                        ) : (
+                          <View key={i} style={styles.msgAttachAudio}>
+                            <Feather name="mic" size={14} color="#00A896" />
+                            <Text style={styles.msgAttachAudioTxt}>Voice note</Text>
+                          </View>
+                        ),
+                      )}
+                    </View>
+                  )}
                   <View style={styles.userBubble}>
                     <Text style={[styles.userText, { textAlign: isAr ? 'right' : 'left' }]}>{m.text}</Text>
                   </View>
@@ -369,7 +451,46 @@ export default function ChatScreen() {
 
         {/* ── Input bar ── */}
         <View style={styles.inputArea}>
+          {/* Pending attachment previews */}
+          {pendingAttachments.length > 0 && (
+            <View style={styles.attachmentsRow}>
+              {pendingAttachments.map((a, i) => (
+                <View key={i} style={styles.attachmentChip}>
+                  {a.mimeType.startsWith('image/') ? (
+                    <Image source={{ uri: a.uri }} style={styles.attachThumb} contentFit="cover" />
+                  ) : (
+                    <Feather name="mic" size={14} color="#00A896" />
+                  )}
+                  <TouchableOpacity
+                    style={styles.attachRemove}
+                    onPress={() => setPendingAttachments((prev) => prev.filter((_, j) => j !== i))}
+                  >
+                    <Feather name="x" size={10} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+
           <View style={[styles.inputRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+            {/* Mic button */}
+            <TouchableOpacity
+              style={[styles.mediaBtn, isRecording && styles.mediaBtnActive]}
+              onPress={toggleRecording}
+              disabled={streaming || guestLimitReached}
+            >
+              <Feather name="mic" size={18} color={isRecording ? '#fff' : '#8E8E93'} />
+            </TouchableOpacity>
+
+            {/* Image picker button */}
+            <TouchableOpacity
+              style={styles.mediaBtn}
+              onPress={pickImage}
+              disabled={streaming || guestLimitReached}
+            >
+              <Feather name="image" size={18} color="#8E8E93" />
+            </TouchableOpacity>
+
             <TextInput
               style={[styles.inputField, { textAlign: isAr ? 'right' : 'left' }]}
               placeholder={t('chat.placeholder')}
@@ -382,9 +503,9 @@ export default function ChatScreen() {
               returnKeyType="send"
             />
             <TouchableOpacity
-              style={[styles.sendBtn, (streaming || !input.trim()) && styles.sendBtnDisabled]}
+              style={[styles.sendBtn, (streaming || (!input.trim() && pendingAttachments.length === 0)) && styles.sendBtnDisabled]}
               onPress={() => send()}
-              disabled={streaming || !input.trim() || guestLimitReached}
+              disabled={streaming || (!input.trim() && pendingAttachments.length === 0) || guestLimitReached}
             >
               <Feather name={isAr ? 'arrow-down' : 'arrow-up'} size={18} color="#fff" />
             </TouchableOpacity>
@@ -402,7 +523,7 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#F8FAFC' },
+  safeArea: { flex: 1, backgroundColor: '#F2F2F7' },
 
   header: {
     justifyContent: 'space-between',
@@ -454,7 +575,7 @@ const styles = StyleSheet.create({
   aiBubble: {
     backgroundColor: '#fff', borderRadius: 20, borderTopLeftRadius: 4,
     paddingHorizontal: 18, paddingVertical: 14,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
+    borderWidth: 1, borderColor: '#E5E5EA',
   },
   aiText: { fontSize: 15, color: '#1C1C1E', lineHeight: 24 },
 
@@ -484,15 +605,14 @@ const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: 14, paddingVertical: 8,
     backgroundColor: '#fff', borderRadius: 20,
-    borderWidth: 1.5, borderColor: '#00A89630',
-    shadowColor: '#00A896', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6,
+    borderWidth: 1.5, borderColor: '#00A89640',
   },
   chipTxt: { fontSize: 13, fontWeight: '600', color: '#00A896' },
 
   inputArea: {
     padding: 12,
-    paddingBottom: Platform.OS === 'ios' ? 104 : 100,
-    backgroundColor: '#F8FAFC',
+    paddingBottom: Platform.OS === 'ios' ? 16 : 12,
+    backgroundColor: '#F2F2F7',
   },
   inputRow: {
     alignItems: 'center',
@@ -503,7 +623,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 6,
     gap: 6,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 3,
   },
   inputField: {
     flex: 1, paddingHorizontal: 8,
@@ -514,4 +633,41 @@ const styles = StyleSheet.create({
     borderRadius: 19, alignItems: 'center', justifyContent: 'center',
   },
   sendBtnDisabled: { opacity: 0.4 },
+
+  // ── Media buttons ──
+  mediaBtn: {
+    width: 34, height: 34, borderRadius: 17,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  mediaBtnActive: { backgroundColor: '#FF3B30' },
+
+  // ── Pending attachment previews (above input) ──
+  attachmentsRow: {
+    flexDirection: 'row', gap: 8, paddingHorizontal: 4, paddingBottom: 6, flexWrap: 'wrap',
+  },
+  attachmentChip: {
+    width: 52, height: 52, borderRadius: 12,
+    backgroundColor: '#E6F7F5', alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  attachThumb: { width: '100%', height: '100%' },
+  attachRemove: {
+    position: 'absolute', top: 2, right: 2,
+    width: 16, height: 16, borderRadius: 8,
+    backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center',
+  },
+
+  // ── Message attachment thumbnails ──
+  msgAttachmentsRow: {
+    flexDirection: 'row', gap: 6, marginBottom: 6, flexWrap: 'wrap',
+    alignSelf: 'flex-end',
+  },
+  msgAttachImg: { width: 120, height: 120 },
+  msgAttachAudio: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: '#E6F7F5', paddingHorizontal: 10, paddingVertical: 6,
+    borderRadius: 12,
+  },
+  msgAttachAudioTxt: { fontSize: 12, color: '#00A896', fontWeight: '600' },
 });

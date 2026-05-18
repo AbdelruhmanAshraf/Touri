@@ -9,7 +9,6 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,12 +16,13 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
+import { useRouter } from 'expo-router';
 import { api, type CatalogCard, type CatalogItemType } from '@/services/api';
-import PlaceSheet from '@/components/PlaceSheet';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = (SCREEN_W - 48 - 12) / 2; // 2-col grid with 24px padding + 12px gap
@@ -74,7 +74,9 @@ function ResultCard({ item, onPress }: { item: CatalogCard; onPress: () => void 
       <Image
         source={{ uri: item.image || fallback }}
         style={resultStyles.img}
-        resizeMode="cover"
+        contentFit="cover"
+        transition={200}
+        cachePolicy="memory-disk"
       />
       <View style={[resultStyles.typePill, { backgroundColor: color }]}>
         <Text style={resultStyles.typeTxt}>{item.type.toUpperCase()}</Text>
@@ -103,11 +105,8 @@ const resultStyles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 18,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.07,
-    shadowRadius: 10,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
   },
   img: { width: '100%', height: 130, backgroundColor: '#E8E8ED' },
   typePill: {
@@ -128,6 +127,7 @@ const resultStyles = StyleSheet.create({
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function SearchScreen() {
   const { i18n } = useTranslation();
+  const router = useRouter();
   const isAr = i18n.language === 'ar';
 
   const [query, setQuery] = useState('');
@@ -137,19 +137,67 @@ export default function SearchScreen() {
   const [searched, setSearched] = useState(false);
   const [total, setTotal] = useState(0);
 
-  const [sheetItem, setSheetItem] = useState<CatalogCard | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
-
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<TextInput>(null);
 
   const doSearch = useCallback(async (q: string, type: string) => {
     setLoading(true);
-    setSearched(true);
     try {
-      const data = await api.searchCatalog(q || ' ', type, 40);
-      setResults(data.results);
-      setTotal(data.count);
+      if (q.trim().length > 0) {
+        // Real search query — use the search endpoint
+        setSearched(true);
+        const data = await api.searchCatalog(q.trim(), type, 40);
+        setResults(data.results);
+        setTotal(data.count);
+      } else {
+        // No query — browse mode: show catalog items from home feed
+        setSearched(false);
+        try {
+          const home = await api.getCatalogHome({ limit: 20 });
+          let browseItems: CatalogCard[] = [];
+          if (type === 'all') {
+            // Combine all sections for a rich browse experience
+            const sections = [
+              ...(home.popular || []),
+              ...(home.best_now || []),
+              ...(home.featured_hotels || []),
+              ...(home.local_food || []),
+              ...(home.events || []),
+              ...(home.offers || []),
+            ];
+            // Deduplicate by id
+            const seen = new Set<string>();
+            for (const item of sections) {
+              if (!seen.has(item.id)) {
+                seen.add(item.id);
+                browseItems.push(item);
+              }
+            }
+          } else {
+            // Filter home feed by selected category type
+            const allSections = [
+              ...(home.popular || []),
+              ...(home.best_now || []),
+              ...(home.featured_hotels || []),
+              ...(home.local_food || []),
+              ...(home.events || []),
+              ...(home.offers || []),
+            ];
+            const seen = new Set<string>();
+            for (const item of allSections) {
+              if (item.type === type && !seen.has(item.id)) {
+                seen.add(item.id);
+                browseItems.push(item);
+              }
+            }
+          }
+          setResults(browseItems);
+          setTotal(browseItems.length);
+        } catch {
+          setResults([]);
+          setTotal(0);
+        }
+      }
     } catch {
       setResults([]);
       setTotal(0);
@@ -168,8 +216,7 @@ export default function SearchScreen() {
   }, [query, selectedCat, doSearch]);
 
   const openSheet = (item: CatalogCard) => {
-    setSheetItem(item);
-    setSheetOpen(true);
+    router.push({ pathname: '/place', params: { type: item.type, id: item.id } } as any);
   };
 
   return (
@@ -239,13 +286,15 @@ export default function SearchScreen() {
           columnWrapperStyle={{ gap: 12 }}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
-            searched && !loading ? (
+            loading ? null : (
               <Text style={styles.resultCount}>
-                {isAr
-                  ? `${total} نتيجة`
-                  : `${total} result${total !== 1 ? 's' : ''}`}
+                {searched
+                  ? (isAr
+                    ? `${total} نتيجة`
+                    : `${total} result${total !== 1 ? 's' : ''}`)
+                  : (isAr ? `${total} مكان شائع` : `${total} popular place${total !== 1 ? 's' : ''}`)}
               </Text>
-            ) : null
+            )
           }
           ListEmptyComponent={
             searched ? (
@@ -266,22 +315,15 @@ export default function SearchScreen() {
         />
       )}
 
-      {/* ── PlaceSheet ── */}
-      <PlaceSheet
-        itemId={sheetItem?.id}
-        itemType={sheetItem?.type as CatalogItemType | undefined}
-        isVisible={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  container: { flex: 1, backgroundColor: '#F2F2F7' },
 
   header: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#F2F2F7',
     paddingTop: 8,
     paddingBottom: 12,
     gap: 12,
@@ -302,11 +344,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     marginHorizontal: 20,
     gap: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
     borderWidth: 1,
     borderColor: '#E5E5EA',
   },

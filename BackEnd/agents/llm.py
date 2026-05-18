@@ -1,20 +1,19 @@
 """
-Shared LLM client factory — AgentRouter (OpenAI-compatible) backend.
+Shared LLM client factory — Google Gemini backend.
 
-AgentRouter exposes an OpenAI-compatible API at
-``https://agentrouter.org/v1``, so we use ``langchain-openai`` with
-``base_url`` and ``api_key`` overrides.  The same ``get_llm`` / ``lang_directive``
-/ ``t`` helpers as before are kept so no agent file needs to change.
+Uses ``langchain-google-genai`` (``ChatGoogleGenerativeAI``) so every
+LangGraph agent and chain that calls ``get_llm()`` automatically switches to
+Gemini without any other code change.
 
 Model split:
-    FAST_MODEL  — claude-haiku-4-5-20251001
-                  Used by: Router (intent), General Chat, streaming echo.
-                  Fast, cheap, good at tool-use and structured JSON.
+    FAST_MODEL    — gemini-2.0-flash
+                    Used by: Router (intent), General Chat, streaming echo.
+                    Fast, cheap, multimodal, good at tool-use.
 
-    DEFAULT_MODEL — claude-opus-4-6
-                  Used by: Travel Planner, Budget Specialist.
-                  Best reasoning quality for multi-day itinerary generation
-                  and multi-domain cost breakdowns.
+    DEFAULT_MODEL — gemini-2.5-flash-preview-05-20
+                    Used by: Travel Planner, Budget Specialist.
+                    Best reasoning quality for multi-day itinerary generation
+                    and multi-domain cost breakdowns.
 """
 
 from __future__ import annotations
@@ -29,10 +28,10 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL: str = os.environ.get(
-    "AGENT_ROUTER_PRO_MODEL", settings.AGENT_ROUTER_PRO_MODEL
+    "GEMINI_PRO_MODEL", "gemini-2.5-flash-preview-05-20"
 )
 FAST_MODEL: str = os.environ.get(
-    "AGENT_ROUTER_FAST_MODEL", settings.AGENT_ROUTER_FAST_MODEL
+    "GEMINI_FAST_MODEL", "gemini-2.0-flash"
 )
 DEFAULT_TEMPERATURE: float = 0.4
 
@@ -46,32 +45,31 @@ def get_llm(
     temperature: float = DEFAULT_TEMPERATURE,
     streaming: bool = True,
 ):
-    """Cached ChatOpenAI instance pointing at the AgentRouter endpoint.
+    """Cached ChatGoogleGenerativeAI instance.
 
     The cache is keyed on (model, temperature, streaming) so each unique
     combination creates exactly one client object for the process lifetime.
     """
-    # Import here so startup doesn't fail if langchain_openai is missing.
     try:
-        from langchain_openai import ChatOpenAI
+        from langchain_google_genai import ChatGoogleGenerativeAI
     except ImportError as exc:
         raise RuntimeError(
-            "langchain-openai is not installed. Run: pip install langchain-openai"
+            "langchain-google-genai is not installed. "
+            "Run: pip install langchain-google-genai"
         ) from exc
 
-    api_key = settings.AGENT_ROUTER_API_KEY
+    api_key = settings.GEMINI_API_KEY
     if not api_key:
         raise RuntimeError(
-            "AGENT_ROUTER_API_KEY is not configured (see backend/.env)."
+            "GEMINI_API_KEY is not configured (see backend/.env)."
         )
 
-    return ChatOpenAI(
+    return ChatGoogleGenerativeAI(
         model=model,
         temperature=temperature,
-        openai_api_key=api_key,
-        openai_api_base=settings.AGENT_ROUTER_BASE_URL,
-        max_tokens=2048,
+        google_api_key=api_key,
         streaming=streaming,
+        convert_system_message_to_human=True,
     )
 
 

@@ -38,6 +38,54 @@ from tools.image_resolver import prefetch_for_items, resolve_image
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/catalog", tags=["catalog"])
 
+# ── Governorate → nearby cities proximity map ─────────────────────────────────
+# Maps each Egyptian governorate label (as sent by the frontend, English part
+# before the first space or parenthesis) to an ordered list of city keyword
+# slugs that should be treated as "nearby".  The first entry is the primary
+# city; subsequent entries are adjacent governorates ordered by proximity.
+_GOVERNORATE_PROXIMITY: Dict[str, List[str]] = {
+    "cairo":        ["cairo", "giza", "qalyubia"],
+    "giza":         ["giza", "cairo", "fayyum", "beni suef"],
+    "qalyubia":     ["qalyubia", "cairo", "gharbia", "sharqia"],
+    "alexandria":   ["alexandria", "beheira", "matrouh"],
+    "beheira":      ["beheira", "alexandria", "gharbia", "kafr el-sheikh"],
+    "gharbia":      ["gharbia", "beheira", "monufia", "kafr el-sheikh"],
+    "monufia":      ["monufia", "gharbia", "qalyubia", "cairo"],
+    "dakahlia":     ["dakahlia", "sharqia", "damietta", "port said"],
+    "damietta":     ["damietta", "dakahlia", "port said"],
+    "sharqia":      ["sharqia", "qalyubia", "ismailia", "dakahlia"],
+    "kafr el-sheikh": ["kafr el-sheikh", "gharbia", "beheira", "damietta"],
+    "ismailia":     ["ismailia", "sharqia", "suez", "port said"],
+    "port said":    ["port said", "ismailia", "damietta", "north sinai"],
+    "suez":         ["suez", "ismailia", "south sinai", "cairo"],
+    "north sinai":  ["north sinai", "ismailia", "port said", "south sinai"],
+    "south sinai":  ["south sinai", "suez", "north sinai", "hurghada"],
+    "fayyum":       ["fayyum", "giza", "beni suef"],
+    "beni suef":    ["beni suef", "fayyum", "giza", "al-minya"],
+    "al-minya":     ["al-minya", "beni suef", "asyut"],
+    "asyut":        ["asyut", "al-minya", "sohag", "new valley"],
+    "sohag":        ["sohag", "asyut", "qena"],
+    "qena":         ["qena", "sohag", "luxor"],
+    "luxor":        ["luxor", "qena", "aswan"],
+    "aswan":        ["aswan", "luxor", "new valley"],
+    "red sea":      ["hurghada", "red sea", "south sinai", "qena"],
+    "hurghada":     ["hurghada", "red sea", "south sinai", "qena"],
+    "matrouh":      ["matrouh", "alexandria", "new valley"],
+    "new valley":   ["new valley", "asyut", "aswan", "matrouh"],
+}
+
+
+def _extract_governorate_key(city_param: str) -> str:
+    """
+    Turn the frontend label (e.g. 'Cairo (القاهرة)' or just 'cairo') into a
+    lower-case English slug suitable for _GOVERNORATE_PROXIMITY lookup.
+    """
+    # Strip Arabic part: everything from '(' onward
+    english = city_param.split("(")[0].strip().lower()
+    # Also handle "Red Sea / Hurghada (…)" → "red sea"
+    english = english.split("/")[0].strip()
+    return english
+
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 def _enrich(item) -> dict:
@@ -80,17 +128,23 @@ async def home(
         "local_food": _cards(local_food(limit=limit)),
     }
 
-    # Optional city personalisation: if the user has a preferred city,
-    # bubble matching items to the top of every list.
+    # Optional city personalisation: bubble items from the selected governorate
+    # (and geographically adjacent ones) to the top using a tiered sort.
     if city:
-        target = city.lower().strip()
+        gov_key = _extract_governorate_key(city)
+        nearby: List[str] = _GOVERNORATE_PROXIMITY.get(gov_key, [gov_key])
 
-        def _city_first(cards: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-            matched = [c for c in cards if target in (c.get("city") or "").lower()]
-            others = [c for c in cards if c not in matched]
-            return matched + others
+        def _proximity_first(cards: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+            def _tier(card: Dict[str, Any]) -> int:
+                card_city = (card.get("city") or "").lower()
+                for rank, keyword in enumerate(nearby):
+                    if keyword in card_city:
+                        return rank
+                return len(nearby)  # lowest priority — not nearby
 
-        payload = {k: _city_first(v) if isinstance(v, list) else v for k, v in payload.items()}
+            return sorted(cards, key=_tier)
+
+        payload = {k: _proximity_first(v) if isinstance(v, list) else v for k, v in payload.items()}
 
     payload["meta"] = {
         "total_attractions": len(by_type().get("attraction", [])),

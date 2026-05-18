@@ -30,7 +30,22 @@ export default function RootLayout() {
     <>
       <StatusBar style="auto" />
       <Stack screenOptions={{ headerTitleStyle: { fontWeight: '600' } }}>
-        <Stack.Screen name="index" options={{ title: 'Tripmind' }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        {/* Native OS modal — the OS handles the sheet animation & dismiss gesture */}
+        <Stack.Screen
+          name="place"
+          options={{
+            headerShown: false,
+            presentation: 'modal',
+            gestureEnabled: true,
+          }}
+        />
+        <Stack.Screen
+          name="itinerary"
+          options={{ headerShown: false }}
+        />
       </Stack>
     </>
   );

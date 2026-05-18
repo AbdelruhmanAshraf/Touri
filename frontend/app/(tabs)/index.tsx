@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Animated,
   Dimensions,
-  Image,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +19,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { useAuth } from '@/hooks/useAuth';
 import { api, getOrCreateUserId, type CatalogCard, type CatalogHome, type CatalogItemType, type UserPersona } from '@/services/api';
-import PlaceSheet from '@/components/PlaceSheet';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = SCREEN_W * 0.68;
@@ -81,7 +80,9 @@ function CatalogCardView({
         <Image
           source={{ uri: item.image || fallback }}
           style={[cardStyles.img, { width: cardWidth, height: imgHeight }]}
-          resizeMode="cover"
+          contentFit="cover"
+          transition={200}
+          cachePolicy="memory-disk"
         />
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.52)']}
@@ -127,11 +128,8 @@ const cardStyles = StyleSheet.create({
   card: {
     backgroundColor: '#fff',
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
     overflow: 'hidden',
   },
   img: { backgroundColor: '#E8E8ED' },
@@ -247,9 +245,7 @@ export default function ExploreScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // PlaceSheet state
-  const [sheetItem, setSheetItem] = useState<CatalogCard | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  // No local sheet state — navigation to /place modal instead
 
   // Pulsing skeleton animation
   const pulseAnim = useRef(new Animated.Value(0.4)).current;
@@ -291,8 +287,7 @@ export default function ExploreScreen() {
   }, [loadData]);
 
   const openSheet = (item: CatalogCard) => {
-    setSheetItem(item);
-    setSheetOpen(true);
+    router.push({ pathname: '/place', params: { type: item.type, id: item.id } } as any);
   };
 
   const destination =
@@ -322,6 +317,9 @@ export default function ExploreScreen() {
             <Image
               source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCpO7gZzXXTZDL5yRCrLEHL_isGfSt1h4-PzCHdvKFBUtAWj5Q-xFURHfyGE2PilbyHE4WsoE0dJp0sVSim98DBd-a0F-7V7VxG8h2dDd3zmzOBDQaZJFhPS8eBv56aze9cEmNoov3ZlTuVCDSQkIVHpVEhjbGWe_nXw_YCGnQlcyD0tg4_yQZj8fsm6I6oWGhjSxOGwA--xAvXevncLwGIjbTvq2-rSgzmqhp1ddWi1tgUM2knzKpQxWCrsX1lWDYckr3gcSkIiAM' }}
               style={styles.logo}
+              contentFit="cover"
+              transition={200}
+              cachePolicy="memory-disk"
             />
             <Text style={styles.logoText}>Tripmind</Text>
           </View>
@@ -422,13 +420,6 @@ export default function ExploreScreen() {
         )}
       </ScrollView>
 
-      {/* ── PlaceSheet ── */}
-      <PlaceSheet
-        itemId={sheetItem?.id}
-        itemType={sheetItem?.type}
-        isVisible={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-      />
     </SafeAreaView>
   );
 }
@@ -455,8 +446,8 @@ const skeletonStyles = StyleSheet.create({
 
 // ── Screen styles ─────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  scrollContent: { paddingBottom: 120 },
+  container: { flex: 1, backgroundColor: '#F2F2F7' },
+  scrollContent: { paddingBottom: 20 },
 
   header: {
     paddingHorizontal: 24,
@@ -471,7 +462,7 @@ const styles = StyleSheet.create({
   bellBtn: {
     width: 42, height: 42, borderRadius: 21,
     backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 6, elevation: 3,
+    borderWidth: 1, borderColor: '#E5E5EA',
   },
 
   hero: { paddingHorizontal: 24, marginBottom: 24, marginTop: 16 },
@@ -483,11 +474,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 24,
     marginBottom: 36,
     borderRadius: 20,
-    shadowColor: '#00A896',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.22,
-    shadowRadius: 16,
-    elevation: 8,
+    overflow: 'hidden',
   },
   ctaInner: { alignItems: 'center', padding: 16, borderRadius: 20 },
   ctaIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },

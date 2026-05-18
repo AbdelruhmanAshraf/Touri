@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: '700', color: '#1e293b' },
   iconBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.7)', alignItems: 'center', justifyContent: 'center' },
   scrollContent: { padding: 24, paddingBottom: 60 },
-  budgetCard: { padding: 24, borderRadius: 24, marginBottom: 32, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.2, shadowRadius: 20 },
+  budgetCard: { padding: 24, borderRadius: 24, marginBottom: 32 },
   budgetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   budgetTitle: { color: '#94a3b8', fontSize: 14, fontWeight: '600' },
   budgetAmount: { color: '#fff', fontSize: 40, fontWeight: '800', marginBottom: 20 },
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   timelineDot: { width: 16, height: 16, borderRadius: 8, marginTop: 4, marginRight: 16 },
   timelineContent: { flex: 1 },
   dayText: { fontSize: 14, fontWeight: '700', color: '#64748b', marginBottom: 8 },
-  timelineCard: { backgroundColor: '#fff', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#e2e8f0', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 },
+  timelineCard: { backgroundColor: '#fff', padding: 16, borderRadius: 16, borderWidth: 1, borderColor: '#E5E5EA' },
   cardTitle: { fontSize: 16, fontWeight: '700', color: '#1e293b', marginBottom: 6 },
   cardDesc: { fontSize: 14, color: '#475569', lineHeight: 20 },
 });
