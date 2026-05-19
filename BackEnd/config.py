@@ -1,5 +1,5 @@
 """
-Tripmind backend configuration.
+Touri backend configuration.
 
 Single source of truth for runtime settings, loaded from
 ``backend/.env`` via pydantic-settings v2.
@@ -32,7 +32,7 @@ ENV_FILE = BACKEND_DIR / ".env"
 
 
 class Settings(BaseSettings):
-    """All environment-driven settings for the Tripmind backend."""
+    """All environment-driven settings for the Touri backend."""
 
     model_config = SettingsConfigDict(
         env_file=str(ENV_FILE),
@@ -48,14 +48,18 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("GEMINI_API_KEY", "GOOGLE_AI_STUDY_API_KEY"),
         description="Google AI Studio API key — required for all chat agents.",
     )
-    # Override model names via env if needed (defaults live in agents/llm.py).
+    # Phase 4 model choice — Gemma-4 for text, Gemini-2.5 for multimodal/tools.
+    # NOTE: Gemma models do NOT support image/audio/PDF inputs or function-
+    # calling. The multimodal handler (`agents/gemini_chat.py`) hard-pins
+    # `gemini-2.5-flash` for those paths regardless of these defaults so the
+    # full Phase-4 feature set (audio, PDFs, tool calls) keeps working.
     GEMINI_PRO_MODEL: str = Field(
-        default="gemini-2.5-flash-preview-05-20",
-        description="Pro reasoning model for planner / budget agents.",
+        default="gemma-4-26b-a4b-it",
+        description="Default LLM for the LangGraph text agents (Gemma-4).",
     )
     GEMINI_FAST_MODEL: str = Field(
-        default="gemini-2.0-flash",
-        description="Fast model for router, concierge, and streaming.",
+        default="gemma-4-26b-a4b-it",
+        description="Fast text LLM for router / concierge / streaming echo.",
     )
 
     # ── AgentRouter (kept for backward-compat — no longer the primary LLM) ───
@@ -107,11 +111,26 @@ class Settings(BaseSettings):
     # ── CSV ingestion ─────────────────────────────────────────────────────────
     EGYPT_CSV_DIR: str = Field(default=str(EGYPT_CSV_DIR))
 
+    # ── Session / JWT (Phase 5 secure cookies) ────────────────────────────────
+    SESSION_JWT_SECRET: str = Field(
+        default="",
+        description=(
+            "HMAC secret used to sign HTTP-only access + refresh JWTs. "
+            "Set explicitly in production; auto-randomised per process if unset."
+        ),
+    )
+
     # ── HTTP server ───────────────────────────────────────────────────────────
     HOST: str = Field(default="0.0.0.0")
     PORT: int = Field(default=8000)
-    APP_NAME: str = Field(default="Tripmind API")
+    APP_NAME: str = Field(default="Touri API")
     APP_VERSION: str = Field(default="0.1.0-phase1")
+
+    # ── Environment ────────────────────────────────────────────────────────────
+    TOURI_ENV: str = Field(
+        default="production",
+        description="Runtime environment: 'production' or 'development'. Controls security strictness.",
+    )
 
     # ── CORS ──────────────────────────────────────────────────────────────────
     # Stored as a raw string so pydantic-settings doesn't try to JSON-decode it.
@@ -146,14 +165,14 @@ class Settings(BaseSettings):
         return path
 
     def missing_keys(self) -> list[str]:
-        """Return the list of required API keys that are still unset."""
+        """Return the list of required API keys that are still unset.
+
+        Note: TAVILY_API_KEY is excluded — Touri runs in pure offline RAG mode.
+        """
         missing: list[str] = []
         if not self.GEMINI_API_KEY:
             missing.append("GEMINI_API_KEY")
-        if not self.TAVILY_API_KEY:
-            missing.append("TAVILY_API_KEY")
-        if not self.OPENWEATHER_API_KEY:
-            missing.append("OPENWEATHER_API_KEY")
+        # TAVILY_API_KEY intentionally excluded — bypassed in offline RAG mode.
         if not self.FIREBASE_CREDENTIALS_PATH:
             missing.append("FIREBASE_CREDENTIALS_PATH")
         return missing

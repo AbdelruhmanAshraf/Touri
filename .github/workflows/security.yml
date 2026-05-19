@@ -1,0 +1,195 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/security.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+  schedule:
+    # Run every Monday at 07:00 UTC to catch newly disclosed CVEs
+    - cron: '0 7 * * 1'
+
+jobs:
+  # ── Job 1: Python dependency vulnerability scan ─────────────────────────────
+  pip-audit:
+    name: pip-audit (Python CVE scan)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install pip-audit
+        run: pip install pip-audit>=2.7.0
+
+      - name: Run pip-audit
+        run: |
+          pip-audit \
+            --requirement requirements.txt \
+            --output json \
+            --format json \
+            > pip-audit-report.json || true
+          pip-audit \
+            --requirement requirements.txt \
+            --output cyclonedx-json \
+            --format cyclonedx-json \
+            > pip-audit-sbom.json || true
+          # Fail the job on any vulnerability
+          pip-audit --requirement requirements.txt
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-audit-report
+          path: |
+            backend/pip-audit-report.json
+            backend/pip-audit-sbom.json
+          retention-days: 30
+
+  # ── Job 2: Backend syntax + import smoke test ────────────────────────────────
+  backend-smoke:
+    name: Backend syntax & import check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Syntax check all Python files
+        run: |
+          python3 -c "
+          import ast, pathlib, sys
+          errors = []
+          for f in pathlib.Path('.').rglob('*.py'):
+              if any(p in str(f) for p in ['__pycache__', '.venv', 'node_modules']):
+                  continue
+              try:
+                  ast.parse(f.read_text())
+              except SyntaxError as e:
+                  errors.append(f'{f}: {e}')
+          if errors:
+              print('SYNTAX ERRORS:')
+              for e in errors:
+                  print(f'  {e}')
+              sys.exit(1)
+          print(f'All files pass syntax check.')
+          "
+
+      - name: Verify no hardcoded secrets
+        run: |
+          python3 -c "
+          import re, pathlib, sys
+          # Patterns that indicate hardcoded secrets
+          PATTERNS = [
+              (re.compile(r'AIza[0-9A-Za-z\-_]{35}'), 'Google API key'),
+              (re.compile(r'(?i)(api_key|secret|password)\s*=\s*[\"'\''][A-Za-z0-9/+]{20,}[\"'\'']'), 'Hardcoded credential'),
+          ]
+          SKIP = {'check_backend.py', '.env', 'test_', '__pycache__'}
+          findings = []
+          for f in pathlib.Path('.').rglob('*.py'):
+              if any(s in str(f) for s in SKIP):
+                  continue
+              text = f.read_text(errors='ignore')
+              for pattern, label in PATTERNS:
+                  for m in pattern.finditer(text):
+                      line_no = text[:m.start()].count('\n') + 1
+                      findings.append(f'{f}:{line_no} — {label}: {m.group()[:40]}')
+          if findings:
+              print('HARDCODED SECRETS DETECTED:')
+              for f in findings:
+                  print(f'  {f}')
+              sys.exit(1)
+          print('No hardcoded secrets found.')
+          "
+
+  # ── Job 3: Firestore rules check ─────────────────────────────────────────────
+  firestore-rules:
+    name: Firestore rules validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check firestore.rules exists
+        run: |
+          if [ ! -f firestore.rules ]; then
+            echo "ERROR: firestore.rules is missing"
+            exit 1
+          fi
+          echo "firestore.rules found ($(wc -l < firestore.rules) lines)"
+
+      - name: Check deny-by-default is present
+        run: |
+          if ! grep -q "allow read, write: if false" firestore.rules; then
+            echo "ERROR: deny-by-default rule missing from firestore.rules"
+            exit 1
+          fi
+          echo "Deny-by-default rule confirmed."
+
+  # ── Job 4: npm audit for frontend ────────────────────────────────────────────
+  npm-audit:
+    name: npm audit (frontend)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Generate npm audit report
+        run: npm audit --json > npm-audit-report.json || true
+
+      - name: Upload npm audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: frontend/npm-audit-report.json
+          retention-days: 30

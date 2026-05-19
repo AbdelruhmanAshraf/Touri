@@ -70,6 +70,10 @@ class _GeminiEmbeddingFunction(EmbeddingFunction):
         "models/embedding-001",
     )
 
+    @staticmethod
+    def name() -> str:
+        return "gemini"
+
     def __init__(self, api_key: str) -> None:
         import google.generativeai as genai  # lazy import keeps module optional
 
@@ -227,15 +231,60 @@ def _embedding_fn():
 
 def get_collection():
     """Lazily create / fetch the ``egypt_travel_knowledge`` collection."""
-    return _client().get_or_create_collection(
-        name=settings.CHROMA_COLLECTION,
-        embedding_function=_embedding_fn(),
-        metadata={
-            "domain": "egypt_travel",
-            "version": "phase1",
-            "embedding_model": settings.EMBEDDING_MODEL,
-        },
-    )
+    try:
+        return _client().get_or_create_collection(
+            name=settings.CHROMA_COLLECTION,
+            embedding_function=_embedding_fn(),
+            metadata={
+                "domain": "egypt_travel",
+                "version": "phase1",
+                "embedding_model": settings.EMBEDDING_MODEL,
+            },
+        )
+    except Exception as exc:
+        exc_str = str(exc)
+        if "Embedding function conflict" in exc_str or "already exists" in exc_str:
+            logger.warning(
+                "[vector_store] Embedding function conflict detected for collection '%s'. "
+                "Re-creating collection and re-indexing dataset to match the new embedding backend.",
+                settings.CHROMA_COLLECTION,
+            )
+            try:
+                # Delete the conflicting collection
+                _client().delete_collection(settings.CHROMA_COLLECTION)
+                # Clear lru_cache for get_collection if it has one
+                get_collection.cache_clear() if hasattr(get_collection, "cache_clear") else None
+                
+                # Re-create the collection with new embedding function
+                coll = _client().get_or_create_collection(
+                    name=settings.CHROMA_COLLECTION,
+                    embedding_function=_embedding_fn(),
+                    metadata={
+                        "domain": "egypt_travel",
+                        "version": "phase1",
+                        "embedding_model": settings.EMBEDDING_MODEL,
+                    },
+                )
+                
+                # Re-ingest documents to populate vectors
+                from rag.document_loader import load_all_egypt_documents
+                docs = load_all_egypt_documents()
+                if docs:
+                    total = 0
+                    for i in range(0, len(docs), _BATCH_SIZE):
+                        batch = docs[i : i + _BATCH_SIZE]
+                        coll.upsert(
+                            ids=[d.id for d in batch],
+                            documents=[d.text for d in batch],
+                            metadatas=[_sanitise_metadata(d.metadata) for d in batch],
+                        )
+                        total += len(batch)
+                    logger.info("[vector_store] Re-indexing complete: %d docs indexed.", total)
+                return coll
+            except Exception as inner_exc:
+                logger.error("[vector_store] Failed to recover from embedding conflict: %s", inner_exc)
+                raise inner_exc
+        raise exc
 
 
 # ── Metadata sanitisation ─────────────────────────────────────────────────────
@@ -356,6 +405,10 @@ def is_ready() -> bool:
         return False
 
 
+def is_rag_available() -> bool:
+    return is_ready()
+
+
 __all__ = [
     "get_collection",
     "index_documents",
@@ -363,4 +416,5 @@ __all__ = [
     "query",
     "collection_size",
     "is_ready",
+    "is_rag_available",
 ]

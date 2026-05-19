@@ -1,6 +1,6 @@
-# Tripmind Mobile (Expo)
+# Touri Mobile (Expo)
 
-React Native + Expo Router client for the Tripmind FastAPI backend. Lives
+React Native + Expo Router client for the Touri FastAPI backend. Lives
 alongside the existing Vite web app at `../frontend`.
 
 ## Setup
@@ -78,6 +78,6 @@ mobile/
 ## Google Sign-In
 
 1. In Google Cloud Console → Credentials, create OAuth Client IDs for **Web**, **iOS**, **Android**.
-2. Set the iOS Bundle ID to `com.tripmind.app` and the Android package to `com.tripmind.app` (matches `app.json`).
+2. Set the iOS Bundle ID to `com.touri.app` and the Android package to `com.touri.app` (matches `app.json`).
 3. Paste the client IDs into `.env`.
 4. The `useAuth` hook in `hooks/useAuth.ts` handles the rest.

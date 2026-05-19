@@ -1,14 +1,18 @@
 """
-Budget Specialist agent.
+Budget Specialist agent — 100% Offline RAG Mode.
 
 Combines:
-  * Live Tavily web search for flight prices / FX rates / current costs.
   * ChromaDB lodging facts from ``egypt_travel_knowledge``.
+  * ChromaDB transport/attraction pricing data.
+  * Fallback pricing heuristic models matched to budget brackets.
   * Gemini to merge them into a structured ``budget_breakdown``.
+
+All external web search (Tavily) is BYPASSED for pure local vector routing.
 """
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import re
@@ -16,17 +20,44 @@ from typing import Any, Dict
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from agents.llm import get_llm, lang_directive, t
+from agents.llm import get_llm, lang_directive, t, safe_extract_text, clean_response
 from agents.state import AgentState, make_step
 from rag.vector_store import query as rag_query
-from tools.web_search import search_live_travel_data
+# BYPASSED: Tavily web search disabled for pure offline RAG mode.
+# from tools.web_search import search_live_travel_data
 
 logger = logging.getLogger(__name__)
 
 
+# ── Fallback pricing heuristics (offline mode) ──────────────────────────────
+_BUDGET_HEURISTICS = {
+    "economy": {
+        "flights_per_person": 350,
+        "accommodation_per_night": 40,
+        "meals_per_day": 20,
+        "activities_per_day": 15,
+        "transport_per_day": 10,
+    },
+    "mid_range": {
+        "flights_per_person": 550,
+        "accommodation_per_night": 90,
+        "meals_per_day": 45,
+        "activities_per_day": 30,
+        "transport_per_day": 20,
+    },
+    "luxury": {
+        "flights_per_person": 900,
+        "accommodation_per_night": 200,
+        "meals_per_day": 80,
+        "activities_per_day": 60,
+        "transport_per_day": 40,
+    },
+}
+
+
 # ── Prompts ──────────────────────────────────────────────────────────────────
 _BUDGET_PROMPT_EN = """\
-You are TripMind's Budget Specialist.
+You are Touri's Budget Specialist (Offline RAG Mode).
 
 Traveller question:
 {message}
@@ -34,14 +65,21 @@ Traveller question:
 Persona summary:
 {persona_summary}
 
+{memory_context}
+
 Local lodging context (ChromaDB):
 ---
 {lodging}
 ---
 
-Live web context (Tavily — may include flight prices, exchange rates, currency notes):
+Local transport and attraction pricing (ChromaDB):
 ---
-{live}
+{transport}
+---
+
+Fallback pricing heuristics (use ONLY when no specific data exists in the contexts above):
+---
+{heuristics}
 ---
 
 Return a JSON object with this exact shape (no commentary):
@@ -65,14 +103,15 @@ Return a JSON object with this exact shape (no commentary):
 }}
 
 Rules:
-- Every cost is in **whole-number USD**.
-- Prefer prices visible in the contexts above; only estimate when no source data exists.
-- If the live web context mentions a current EGP→USD rate, mention it inside summary_message.
+- Every cost is in whole-number USD.
+- Prefer prices visible in the ChromaDB contexts above; use heuristic baselines only when no source data exists.
+- Reference approximate EGP→USD rate of 1 USD ≈ 50 EGP in summary_message.
+- Do NOT use markdown bold asterisks in summary_message. Use plain text only.
 - Return JSON only.
 """
 
 _BUDGET_PROMPT_AR = """\
-أنت 'خبير الميزانية' في TripMind.
+أنت 'خبير الميزانية' في Touri (وضع RAG المحلي).
 
 سؤال المسافر:
 {message}
@@ -80,14 +119,21 @@ _BUDGET_PROMPT_AR = """\
 ملخص الشخصية:
 {persona_summary}
 
+{memory_context}
+
 سياق الإقامة المحلي (ChromaDB):
 ---
 {lodging}
 ---
 
-السياق المباشر من الويب (Tavily — قد يحوي أسعار الطيران وأسعار الصرف):
+سياق النقل والمعالم السياحية (ChromaDB):
 ---
-{live}
+{transport}
+---
+
+نماذج تسعير احتياطية (استخدمها فقط عند عدم وجود بيانات محددة):
+---
+{heuristics}
 ---
 
 أعد JSON بهذا الشكل بالضبط (بدون أي تعليق):
@@ -112,8 +158,9 @@ _BUDGET_PROMPT_AR = """\
 
 شروط:
 - جميع التكاليف بالدولار الأمريكي وأرقام صحيحة.
-- استخدم الأسعار الموجودة في السياق قدر الإمكان، ولا تخمن إلا عند الضرورة.
-- إذا ذكر السياق المباشر سعر صرف حالي للجنيه إلى الدولار، اذكره ضمن summary_message.
+- استخدم الأسعار الموجودة في سياق ChromaDB قدر الإمكان، واستخدم النماذج الاحتياطية فقط عند الضرورة.
+- اذكر سعر صرف تقريبي 1 دولار ≈ 50 جنيه مصري ضمن summary_message.
+- لا تستخدم نجوم markdown في summary_message. استخدم نص عادي فقط.
 - أعد JSON فقط.
 """
 
@@ -122,12 +169,20 @@ def _persona_summary(state: AgentState) -> str:
     p = state.get("user_persona")
     if not p:
         return "(no persona on file)"
-    parts = [
+    
+    parts = []
+    name = " ".join(filter(None, [p.first_name, p.last_name]))
+    if name:
+        parts.append(f"user_name={name}")
+    if p.gender and p.gender.value != "unspecified":
+        parts.append(f"gender={p.gender.value}")
+
+    parts.extend([
         f"tourism_type={p.tourism_type.value}",
         f"party_size={p.party_size}",
         f"budget={p.budget_bracket.value}",
         f"preferred_destination={p.preferred_destination or 'unspecified'}",
-    ]
+    ])
     if p.extras:
         dietary = p.extras.get("dietary_restrictions") or []
         allergies = p.extras.get("allergies") or []
@@ -155,86 +210,78 @@ async def calculate(state: AgentState) -> AgentState:
     language = state.get("language", "en")
     message = state.get("user_message", "")
 
-    # 1. ChromaDB lodging context
-    lodging_hits = rag_query(message, top_k=4, where={"domain": "hotel"})
+    # 1+2. Parallel ChromaDB queries for lodging and transport/attraction data
+    lodging_hits, transport_hits = await asyncio.gather(
+        asyncio.to_thread(rag_query, message, top_k=4, where={"domain": "hotel"}),
+        asyncio.to_thread(rag_query, message, top_k=4, where={"domain": "attraction"}),
+    )
     lodging_text = "\n\n".join(h["text"] for h in lodging_hits)
+    transport_text = "\n\n".join(h["text"] for h in transport_hits)
     state["agent_trace"].append(
         make_step(
             agent="Budget Specialist",
-            action=t(language, "Fetch lodging fees", "جلب أسعار الإقامة"),
+            action=t(language, "Fetch pricing data", "جلب بيانات التسعير"),
             tool="chromadb",
             reasoning=t(
                 language,
-                "Pulled hotel rows from the Egypt knowledge base for accommodation baselines.",
-                "تم استرجاع بيانات الفنادق من قاعدة المعرفة لاحتساب الإقامة.",
+                f"Parallel-queried ChromaDB for lodging ({len(lodging_hits)} hits) and "
+                f"attraction/transport ({len(transport_hits)} hits) pricing data.",
+                f"تم الاستعلام بالتوازي من ChromaDB عن بيانات الإقامة ({len(lodging_hits)} نتيجة) "
+                f"والمعالم/النقل ({len(transport_hits)} نتيجة).",
             ),
-            result=f"hits={len(lodging_hits)}",
+            result=f"lodging={len(lodging_hits)}, transport={len(transport_hits)}",
         )
     )
 
-    # 2. Live Tavily search for flight prices / FX
-    try:
-        live = await search_live_travel_data(
-            f"latest flight prices and USD to EGP exchange rate — {message}",
-            max_results=4,
-            search_depth="advanced",
-        )
-        live_context = live.as_llm_context(max_hits=4, max_chars=600)
-        state["web_context"] = live_context
-        state["agent_trace"].append(
-            make_step(
-                agent="Budget Specialist",
-                action=t(language, "Live web pricing", "بحث مباشر عن الأسعار"),
-                tool="tavily",
-                reasoning=t(
-                    language,
-                    "Queried Tavily for live flight prices, FX rates, and recent travel deals.",
-                    "تم استعلام Tavily للحصول على أسعار الطيران الحية وأسعار الصرف.",
-                ),
-                result=f"hits={len(live.hits)}, has_answer={bool(live.answer)}",
-            )
-        )
-    except Exception as exc:  # noqa: BLE001
-        live_context = ""
-        state["agent_trace"].append(
-            make_step(
-                agent="Budget Specialist",
-                action=t(language, "Live web pricing", "بحث مباشر عن الأسعار"),
-                tool="tavily",
-                reasoning=t(
-                    language,
-                    f"Tavily call failed ({exc}); proceeding with local lodging only.",
-                    f"فشل استدعاء Tavily ({exc})؛ سيتم الاستمرار بالأسعار المحلية فقط.",
-                ),
-                result="error",
-            )
-        )
+    # 3. Resolve budget bracket for heuristic fallback
+    persona = state.get("user_persona")
+    bracket = "mid_range"
+    if persona and persona.budget_bracket:
+        bracket = persona.budget_bracket.value
+    heuristics = _BUDGET_HEURISTICS.get(bracket, _BUDGET_HEURISTICS["mid_range"])
+    heuristics_text = "\n".join(f"  {k}: ${v}" for k, v in heuristics.items())
+    heuristics_text = f"Budget bracket: {bracket}\n{heuristics_text}"
 
-    # 3. Compose breakdown via Gemini
+    # 4. Compose breakdown via Gemini (no live web data)
     llm = get_llm(temperature=0.2, streaming=False)
     template = _BUDGET_PROMPT_AR if language == "ar" else _BUDGET_PROMPT_EN
+    memory_ctx = state.get("memory_context", "")
+    memory_block = f"Conversation memory & preferences:\n{memory_ctx}" if memory_ctx else ""
     user_prompt = template.format(
         message=message,
         persona_summary=_persona_summary(state),
+        memory_context=memory_block,
         lodging=lodging_text or t(language, "(no local lodging matches)", "(لا توجد فنادق مطابقة)"),
-        live=live_context or t(language, "(no live data)", "(لا توجد بيانات حية)"),
+        transport=transport_text or t(language, "(no local transport data)", "(لا توجد بيانات نقل محلية)"),
+        heuristics=heuristics_text,
     )
     resp = await llm.ainvoke(
         [SystemMessage(content=lang_directive(language)), HumanMessage(content=user_prompt)]
     )
-    raw = (resp.content or "").strip()
+    raw = safe_extract_text(resp.content)
     parsed = _extract_json(raw)
 
     if parsed:
-        state["budget_breakdown"] = {k: v for k, v in parsed.items() if k != "summary_message"}
-        state["response_text"] = str(
+        budget_data = {k: v for k, v in parsed.items() if k != "summary_message"}
+        state["budget_breakdown"] = budget_data
+
+        summary_msg = clean_response(str(
             parsed.get("summary_message")
             or t(
                 language,
                 "Here is a fresh budget breakdown.",
                 "إليك تفصيل ميزانية محدّث.",
             )
-        )
+        ))
+
+        # Inject ui_trigger block so the frontend can pop a budget-sync modal
+        ui_trigger = json.dumps({
+            "ui_trigger": "show_popup",
+            "type": "budget",
+            "payload": budget_data,
+        }, ensure_ascii=False)
+        state["response_text"] = f"{summary_msg}\n\n---UI_TRIGGER---\n{ui_trigger}"
+
         state["agent_trace"].append(
             make_step(
                 agent="Budget Specialist",
@@ -244,11 +291,13 @@ async def calculate(state: AgentState) -> AgentState:
                     language,
                     f"Synthesised total_usd={parsed.get('total_usd')} for "
                     f"{parsed.get('duration', '?')} days, "
-                    f"{parsed.get('people', '?')} travellers.",
+                    f"{parsed.get('people', '?')} travellers. "
+                    f"Injected ui_trigger for frontend sync.",
                     f"تم تجميع التكلفة الإجمالية {parsed.get('total_usd')} دولار لـ "
-                    f"{parsed.get('duration', '?')} أيام و {parsed.get('people', '?')} مسافر.",
+                    f"{parsed.get('duration', '?')} أيام و {parsed.get('people', '?')} مسافر. "
+                    f"تم حقن ui_trigger لمزامنة الواجهة.",
                 ),
-                result="json_attached",
+                result="json_attached + ui_trigger",
             )
         )
     else:

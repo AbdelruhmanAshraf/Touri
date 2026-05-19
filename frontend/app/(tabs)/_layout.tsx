@@ -1,16 +1,16 @@
 /**
- * TripMind Tab Navigator — Phase 4 (Native OS tabs)
+ * Touri Tab Navigator — Phase 7 (i18n-aware native tabs)
  *
- * Replaces the custom glassmorphic floating bar with Expo Router's
- * production-grade native <Tabs>. Platform maps directly to iOS
- * UITabBarController / Android BottomNavigationView defaults.
+ * Uses ``react-i18next`` for bilingual tab labels so Arabic users see
+ * "الرئيسية | الخطة | اكتشف | المحادثة | الملف" natively.
  *
- * Routes (unchanged): index | itinerary | search | chat | profile
+ * Routes: index | plan | search | chat | profile
  */
 
 import { Tabs } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Platform, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 import { BG, BORDER_COLOR, MUTED, PRIMARY, SURFACE } from '@/theme/tokens';
 
@@ -27,6 +27,8 @@ function tabIcon(name: FeatherName, focused: boolean) {
 }
 
 export default function TabLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -43,35 +45,35 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: t('tabs.home'),
           tabBarIcon: ({ focused }) => tabIcon('home', focused),
         }}
       />
       <Tabs.Screen
-        name="itinerary"
+        name="plan"
         options={{
-          tabBarLabel: 'Itinerary',
+          tabBarLabel: t('tabs.plan'),
           tabBarIcon: ({ focused }) => tabIcon('map', focused),
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
-          tabBarLabel: 'Discover',
+          tabBarLabel: t('tabs.discover'),
           tabBarIcon: ({ focused }) => tabIcon('search', focused),
         }}
       />
       <Tabs.Screen
         name="chat"
         options={{
-          tabBarLabel: 'Chat',
+          tabBarLabel: t('tabs.chat'),
           tabBarIcon: ({ focused }) => tabIcon('message-circle', focused),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          tabBarLabel: 'Profile',
+          tabBarLabel: t('tabs.profile'),
           tabBarIcon: ({ focused }) => tabIcon('user', focused),
         }}
       />
@@ -84,10 +86,10 @@ const styles = StyleSheet.create({
     backgroundColor: SURFACE,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: BORDER_COLOR,
-    // Flat — no elevation / shadow
     elevation: 0,
-    height: Platform.OS === 'ios' ? 83 : 64,
+    height: Platform.OS === 'ios' ? 88 : 64,
     paddingTop: 6,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 0,
   },
   label: {
     fontSize: 10,

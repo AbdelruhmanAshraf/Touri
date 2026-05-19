@@ -41,8 +41,8 @@ OPENVERSE_API = "https://api.openverse.org/v1/images/"
 # Wikimedia requires a descriptive UA with a contact handle for non-trivial use.
 _HEADERS = {
     "User-Agent": (
-        "Tripmind/0.1 (catalog image resolver; "
-        "https://github.com/tripmind/tripmind; bot@tripmind.local)"
+        "Touri/0.1 (catalog image resolver; "
+        "https://github.com/touri/touri; bot@touri.local)"
     )
 }
 
@@ -170,7 +170,7 @@ def _picsum_fallback(category: str, name: str, city: str) -> str:
     topical photo, but it always renders a real image so cards never look
     broken.
     """
-    sig = re.sub(r"[^a-z0-9]+", "", f"{category}{name}{city}".lower())[:48] or "tripmind"
+    sig = re.sub(r"[^a-z0-9]+", "", f"{category}{name}{city}".lower())[:48] or "touri"
     return f"https://picsum.photos/seed/{sig}/800/600"
 
 

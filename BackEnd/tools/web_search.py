@@ -155,7 +155,7 @@ async def healthcheck() -> Dict[str, Any]:
         return {"ok": False, "reason": "tavily-python not installed"}
     try:
         res = await search_live_travel_data(
-            "Tripmind connectivity test query: Cairo travel today",
+            "Touri connectivity test query: Cairo travel today",
             max_results=1,
             search_depth="basic",
         )

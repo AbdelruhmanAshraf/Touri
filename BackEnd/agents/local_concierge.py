@@ -1,20 +1,26 @@
 """
-Local Concierge agent.
+Local Concierge agent — 100% Offline RAG Mode.
 
 Conducts specific restaurant RAG lookups via ChromaDB. Evaluates results
 against the user's ``dietary_preference`` (e.g., Halal food only) AND the
 ``extras.allergies`` boundaries (filtering or labeling entries that contain
 allergens). Also surfaces hidden gems, attractions, and events.
+
+Returns structured spots JSON alongside friendly text for the UI pop-up flow.
+All data sourced exclusively from local ChromaDB egypt_travel_knowledge dataset.
 """
 
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
+import re
 from typing import Any, Dict, List, Optional
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from agents.llm import get_llm, lang_directive, t
+from agents.llm import get_llm, lang_directive, t, safe_extract_text, clean_response
 from agents.state import AgentState, make_step
 from memory.user_persona import UserPersona
 from rag.vector_store import query as rag_query
@@ -43,8 +49,8 @@ def _contains_allergen(text: str, allergies: List[str]) -> bool:
     return False
 
 
-def _gather(message: str, persona: Optional[UserPersona]) -> tuple[str, int]:
-    """Pull restaurants + attractions + events, filter by dietary/allergies."""
+async def _gather(message: str, persona: Optional[UserPersona]) -> tuple[str, int]:
+    """Pull restaurants + attractions + events in parallel, filter by dietary/allergies."""
     diet_hint = ""
     allergies: List[str] = []
     if persona and persona.extras:
@@ -53,10 +59,11 @@ def _gather(message: str, persona: Optional[UserPersona]) -> tuple[str, int]:
         if dietary:
             diet_hint = " " + " ".join(str(d) for d in dietary)
 
-    # Query more results so we have room to filter
-    restaurants_raw = rag_query(message + diet_hint, top_k=8, where={"domain": "restaurant"})
-    attractions = rag_query(message, top_k=4, where={"domain": "attraction"})
-    events = rag_query(message, top_k=3, where={"domain": "event"})
+    restaurants_raw, attractions, events = await asyncio.gather(
+        asyncio.to_thread(rag_query, message + diet_hint, top_k=8, where={"domain": "restaurant"}),
+        asyncio.to_thread(rag_query, message, top_k=4, where={"domain": "attraction"}),
+        asyncio.to_thread(rag_query, message, top_k=3, where={"domain": "event"}),
+    )
 
     # Filter restaurants against allergens
     filtered_count = 0
@@ -80,13 +87,15 @@ def _gather(message: str, persona: Optional[UserPersona]) -> tuple[str, int]:
 
 
 _CONCIERGE_PROMPT_EN = """\
-You are TripMind's Local Concierge.
+You are Touri's Local Concierge.
 
 Traveller question:
 {message}
 
 Persona summary:
 {persona_summary}
+
+{memory_context}
 
 Grounded context from the Egypt knowledge base (already filtered for allergens):
 ---
@@ -95,26 +104,45 @@ Grounded context from the Egypt knowledge base (already filtered for allergens):
 
 {allergen_note}
 
-Write a friendly, well-organised reply with these requirements:
+You MUST respond in TWO parts separated by the marker `---SPOTS_JSON---`:
+
+PART 1 (before marker): A friendly, well-organised text reply:
 - Recommend 3-5 specific items pulled from the grounded context — use names,
-  cities, and any rating/price detail that's available.
-- Group your suggestions with brief Markdown subheadings (e.g. "Dining",
-  "Hidden gems", "Events").
-- Tailor recommendations to the persona (dietary needs, allergies, party size,
-  leisure vs. medical) when the data supports it.
-- If the user has food allergies, explicitly confirm that your dining picks
-  are safe for them (or note any caveats).
-- Keep the whole reply under 250 words.
+  cities, and any rating/price detail available.
+- Group suggestions with brief subheadings (Dining, Hidden gems, Events).
+- If the user has food allergies, explicitly confirm dining picks are safe.
+- HALAL ENFORCEMENT: If the persona's dietary_restrictions include "halal",
+  you MUST only recommend restaurants that serve halal food. If a restaurant's
+  halal status is uncertain from the context, explicitly state that the
+  traveller should verify on arrival. NEVER suggest pork-based dishes or
+  venues known for non-halal cuisine.
+- Keep under 200 words. Do NOT use markdown bold (**) or italic (*) — just plain text.
+
+PART 2 (after marker): A strict JSON array of recommended spots:
+```json
+[
+  {{"name": "...", "city": "...", "type": "restaurant|attraction|event", "rating": 4.5, "price_hint": "$$", "safe_for_allergies": true}}
+]
+```
+
+Example output format:
+Here are my top picks for you...
+(text)
+
+---SPOTS_JSON---
+[{{"name": "Koshary Abou Tarek", "city": "Cairo", "type": "restaurant", "rating": 4.6, "price_hint": "$", "safe_for_allergies": true}}]
 """
 
 _CONCIERGE_PROMPT_AR = """\
-أنت 'الكونسيرج المحلي' في TripMind.
+أنت 'الكونسيرج المحلي' في Touri.
 
 سؤال المسافر:
 {message}
 
 ملخص الشخصية:
 {persona_summary}
+
+{memory_context}
 
 السياق الموثق من قاعدة بيانات مصر (تمت تصفيته من مسببات الحساسية):
 ---
@@ -123,12 +151,24 @@ _CONCIERGE_PROMPT_AR = """\
 
 {allergen_note}
 
-اكتب ردًا دافئًا ومنظمًا وفق الشروط:
-- اقترح 3-5 خيارات محددة مستقاة من السياق فقط، مع ذكر الاسم والمدينة وأي تفاصيل تقييم أو سعر.
-- جمّع المقترحات تحت عناوين قصيرة (مثل "مطاعم"، "أماكن خفية"، "فعاليات").
-- خصّص الاقتراحات بحسب ملف المستخدم (الحمية، الحساسية الغذائية، حجم المجموعة، نوع السياحة).
-- إذا كان لدى المستخدم حساسية غذائية، أكّد صراحةً أن اختياراتك آمنة له.
-- الرد لا يتجاوز 250 كلمة.
+يجب أن يكون ردك من جزأين يفصلهما العلامة `---SPOTS_JSON---`:
+
+الجزء الأول (قبل العلامة): رد نصي دافئ ومنظم:
+- اقترح 3-5 خيارات مستقاة من السياق فقط مع الاسم والمدينة والتقييم/السعر.
+- جمّع المقترحات تحت عناوين قصيرة (مطاعم، أماكن خفية، فعاليات).
+- إذا كان لدى المستخدم حساسية غذائية، أكّد صراحةً أن اختياراتك آمنة.
+- تطبيق الحلال: إذا كانت القيود الغذائية تشمل "حلال"، يجب أن تقترح
+  فقط المطاعم التي تقدم طعامًا حلالًا. إذا كان وضع الحلال غير مؤكد من
+  السياق، اذكر صراحة أنه يجب على المسافر التحقق عند الوصول. لا تقترح
+  أبدًا أطباقًا تحتوي على لحم الخنزير أو أماكن معروفة بتقديم طعام غير حلال.
+- لا تتجاوز 200 كلمة. لا تستخدم نجوم (**) — نص عادي فقط.
+
+الجزء الثاني (بعد العلامة): مصفوفة JSON صارمة:
+```json
+[
+  {{"name": "...", "city": "...", "type": "restaurant|attraction|event", "rating": 4.5, "price_hint": "$$", "safe_for_allergies": true}}
+]
+```
 """
 
 
@@ -136,12 +176,20 @@ def _persona_summary(state: AgentState) -> str:
     p = state.get("user_persona")
     if not p:
         return "(no persona on file)"
-    parts = [
+    
+    parts = []
+    name = " ".join(filter(None, [p.first_name, p.last_name]))
+    if name:
+        parts.append(f"user_name={name}")
+    if p.gender and p.gender.value != "unspecified":
+        parts.append(f"gender={p.gender.value}")
+
+    parts.extend([
         f"tourism_type={p.tourism_type.value}",
         f"party_size={p.party_size}",
         f"budget={p.budget_bracket.value}",
         f"preferred_destination={p.preferred_destination or 'unspecified'}",
-    ]
+    ])
     if p.extras:
         dietary = p.extras.get("dietary_restrictions") or []
         allergies = p.extras.get("allergies") or []
@@ -157,7 +205,7 @@ async def recommend(state: AgentState) -> AgentState:
     message = state.get("user_message", "")
     persona = state.get("user_persona")
 
-    context, filtered_count = _gather(message, persona)
+    context, filtered_count = await _gather(message, persona)
     state["rag_context"] = context
 
     # Build allergen note for the prompt
@@ -199,27 +247,69 @@ async def recommend(state: AgentState) -> AgentState:
 
     llm = get_llm(temperature=0.5, streaming=False)
     template = _CONCIERGE_PROMPT_AR if language == "ar" else _CONCIERGE_PROMPT_EN
+    memory_ctx = state.get("memory_context", "")
+    memory_block = f"Conversation memory & preferences:\n{memory_ctx}" if memory_ctx else ""
     user_prompt = template.format(
         message=message,
         persona_summary=_persona_summary(state),
+        memory_context=memory_block,
         context=context or t(language, "(no matches in local data)", "(لا توجد نتائج محلية)"),
         allergen_note=allergen_note,
     )
     resp = await llm.ainvoke(
         [SystemMessage(content=lang_directive(language)), HumanMessage(content=user_prompt)]
     )
-    state["response_text"] = (resp.content or "").strip()
+    raw_output = safe_extract_text(resp.content)
+
+    # Parse the structured SPOTS_JSON block out of the response
+    text_part = raw_output
+    spots_json: Optional[List[Dict[str, Any]]] = None
+    if "---SPOTS_JSON---" in raw_output:
+        parts = raw_output.split("---SPOTS_JSON---", 1)
+        text_part = clean_response(parts[0].strip())
+        json_part = parts[1].strip()
+        # Extract JSON array from possible code fences
+        json_cleaned = re.sub(r"```(?:json)?\s*", "", json_part).strip().rstrip("`")
+        try:
+            spots_json = json.loads(json_cleaned)
+        except json.JSONDecodeError:
+            # Try to find array pattern
+            match = re.search(r"\[.*\]", json_cleaned, re.DOTALL)
+            if match:
+                try:
+                    spots_json = json.loads(match.group(0))
+                except json.JSONDecodeError:
+                    pass
+
+    else:
+        text_part = clean_response(text_part)
+
+    state["spots_json"] = spots_json
+
+    # Inject ui_trigger so the frontend pops a "Save spots?" confirmation modal
+    if spots_json:
+        ui_trigger = json.dumps({
+            "ui_trigger": "show_popup",
+            "type": "spots",
+            "payload": spots_json,
+        }, ensure_ascii=False)
+        state["response_text"] = f"{text_part}\n\n---UI_TRIGGER---\n{ui_trigger}"
+    else:
+        state["response_text"] = text_part
+
     state["agent_trace"].append(
         make_step(
             agent="Local Concierge",
             action=t(language, "Compose recommendations", "صياغة الاقتراحات"),
-            tool=t(language, "gemma-4-27b-it", "gemma-4-27b-it"),
+            tool="gemma-4-26b-a4b-it",
             reasoning=t(
                 language,
-                "Synthesised concierge recommendations grounded in allergen-filtered Egypt data.",
-                "تم تكوين اقتراحات الكونسيرج مستندة إلى بيانات مصر المفلترة من مسببات الحساسية.",
+                f"Synthesised concierge recommendations. Parsed {len(spots_json or [])} structured spots."
+                + (" Injected ui_trigger for frontend sync." if spots_json else ""),
+                f"تم تكوين اقتراحات الكونسيرج. تم استخراج {len(spots_json or [])} موقع مهيكل."
+                + (" تم حقن ui_trigger لمزامنة الواجهة." if spots_json else ""),
             ),
-            result=t(language, "text reply", "رد نصي"),
+            result=f"spots={len(spots_json or [])}, text_chars={len(text_part)}",
         )
     )
     if language == "ar":

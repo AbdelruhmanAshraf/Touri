@@ -1,5 +1,5 @@
 """
-Pydantic request models for Tripmind API (Phase 2).
+Pydantic request models for Touri API (Phase 2).
 
 These mirror the inline schemas in ``routes/chat.py`` so they can be
 imported independently by tests, CLI tools, or future micro-services.

@@ -12,25 +12,10 @@ import { api, getOrCreateUserId, setIntake, type IntakeData } from '@/services/a
 import { applyLanguage } from '@/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { prefetchDestinationImages, DESTINATION_WIKI_TITLES, getWikipediaImage } from '@/services/wikipedia';
+import { EGYPT_GOVERNORATES, COUNTRY_CODE } from '@/constants/Governorates';
+import { SURFACE, BORDER_COLOR, PRIMARY, PRIMARY_DARK, MUTED, PLACEHOLDER, ERROR, RADIUS_SM, flatCard, flatInput } from '@/theme/tokens';
 
 const { width, height } = Dimensions.get('window');
-
-// All 27 Egyptian governorates → country key used by the backend
-const EGYPT_GOVERNORATES = [
-  'Cairo (القاهرة)', 'Alexandria (الإسكندرية)', 'Giza (الجيزة)',
-  'Qalyubia (القليوبية)', 'Gharbia (الغربية)', 'Dakahlia (الدقهلية)',
-  'Sharqia (الشرقية)', 'Kafr El-Sheikh (كفر الشيخ)', 'Monufia (المنوفية)',
-  'Beheira (البحيرة)', 'Ismailia (الإسماعيلية)', 'Suez (السويس)',
-  'Port Said (بورسعيد)', 'North Sinai (شمال سيناء)', 'South Sinai (جنوب سيناء)',
-  'Fayyum (الفيوم)', 'Beni Suef (بني سويف)', 'Al-Minya (المنيا)',
-  'Asyut (أسيوط)', 'Sohag (سوهاج)', 'Qena (قنا)',
-  'Luxor (الأقصر)', 'Aswan (أسوان)', 'Red Sea / Hurghada (البحر الأحمر)',
-  'Matrouh (مطروح)', 'New Valley (الوادي الجديد)', 'Damietta (دمياط)',
-];
-
-const COUNTRY_CODE: Record<string, string> = Object.fromEntries(
-  EGYPT_GOVERNORATES.map((g) => [g, 'egypt']),
-);
 const TOURISM_TYPE: Record<string, IntakeData['tourism_type']> = {
   'Leisure & Exploration': 'standard', 'Medical & Wellness Tourism': 'medical',
 };
@@ -45,7 +30,7 @@ const DESTINATIONS = EGYPT_GOVERNORATES;
 
 // Steps: 0=auth, 1=welcome, 2=destination, 3=purpose, 4=companions, 5=budget, 6=pace, 7=dietary, 8=language
 const STEPS = [
-  { id: 0, title: 'Welcome to TripMind', icon: 'user' },
+  { id: 0, title: 'Welcome to Touri', icon: 'user' },
   { id: 1, title: 'Your personal AI Travel Coach', icon: 'globe' },
   { id: 2, title: 'Where to next?', subtitle: 'Target Destination', icon: 'map-pin' },
   { id: 3, title: 'Define your style', subtitle: 'Travel Purpose', icon: 'camera' },
@@ -85,11 +70,25 @@ export default function OnboardingScreen() {
     prefetchDestinationImages().then(setWikiImages).catch(() => {});
   }, []);
 
-  // When user authenticates at step 0, auto-advance to step 1
+  // When user authenticates at step 0, check if they already have a persona.
+  // Existing users (signin) → go straight to app. New users (signup) → continue onboarding.
   useEffect(() => {
     if (isAuthed && step === 0) {
-      setDirection('right');
-      setStep(1);
+      const checkAndRoute = async () => {
+        try {
+          const uid = user?.uid ?? (await getOrCreateUserId());
+          const p = await api.getPersona(uid).catch(() => null);
+          if (p?.preferred_destination) {
+            router.replace('/(tabs)');
+            return;
+          }
+        } catch {
+          /* continue to onboarding if check fails */
+        }
+        setDirection('right');
+        setStep(1);
+      };
+      checkAndRoute();
     }
   }, [isAuthed, step]);
 
@@ -208,7 +207,7 @@ export default function OnboardingScreen() {
                 <Image source={{ uri: imgUri }} style={styles.destImg} contentFit="cover" transition={300} cachePolicy="memory-disk" />
               ) : (
                 <View style={[styles.destImg, { backgroundColor: '#E8E8ED', alignItems: 'center', justifyContent: 'center' }]}>
-                  <Feather name="image" size={20} color="#C7C7CC" />
+                  <Feather name="image" size={20} color={PLACEHOLDER} />
                 </View>
               )}
               <LinearGradient colors={['transparent', 'rgba(0,0,0,0.55)']} style={styles.destGrad}>
@@ -265,7 +264,7 @@ export default function OnboardingScreen() {
               <Text style={styles.authSubtitle}>
                 {authMode === 'signin'
                   ? 'Sign in to continue your travel journey'
-                  : 'Join TripMind for personalized AI travel planning'}
+                  : 'Join Touri for personalized AI travel planning'}
               </Text>
             </View>
 
@@ -273,11 +272,11 @@ export default function OnboardingScreen() {
 
             <View style={styles.authInputContainer}>
               <View style={styles.inputWrapper}>
-                <Feather name="mail" size={18} color="#8E8E93" style={{ marginRight: 10 }} />
+                <Feather name="mail" size={18} color={MUTED} style={{ marginRight: 10 }} />
                 <TextInput
                   style={styles.authInput}
                   placeholder="Email address"
-                  placeholderTextColor="#8E8E93"
+                  placeholderTextColor={MUTED}
                   autoCapitalize="none"
                   keyboardType="email-address"
                   value={email}
@@ -285,11 +284,11 @@ export default function OnboardingScreen() {
                 />
               </View>
               <View style={styles.inputWrapper}>
-                <Feather name="lock" size={18} color="#8E8E93" style={{ marginRight: 10 }} />
+                <Feather name="lock" size={18} color={MUTED} style={{ marginRight: 10 }} />
                 <TextInput
                   style={styles.authInput}
                   placeholder="Password"
-                  placeholderTextColor="#8E8E93"
+                  placeholderTextColor={MUTED}
                   secureTextEntry
                   value={password}
                   onChangeText={setPassword}
@@ -298,7 +297,7 @@ export default function OnboardingScreen() {
             </View>
 
             <TouchableOpacity style={styles.emailButton} onPress={handleEmailAuth} disabled={authBusy}>
-              <LinearGradient colors={['#00A896', '#028090']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.emailButtonGrad}>
+              <LinearGradient colors={[PRIMARY, PRIMARY_DARK]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.emailButtonGrad}>
                 {authBusy ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
@@ -376,7 +375,7 @@ export default function OnboardingScreen() {
               <Image source={require('../assets/images/onboarding/onboarding_diet.png')} style={styles.transparentAssetImage} contentFit="contain" transition={200} cachePolicy="memory-disk" />
             ) : step === 2 ? null : (
               <View style={styles.assetCircle}>
-                <Feather name={currentStepData.icon as any} size={48} color="#00A896" />
+                <Feather name={currentStepData.icon as any} size={48} color={PRIMARY} />
               </View>
             )}
           </View>
@@ -390,7 +389,7 @@ export default function OnboardingScreen() {
             {step === 1 && (
               <View style={styles.step1Container}>
                 <Text style={styles.bodyText}>
-                  Welcome to TripMind. Experience the next generation of seamless,
+                  Welcome to Touri. Experience the next generation of seamless,
                   AI-driven travel planning tailored exactly to your lifestyle.
                 </Text>
               </View>
@@ -417,7 +416,7 @@ export default function OnboardingScreen() {
             {visibleSteps.map((s, i) => (
               <Animated.View
                 key={s.id}
-                style={[styles.dot, { width: dotAnims[i], backgroundColor: step === s.id ? '#00A896' : '#E2E8F0' }]}
+                style={[styles.dot, { width: dotAnims[i], backgroundColor: step === s.id ? PRIMARY : '#E2E8F0' }]}
               />
             ))}
           </View>
@@ -427,7 +426,7 @@ export default function OnboardingScreen() {
             disabled={!canContinue}
           >
             <LinearGradient
-              colors={canContinue ? ['#00A896', '#028090'] : ['#C7C7CC', '#C7C7CC']}
+              colors={canContinue ? [PRIMARY, PRIMARY_DARK] : [PLACEHOLDER, PLACEHOLDER]}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.continueGradient}
             >
@@ -454,7 +453,7 @@ const styles = StyleSheet.create({
     width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.03)',
     alignItems: 'center', justifyContent: 'center',
   },
-  skipText: { fontSize: 16, color: '#8E8E93', fontWeight: '500' },
+  skipText: { fontSize: 16, color: MUTED, fontWeight: '500' },
   content: { flex: 1 },
   assetContainer: { alignItems: 'center', justifyContent: 'center', height: height * 0.22 },
   transparentAssetImage: { width: '90%', height: '100%', backgroundColor: 'transparent' },
@@ -464,27 +463,27 @@ const styles = StyleSheet.create({
   },
   titleContainer: { paddingHorizontal: 24, marginBottom: 24 },
   subtitle: {
-    fontSize: 13, fontWeight: '700', color: '#00A896', textTransform: 'uppercase',
+    fontSize: 13, fontWeight: '700', color: PRIMARY, textTransform: 'uppercase',
     letterSpacing: 1.2, marginBottom: 8,
   },
   title: { fontSize: 32, fontWeight: '800', color: '#1D1D1F', letterSpacing: -0.5 },
   scrollContent: { paddingHorizontal: 24, paddingBottom: 40 },
-  bodyText: { fontSize: 16, color: '#8E8E93', lineHeight: 24, marginBottom: 32 },
+  bodyText: { fontSize: 16, color: MUTED, lineHeight: 24, marginBottom: 32 },
   step1Container: { flex: 1 },
   optionsContainer: { gap: 12 },
   optionsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 0 },
   optionCard: {
-    backgroundColor: '#FFFFFF', padding: 16, borderRadius: 20, borderWidth: 2,
-    borderColor: '#E5E5EA', position: 'relative',
+    backgroundColor: SURFACE, padding: 16, borderRadius: 20, borderWidth: 2,
+    borderColor: BORDER_COLOR, position: 'relative',
   },
-  optionCardSelected: { borderColor: '#00A896', backgroundColor: '#F0FDFA' },
+  optionCardSelected: { borderColor: PRIMARY, backgroundColor: '#F0FDFA' },
   optionCheck: {
     position: 'absolute', top: 12, right: 12, width: 20, height: 20,
-    borderRadius: 10, backgroundColor: '#00A896', alignItems: 'center', justifyContent: 'center',
+    borderRadius: RADIUS_SM, backgroundColor: PRIMARY, alignItems: 'center', justifyContent: 'center',
   },
-  optionText: { fontSize: 16, fontWeight: '600', color: '#8E8E93' },
-  optionTextSelected: { color: '#00A896', fontWeight: '700' },
-  langHelpText: { marginTop: 16, textAlign: 'center', color: '#8E8E93', fontSize: 14 },
+  optionText: { fontSize: 16, fontWeight: '600', color: MUTED },
+  optionTextSelected: { color: PRIMARY, fontWeight: '700' },
+  langHelpText: { marginTop: 16, textAlign: 'center', color: MUTED, fontSize: 14 },
   footer: { paddingHorizontal: 24, paddingBottom: 24, paddingTop: 16, backgroundColor: 'transparent' },
   pagination: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, marginBottom: 24 },
   dot: { height: 8, borderRadius: 4 },
@@ -501,10 +500,10 @@ const styles = StyleSheet.create({
   // ── Destination cards with Wikipedia images ──
   destGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 12 },
   destCard: {
-    width: '48%', borderRadius: 16, overflow: 'hidden', borderWidth: 2,
-    borderColor: '#E5E5EA',
+    ...flatCard,
+    width: '48%', overflow: 'hidden', borderWidth: 2,
   },
-  destCardSelected: { borderColor: '#00A896' },
+  destCardSelected: { borderColor: PRIMARY },
   destImgWrap: { width: '100%', height: 120, position: 'relative' },
   destImg: { width: '100%', height: '100%' },
   destGrad: {
@@ -514,7 +513,7 @@ const styles = StyleSheet.create({
   destLabel: { color: '#fff', fontSize: 13, fontWeight: '700' },
   destCheck: {
     position: 'absolute', top: 8, right: 8, width: 24, height: 24,
-    borderRadius: 12, backgroundColor: '#00A896', alignItems: 'center', justifyContent: 'center',
+    borderRadius: 12, backgroundColor: PRIMARY, alignItems: 'center', justifyContent: 'center',
   },
 
   // ── Auth step styles ──
@@ -522,26 +521,27 @@ const styles = StyleSheet.create({
   authAssetContainer: { alignItems: 'center', justifyContent: 'center', height: height * 0.2, marginBottom: 8 },
   authTitleContainer: { marginBottom: 24 },
   authTitle: { fontSize: 28, fontWeight: '800', color: '#1D1D1F', letterSpacing: -0.5, marginBottom: 8 },
-  authSubtitle: { fontSize: 15, color: '#8E8E93', lineHeight: 22 },
-  errorText: { color: '#FF3B30', fontSize: 14, marginBottom: 12, textAlign: 'center' },
+  authSubtitle: { fontSize: 15, color: MUTED, lineHeight: 22 },
+  errorText: { color: ERROR, fontSize: 14, marginBottom: 12, textAlign: 'center' },
   authInputContainer: { gap: 12, marginBottom: 20 },
   inputWrapper: {
+    ...flatInput,
     flexDirection: 'row', alignItems: 'center', backgroundColor: '#F5F5F7',
-    paddingHorizontal: 16, borderRadius: 16, borderWidth: 1, borderColor: '#E5E5EA',
+    paddingHorizontal: 16,
   },
   authInput: { flex: 1, paddingVertical: 14, fontSize: 15, color: '#1D1D1F' },
   emailButton: { borderRadius: 20, overflow: 'hidden', marginBottom: 16 },
   emailButtonGrad: { paddingVertical: 16, alignItems: 'center', justifyContent: 'center' },
   emailButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  switchModeText: { color: '#00A896', fontSize: 14, fontWeight: '600', textAlign: 'center', marginBottom: 20 },
+  switchModeText: { color: PRIMARY, fontSize: 14, fontWeight: '600', textAlign: 'center', marginBottom: 20 },
   dividerContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: '#E5E5EA' },
-  dividerText: { color: '#8E8E93', marginHorizontal: 12, fontSize: 12, fontWeight: '600' },
+  dividerLine: { flex: 1, height: 1, backgroundColor: BORDER_COLOR },
+  dividerText: { color: MUTED, marginHorizontal: 12, fontSize: 12, fontWeight: '600' },
   socialButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: '#fff', paddingVertical: 16, borderRadius: 20, marginBottom: 12,
-    gap: 10, borderWidth: 1, borderColor: '#E5E5EA',
+    backgroundColor: SURFACE, paddingVertical: 16, borderRadius: 20, marginBottom: 12,
+    gap: 10, borderWidth: 1, borderColor: BORDER_COLOR,
   },
   socialButtonText: { fontSize: 15, fontWeight: '600', color: '#1D1D1F' },
-  termsText: { textAlign: 'center', fontSize: 12, color: '#8E8E93', marginTop: 12 },
+  termsText: { textAlign: 'center', fontSize: 12, color: MUTED, marginTop: 12 },
 });

@@ -2,7 +2,7 @@
  * Wikipedia Image Service
  *
  * Fetches high-quality images from Wikipedia for destinations used
- * in the Tripmind onboarding flow and throughout the app.
+ * in the Touri onboarding flow and throughout the app.
  *
  * Uses the MediaWiki API (pageimages + imageinfo) to retrieve
  * the primary thumbnail / original image for any article title.

@@ -30,6 +30,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { api, type CatalogItem, type CatalogItemType } from '@/services/api';
 import { BORDER_COLOR, BG, MUTED, SURFACE, TEXT } from '@/theme/tokens';
+import ScreenHeader from '@/components/ScreenHeader';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
@@ -132,6 +133,8 @@ export default function PlaceScreen() {
         <View style={styles.handle} />
       </View>
 
+      <ScreenHeader isModal onBack={() => router.back()} transparent />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
@@ -149,9 +152,6 @@ export default function PlaceScreen() {
                 <Image key={i} source={{ uri }} style={styles.galleryImage} contentFit="cover" transition={200} cachePolicy="memory-disk" />
               ))}
             </ScrollView>
-            <TouchableOpacity style={styles.closeBtn} onPress={() => router.back()}>
-              <Feather name="x" size={18} color="#fff" />
-            </TouchableOpacity>
             {images.length > 1 && (
               <View style={styles.dotsRow}>
                 {images.map((_, i) => (

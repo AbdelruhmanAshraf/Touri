@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-BASE_DIR = Path("/Users/abdelruhamanelfekky/Desktop/Gen project/Tripmind/BackEnd/data/travel_guides")
+BASE_DIR = Path("/Users/abdelruhamanelfekky/Desktop/Gen project/Touri/BackEnd/data/travel_guides")
 
 guides = {
     "saudi_arabia": {

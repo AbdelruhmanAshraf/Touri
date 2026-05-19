@@ -1,5 +1,5 @@
 /**
- * Tripmind i18n bootstrap.
+ * Touri i18n bootstrap.
  *
  * Initialises ``react-i18next`` with English + Arabic resource bundles and
  * exposes a small ``applyLanguage`` helper that also flips ``I18nManager``

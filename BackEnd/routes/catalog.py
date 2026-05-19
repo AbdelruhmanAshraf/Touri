@@ -129,22 +129,56 @@ async def home(
     }
 
     # Optional city personalisation: bubble items from the selected governorate
-    # (and geographically adjacent ones) to the top using a tiered sort.
+    # (and geographically adjacent ones) to the top using a tiered sort, and
+    # also expose three explicit Phase-5 sections:
+    #   - nearby_suggestions       — anything in adjacent governorates
+    #   - localized_offers         — hot offers within the primary city only
+    #   - hot_spots                — top-rated items in the primary city only
     if city:
         gov_key = _extract_governorate_key(city)
         nearby: List[str] = _GOVERNORATE_PROXIMITY.get(gov_key, [gov_key])
+        primary = nearby[0] if nearby else gov_key
+        adjacent = set(nearby[1:]) if len(nearby) > 1 else set()
+
+        def _tier(card: Dict[str, Any]) -> int:
+            card_city = (card.get("city") or "").lower()
+            for rank, keyword in enumerate(nearby):
+                if keyword in card_city:
+                    return rank
+            return len(nearby)
 
         def _proximity_first(cards: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-            def _tier(card: Dict[str, Any]) -> int:
-                card_city = (card.get("city") or "").lower()
-                for rank, keyword in enumerate(nearby):
-                    if keyword in card_city:
-                        return rank
-                return len(nearby)  # lowest priority — not nearby
-
             return sorted(cards, key=_tier)
 
+        def _in_primary(card: Dict[str, Any]) -> bool:
+            return primary in (card.get("city") or "").lower()
+
+        def _in_adjacent(card: Dict[str, Any]) -> bool:
+            cc = (card.get("city") or "").lower()
+            return any(adj in cc for adj in adjacent)
+
+        # Re-sort the existing buckets by proximity tier.
         payload = {k: _proximity_first(v) if isinstance(v, list) else v for k, v in payload.items()}
+
+        # Build the three named sections from the catalog pool directly so
+        # they survive even when an existing bucket is empty for this city.
+        full_attractions = _cards(popular_attractions(min_rating=4.0, limit=80))
+        full_offers      = _cards(hot_offers(limit=80))
+        full_hotels      = _cards(featured_hotels(min_rating=4.0, limit=80))
+        full_food        = _cards(local_food(min_rating=4.0, limit=80))
+
+        nearby_pool = [c for c in (full_attractions + full_hotels + full_food) if _in_adjacent(c)]
+        nearby_pool.sort(key=lambda c: c.get("rating") or 0, reverse=True)
+
+        localized = [c for c in full_offers if _in_primary(c)]
+        localized.sort(key=lambda c: c.get("rating") or 0, reverse=True)
+
+        hot_spots_pool = [c for c in full_attractions if _in_primary(c)]
+        hot_spots_pool.sort(key=lambda c: c.get("rating") or 0, reverse=True)
+
+        payload["nearby_suggestions"]      = nearby_pool[:limit]
+        payload["localized_offers"]        = localized[:limit]
+        payload["hot_spots"]               = hot_spots_pool[:limit]
 
     payload["meta"] = {
         "total_attractions": len(by_type().get("attraction", [])),

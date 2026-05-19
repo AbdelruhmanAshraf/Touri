@@ -1,4 +1,4 @@
-# Tripmind 🧳 — Multi-Agent AI Travel System
+# Touri 🧳 — Multi-Agent AI Travel System
 
 > **Production-grade AI travel planner for Egypt** built on LangGraph-orchestrated multi-agent architecture with Firebase memory, ChromaDB RAG, and a React + TypeScript premium frontend.
 
@@ -88,7 +88,7 @@ npm run dev
 ## Project Structure
 
 ```
-Tripmind/
+Touri/
 ├── backend/
 │   ├── main.py              # FastAPI app
 │   ├── config.py            # Settings

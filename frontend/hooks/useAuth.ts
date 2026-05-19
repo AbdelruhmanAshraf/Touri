@@ -1,5 +1,5 @@
 /**
- * Tripmind auth hook — wraps Firebase + expo-auth-session Google Sign-In.
+ * Touri auth hook — wraps Firebase + expo-auth-session Google Sign-In.
  *
  * Safe in dev: if Google OAuth client IDs aren't yet configured, the hook
  * still mounts and returns a `notConfigured` flag instead of throwing,
@@ -20,11 +20,34 @@ import {
   signInWithGoogleIdToken,
   signInWithEmail as fbSignInWithEmail,
   signUpWithEmail as fbSignUpWithEmail,
+  signInAnonymously as fbSignInAnonymously,
 } from '@/config/firebaseConfig';
+import { api, clearSessionTokens, clearAllLocalData } from '@/services/api';
 
 WebBrowser.maybeCompleteAuthSession();
 
-const GUEST_FLAG_KEY = 'tripmind_guest_mode';
+// ── Module-level session deduplication ────────────────────────────────────────
+// useAuth() is called in every tab/screen, creating multiple onAuthStateChanged
+// listeners. Without dedup, each listener fires startSession concurrently,
+// instantly exceeding the backend's 5 req/min AUTH_LIMIT and returning 429.
+// This cache ensures startSession is called at most once per Firebase uid.
+let _sessionCache: { uid: string; promise: Promise<void> } | null = null;
+
+function _startSessionOnce(
+  uid: string,
+  getIdToken: () => Promise<string>,
+): Promise<void> {
+  if (_sessionCache?.uid === uid) return _sessionCache.promise;
+  const promise = (async () => {
+    const idToken = await getIdToken();
+    await api.startSession({ id_token: idToken });
+  })().catch((e) => {
+    console.warn('[useAuth] startSession failed:', e);
+    if (_sessionCache?.uid === uid) _sessionCache = null;
+  });
+  _sessionCache = { uid, promise };
+  return promise;
+}
 
 /** Feature limits applied to guest accounts. */
 export const GUEST_LIMITS = {
@@ -60,26 +83,19 @@ export function useAuth() {
     androidClientId: androidId || PLACEHOLDER,
   });
 
-  // Restore previously-stored guest flag so the app remembers the choice
-  // across reloads (until the user signs in or signs out).
-  useEffect(() => {
-    AsyncStorage.getItem(GUEST_FLAG_KEY)
-      .then((v) => {
-        if (v === '1') setIsGuest(true);
-      })
-      .catch(() => {
-        /* non-fatal */
-      });
-  }, []);
-
   useEffect(() => {
     try {
-      const unsub = onAuthStateChanged(auth, (u) => {
+      const unsub = onAuthStateChanged(auth, async (u) => {
         setUser(u);
-        // A real Firebase user always overrides guest mode.
         if (u) {
+          setIsGuest(u.isAnonymous);
+          // Phase 5: hand the Firebase ID token to the backend so it can mint
+          // HTTP-only access + refresh cookies and store the access JWT in
+          // expo-secure-store. Failure is non-fatal in dev.
+          await _startSessionOnce(u.uid, () => u.getIdToken(/* forceRefresh */ false));
+        } else {
           setIsGuest(false);
-          AsyncStorage.removeItem(GUEST_FLAG_KEY).catch(() => {});
+          await clearSessionTokens().catch(() => {});
         }
         setLoading(false);
       });
@@ -95,11 +111,10 @@ export function useAuth() {
 
   const continueAsGuest = useCallback(async () => {
     try {
-      await AsyncStorage.setItem(GUEST_FLAG_KEY, '1');
-    } catch {
-      /* non-fatal */
+      await fbSignInAnonymously();
+    } catch (e) {
+      console.warn('[useAuth] Anonymous sign-in failed:', e);
     }
-    setIsGuest(true);
   }, []);
 
   useEffect(() => {
@@ -132,11 +147,19 @@ export function useAuth() {
 
   const signOut = useCallback(async () => {
     setIsGuest(false);
+    // 1. Clear backend cookies + secure-store tokens
     try {
-      await AsyncStorage.removeItem(GUEST_FLAG_KEY);
+      await api.logoutSession();
     } catch {
       /* non-fatal */
     }
+    // 2. Clear all local AsyncStorage data (session, intake, last trip, user id)
+    try {
+      await clearAllLocalData();
+    } catch {
+      /* non-fatal */
+    }
+    // 3. Sign out of Firebase (triggers onAuthStateChanged → user=null)
     try {
       await fbSignOut(auth);
     } catch {

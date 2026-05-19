@@ -37,6 +37,12 @@ class BudgetBracket(str, Enum):
     LUXURY = "luxury"
 
 
+class GenderType(str, Enum):
+    MALE = "male"
+    FEMALE = "female"
+    UNSPECIFIED = "unspecified"
+
+
 class UserPersona(BaseModel):
     """Structured travel persona persisted in Firestore."""
 
@@ -47,6 +53,11 @@ class UserPersona(BaseModel):
     tourism_type: TourismType = TourismType.LEISURE
     party_size: int = Field(default=1, ge=1, le=20)
     budget_bracket: BudgetBracket = BudgetBracket.MID_RANGE
+
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    gender: GenderType = GenderType.UNSPECIFIED
+    photo_url: Optional[str] = None
 
     # Free-form extensions that don't fit the structured fields above.
     extras: Dict[str, Any] = Field(default_factory=dict)
@@ -79,24 +90,57 @@ def _to_firestore(model: UserPersona) -> Dict[str, Any]:
     # Coerce enums to their string values for Firestore.
     data["tourism_type"] = model.tourism_type.value
     data["budget_bracket"] = model.budget_bracket.value
+    data["gender"] = model.gender.value
     return data
 
 
 def _from_firestore(user_id: str, raw: Dict[str, Any]) -> UserPersona:
     payload = dict(raw or {})
     payload.setdefault("user_id", user_id)
-    # Tolerate legacy values.
+    # Tolerate legacy values and unexpected types.
     if isinstance(payload.get("tourism_type"), str):
         try:
             payload["tourism_type"] = TourismType(payload["tourism_type"].lower())
         except ValueError:
             payload["tourism_type"] = TourismType.LEISURE
+    elif not isinstance(payload.get("tourism_type"), TourismType):
+        payload["tourism_type"] = TourismType.LEISURE
+
     if isinstance(payload.get("budget_bracket"), str):
         try:
             payload["budget_bracket"] = BudgetBracket(payload["budget_bracket"].lower())
         except ValueError:
             payload["budget_bracket"] = BudgetBracket.MID_RANGE
-    return UserPersona(**payload)
+    elif not isinstance(payload.get("budget_bracket"), BudgetBracket):
+        payload["budget_bracket"] = BudgetBracket.MID_RANGE
+
+    if isinstance(payload.get("gender"), str):
+        try:
+            payload["gender"] = GenderType(payload["gender"].lower())
+        except ValueError:
+            payload["gender"] = GenderType.UNSPECIFIED
+    elif not isinstance(payload.get("gender"), GenderType):
+        payload["gender"] = GenderType.UNSPECIFIED
+
+    # Ensure party_size is a valid int
+    try:
+        payload["party_size"] = max(1, min(20, int(payload.get("party_size", 1))))
+    except (TypeError, ValueError):
+        payload["party_size"] = 1
+
+    # Ensure extras is a dict
+    if not isinstance(payload.get("extras"), dict):
+        payload["extras"] = {}
+
+    # Remove any keys that aren't valid UserPersona fields
+    valid_keys = set(UserPersona.model_fields.keys())
+    payload = {k: v for k, v in payload.items() if k in valid_keys}
+
+    try:
+        return UserPersona(**payload)
+    except Exception:
+        logger.warning("[persona] failed to parse Firestore data for user=%s, using defaults", user_id)
+        return UserPersona(user_id=user_id)
 
 
 # ── Public CRUD ───────────────────────────────────────────────────────────────
@@ -153,6 +197,7 @@ async def delete_persona(user_id: str) -> bool:
 __all__ = [
     "TourismType",
     "BudgetBracket",
+    "GenderType",
     "UserPersona",
     "get_persona",
     "get_or_create_persona",

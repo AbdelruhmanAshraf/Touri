@@ -1,0 +1,117 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── DENY-BY-DEFAULT: No access unless explicitly granted ──────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ── Helper functions ─────────────────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidString(field, maxLength) {
+      return field is string && field.size() <= maxLength;
+    }
+
+    // ── users/{userId} — user profile document ───────────────────────────
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId)
+        && (!request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['uid', 'created_at']));
+      allow delete: if false; // Users cannot self-delete (admin only)
+
+      // ── users/{userId}/persona/{docId} — travel persona ────────────────
+      match /persona/{docId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId)
+          && request.resource.data.keys().hasOnly([
+            'preferred_destination', 'tourism_type', 'party_size',
+            'budget_bracket', 'first_name', 'last_name', 'gender',
+            'photo_url', 'extras', 'created_at', 'updated_at'
+          ]);
+      }
+
+      // ── users/{userId}/trips/{tripId} — trip plans ─────────────────────
+      match /trips/{tripId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+
+      // ── users/{userId}/chats/{chatId} — chat history ───────────────────
+      match /chats/{chatId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+
+      // ── users/{userId}/pinned/{pinId} — pinned messages ────────────────
+      match /pinned/{pinId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow delete: if isOwner(userId);
+        allow update: if false; // Pins are immutable
+      }
+
+      // ── users/{userId}/preferences/{prefId} — user preferences ─────────
+      match /preferences/{prefId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId);
+      }
+
+      // ── users/{userId}/sessions/{sessionId} — refresh token tracking ───
+      match /sessions/{sessionId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId);
+        allow delete: if isOwner(userId);
+      }
+
+      // ── users/{userId}/conversation_state/{sid} — workflow state machine ──
+      match /conversation_state/{sid} {
+        allow read: if isOwner(userId);
+        allow write: if false; // Backend-only via Admin SDK
+      }
+
+      // ── users/{userId}/chats/{sid} — persistent chat sessions ─────
+      match /chats/{sid} {
+        allow read: if isOwner(userId);
+        allow write: if false; // Backend-only via Admin SDK
+
+        match /messages/{msgId} {
+          allow read: if isOwner(userId);
+          allow write: if false; // Backend-only via Admin SDK
+        }
+      }
+
+      // ── users/{userId}/memory/{docId} — conversation memory ───────────────
+      match /memory/{docId} {
+        allow read: if isOwner(userId);
+        allow write: if false; // Backend-only via Admin SDK
+      }
+
+      // ── users/{userId}/travel_preferences/{prefId} — travel prefs ─────────
+      match /travel_preferences/{prefId} {
+        allow read: if isOwner(userId);
+        allow write: if false; // Backend-only via Admin SDK
+      }
+    }
+
+    // ── onboarding/{userId} — onboarding state ───────────────────────────
+    match /onboarding/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId);
+    }
+  }
+}

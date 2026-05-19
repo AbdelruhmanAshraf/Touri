@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "Tripmind",
-    "slug": "tripmind",
+    "name": "Touri",
+    "slug": "touri",
     "version": "1.0.0",
-    "scheme": "tripmind",
+    "scheme": "touri",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tripmind.app"
+      "bundleIdentifier": "com.touri.app"
     },
     "android": {
-      "package": "com.tripmind.app",
+      "package": "com.touri.app",
       "adaptiveIcon": {
         "backgroundColor": "#ffffff"
       }

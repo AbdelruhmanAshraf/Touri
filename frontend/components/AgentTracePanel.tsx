@@ -19,6 +19,7 @@ import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import { Colors } from '@/constants/Colors';
+import { BORDER_COLOR } from '@/theme/tokens';
 import type { AgentStep } from '@/services/api';
 
 const { height } = Dimensions.get('window');
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 28,
     overflow: 'hidden',
     borderTopWidth: 1,
-    borderColor: '#E5E5EA',
+    borderColor: BORDER_COLOR,
   },
   header: { padding: 16 },
   handle: {

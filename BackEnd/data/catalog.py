@@ -1,5 +1,5 @@
 """
-Tripmind in-memory catalog.
+Touri in-memory catalog.
 
 Loads every CSV/XLSX in ``backend/data/egypt_csv`` once at startup, normalises
 each row into a single ``CatalogItem`` shape, and exposes ergonomic query

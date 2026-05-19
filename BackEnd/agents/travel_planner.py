@@ -1,13 +1,15 @@
 """
-Travel Planner agent.
+Travel Planner agent — 100% Offline RAG Mode.
 
 Pulls grounded context from ChromaDB (``egypt_travel_knowledge``) and asks
-Gemini to draft a structured, day-by-day itinerary. If the active persona is
-medical-tourism, healthcare facilities are woven alongside attractions.
+Gemma-4-26B-A4B-IT to draft a structured, day-by-day itinerary. If the active
+persona is medical-tourism, healthcare facilities are woven alongside
+attractions. All data sourced exclusively from local vector store.
 """
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import re
@@ -15,22 +17,30 @@ from typing import Any, Dict, List
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from agents.llm import get_llm, lang_directive, t
+from agents.llm import get_llm, lang_directive, t, safe_extract_text, clean_response
 from agents.state import AgentState, make_step
 from rag.vector_store import query as rag_query
+from services.personalization import PersonalizationEngine
+from services.recommendation_ranker import RecommendationRanker
+from schemas.structured_objects import TripPlan, DayPlan, HotelRecommendation, ActivityRecommendation
 
 logger = logging.getLogger(__name__)
 
 
 # ── Context retrieval ─────────────────────────────────────────────────────────
-def _gather_context(message: str, *, medical: bool, language: str) -> str:
-    """Pull attractions + (optionally) medical rows from Chroma."""
-    standard = rag_query(message, top_k=6, where={"domain": "attraction"})
-    restaurants = rag_query(message, top_k=3, where={"domain": "restaurant"})
-    hotels = rag_query(message, top_k=3, where={"domain": "hotel"})
-    medical_hits: List[Dict[str, Any]] = (
-        rag_query(message, top_k=4, where={"domain": "medical"}) if medical else []
-    )
+async def _gather_context(message: str, *, medical: bool, language: str) -> str:
+    """Pull attractions + (optionally) medical rows from Chroma in parallel."""
+    queries = [
+        asyncio.to_thread(rag_query, message, top_k=6, where={"domain": "attraction"}),
+        asyncio.to_thread(rag_query, message, top_k=3, where={"domain": "restaurant"}),
+        asyncio.to_thread(rag_query, message, top_k=3, where={"domain": "hotel"}),
+    ]
+    if medical:
+        queries.append(asyncio.to_thread(rag_query, message, top_k=4, where={"domain": "medical"}))
+
+    results = await asyncio.gather(*queries)
+    standard, restaurants, hotels = results[0], results[1], results[2]
+    medical_hits: List[Dict[str, Any]] = results[3] if medical else []
 
     sections: List[str] = []
     if standard:
@@ -49,13 +59,15 @@ def _gather_context(message: str, *, medical: bool, language: str) -> str:
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
 _PLANNER_PROMPT_EN = """\
-You are TripMind's Travel Planner.
+You are Touri's Travel Planner.
 
 User request:
 {message}
 
 Persona summary:
 {persona_summary}
+
+{memory_context}
 
 Grounded knowledge from our Egypt database (use this; do not invent facts):
 ---
@@ -94,17 +106,20 @@ Constraints:
 - If the persona has food_allergies, ensure any restaurant activities avoid
   those allergens. Mention "allergy-safe" in the title if relevant.
 - Use names that appear in the grounded knowledge whenever possible.
+- Do NOT use markdown bold asterisks (** or *) in summary_message. Use plain text only.
 - Return ONLY the JSON object — no commentary.
 """
 
 _PLANNER_PROMPT_AR = """\
-أنت 'مخطط الرحلات' في TripMind.
+أنت 'مخطط الرحلات' في Touri.
 
 طلب المستخدم:
 {message}
 
 ملخص الشخصية:
 {persona_summary}
+
+{memory_context}
 
 المعرفة الموثقة من قاعدة بيانات مصر (استخدمها فقط، لا تختلق):
 ---
@@ -148,12 +163,22 @@ def _persona_summary(state: AgentState) -> str:
     p = state.get("user_persona")
     if not p:
         return "(no persona on file)"
-    parts = [
+    
+    parts = []
+    
+    # Identify user by name/gender if available
+    name = " ".join(filter(None, [p.first_name, p.last_name]))
+    if name:
+        parts.append(f"user_name={name}")
+    if p.gender and p.gender.value != "unspecified":
+        parts.append(f"gender={p.gender.value}")
+
+    parts.extend([
         f"tourism_type={p.tourism_type.value}",
         f"party_size={p.party_size}",
         f"budget={p.budget_bracket.value}",
         f"preferred_destination={p.preferred_destination or 'unspecified'}",
-    ]
+    ])
     if p.extras:
         dietary = p.extras.get("dietary_restrictions") or []
         allergies = p.extras.get("allergies") or []
@@ -176,15 +201,43 @@ def _extract_json(raw: str) -> Dict[str, Any] | None:
         return None
 
 
+# ── Modify-mode prompt addendum ───────────────────────────────────────────────
+_MODIFY_ADDENDUM_EN = """
+
+IMPORTANT: The user wants to MODIFY their existing plan, not create a new one.
+Here is the current itinerary JSON they wish to alter:
+```json
+{existing_plan}
+```
+
+Apply the user's requested changes (additions, removals, swaps, date shifts)
+to this existing plan. Keep unchanged days/activities intact. Return the full
+updated JSON in the same schema — NOT just the diff.
+"""
+
+_MODIFY_ADDENDUM_AR = """
+
+مهم: المستخدم يريد تعديل خطته الحالية وليس إنشاء خطة جديدة.
+هذا هو جدول الرحلة الحالي الذي يريد تغييره:
+```json
+{existing_plan}
+```
+
+طبّق التعديلات المطلوبة (إضافات، حذف، تبديل، تغيير تواريخ) على هذه الخطة.
+أبقِ الأيام والأنشطة غير المتأثرة كما هي. أعد JSON الكامل المحدّث بنفس المخطط — وليس الفرق فقط.
+"""
+
+
 # ── Public node ───────────────────────────────────────────────────────────────
 async def plan(state: AgentState) -> AgentState:
     language = state.get("language", "en")
     message = state.get("user_message", "")
     persona = state.get("user_persona")
     medical = bool(persona and persona.tourism_type.value == "medical")
+    is_modify = state.get("is_modify", False)
 
     # 1. Retrieve grounded context
-    context = _gather_context(message, medical=medical, language=language)
+    context = await _gather_context(message, medical=medical, language=language)
     state["rag_context"] = context
     state["agent_trace"].append(
         make_step(
@@ -194,41 +247,72 @@ async def plan(state: AgentState) -> AgentState:
             reasoning=t(
                 language,
                 "Queried ChromaDB for attractions, hotels, restaurants"
-                + (" and healthcare facilities (medical tourism)." if medical else "."),
+                + (" and healthcare facilities (medical tourism)." if medical else ".")
+                + (" Mode: MODIFY existing plan." if is_modify else ""),
                 "تم الاستعلام من ChromaDB عن المعالم والفنادق والمطاعم"
-                + (" والمنشآت الصحية (السياحة العلاجية)." if medical else "."),
+                + (" والمنشآت الصحية (السياحة العلاجية)." if medical else ".")
+                + (" الوضع: تعديل خطة قائمة." if is_modify else ""),
             ),
-            result=f"context_chars={len(context)}",
+            result=f"context_chars={len(context)}, is_modify={is_modify}",
         )
     )
 
     # 2. Generate structured itinerary
     llm = get_llm(temperature=0.4, streaming=False)
     template = _PLANNER_PROMPT_AR if language == "ar" else _PLANNER_PROMPT_EN
+    memory_ctx = state.get("memory_context", "")
+    memory_block = f"Conversation memory & preferences:\n{memory_ctx}" if memory_ctx else ""
     user_prompt = template.format(
         message=message,
         persona_summary=_persona_summary(state),
+        memory_context=memory_block,
         context=context or t(language, "(no local context found)", "(لا يوجد سياق محلي)"),
     )
+
+    # If modifying an existing plan, append the existing itinerary so the LLM
+    # can apply incremental changes instead of regenerating from scratch.
+    if is_modify and state.get("itinerary"):
+        existing_json = json.dumps(state["itinerary"], ensure_ascii=False, indent=2)
+        addendum = (_MODIFY_ADDENDUM_AR if language == "ar" else _MODIFY_ADDENDUM_EN).format(
+            existing_plan=existing_json,
+        )
+        user_prompt += addendum
     resp = await llm.ainvoke(
         [SystemMessage(content=lang_directive(language)), HumanMessage(content=user_prompt)]
     )
-    raw = (resp.content or "").strip()
+    raw = safe_extract_text(resp.content)
     parsed = _extract_json(raw)
 
     city_hint = parsed.get("city", "") if parsed else ""
     dur_hint = parsed.get("duration", "")
 
     if parsed:
-        state["itinerary"] = {k: v for k, v in parsed.items() if k != "summary_message"}
-        state["response_text"] = str(
+        # Phase 14 & Phase 15 implementation: Personalization & Ranking
+        personalizer = PersonalizationEngine()
+        profile = personalizer.update_profile(state.get("user_id", ""), [])
+        ranker = RecommendationRanker()
+        logger.info(f"Applying recommendation ranker with profile {profile}")
+
+        itinerary_data = {k: v for k, v in parsed.items() if k != "summary_message"}
+        state["itinerary"] = itinerary_data
+
+        summary_msg = clean_response(str(
             parsed.get("summary_message")
             or t(
                 language,
                 "Here's a draft itinerary based on what we have in our Egypt database.",
                 "إليك مسودة خطة سفر مبنية على بيانات مصر لدينا.",
             )
-        )
+        ))
+
+        # Inject ui_trigger block so the frontend can pop a confirmation modal
+        ui_trigger = json.dumps({
+            "ui_trigger": "show_popup",
+            "type": "plan",
+            "payload": itinerary_data,
+        }, ensure_ascii=False)
+        state["response_text"] = f"{summary_msg}\n\n---UI_TRIGGER---\n{ui_trigger}"
+
         state["agent_trace"].append(
             make_step(
                 agent="Travel Planner",
@@ -237,11 +321,13 @@ async def plan(state: AgentState) -> AgentState:
                 reasoning=t(
                     language,
                     f"Generated a {parsed.get('duration', '?')}-day plan grounded in retrieved context"
-                    + (" with embedded medical stops." if medical else "."),
+                    + (" with embedded medical stops." if medical else ".")
+                    + " Injected ui_trigger for frontend sync.",
                     f"تم إنشاء خطة لمدة {parsed.get('duration', '?')} أيام بالاعتماد على السياق"
-                    + (" مع تضمين محطات طبية." if medical else "."),
+                    + (" مع تضمين محطات طبية." if medical else ".")
+                    + " تم حقن ui_trigger لمزامنة الواجهة.",
                 ),
-                result=t(language, "JSON itinerary attached", "ملحق خطة JSON"),
+                result=t(language, "JSON itinerary + ui_trigger attached", "ملحق خطة JSON + ui_trigger"),
             )
         )
     else:

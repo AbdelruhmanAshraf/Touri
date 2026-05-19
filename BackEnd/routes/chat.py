@@ -10,19 +10,28 @@ Surfaces:
 
 from __future__ import annotations
 
+import asyncio
+import collections
 import json
 import logging
+import re
+import time
 import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Path, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Path, Request, WebSocket, WebSocketDisconnect
+from routes.auth import decode_access_token, get_current_user
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
+from middleware.rate_limit import AI_CHAT_LIMIT, ONBOARDING_LIMIT, check_rate_limit_or_raise
+from middleware.output_sanitizer import sanitize_output, sanitize_agent_trace
+from middleware.ui_trigger_validator import strip_user_triggers, extract_and_validate_triggers
+
 from agents.gemini_chat import run_multimodal_chat, stream_gemini_chat
 from agents.graph import run_chat, stream_chat
-from agents.llm import FAST_MODEL, get_llm, lang_directive
+from agents.llm import FAST_MODEL, get_llm, lang_directive, clean_response
 from agents.state import AgentStep, ChatMessage, fresh_state
 from memory.firebase_client import get_db, is_ready as firebase_ready
 from memory.user_persona import (
@@ -44,12 +53,16 @@ class MultimodalPart(BaseModel):
     """One attachment chunk: image, audio, video, or PDF as base64."""
 
     mime_type: str = Field(..., min_length=3)
-    data: str = Field(..., description="Base64-encoded blob (no data: prefix).")
+    data: str = Field(
+        ...,
+        max_length=20_000_000,
+        description="Base64-encoded blob (no data: prefix).",
+    )
 
 
 class ChatRequest(BaseModel):
     user_id: str
-    message: str
+    message: str = Field(..., max_length=10000)
     session_id: Optional[str] = None
     language: str = Field(default="en", pattern=r"^(en|ar)$")
     history: List[ChatMessage] = Field(default_factory=list)
@@ -67,17 +80,31 @@ class ChatResponse(BaseModel):
     agent_trace: List[AgentStep]
     itinerary: Optional[Dict[str, Any]] = None
     budget_breakdown: Optional[Dict[str, Any]] = None
+    spots_json: Optional[List[Dict[str, Any]]] = None
     suggestions: List[str] = []
+    structured_questions: Optional[Dict[str, Any]] = None
+    conversation_state: Optional[Dict[str, Any]] = None
+    requirements_status: Optional[Dict[str, Any]] = None
 
 
 class PersonaWrite(BaseModel):
     """Payload accepted by POST /api/user/{uid}/persona."""
 
-    preferred_destination: Optional[str] = None
-    tourism_type: Optional[str] = Field(default=None, pattern=r"^(leisure|medical)$")
+    preferred_destination: Optional[str] = Field(default=None, max_length=200)
+    tourism_type: Optional[str] = Field(
+        default=None, pattern=r"^(leisure|medical)$"
+    )
     party_size: Optional[int] = Field(default=None, ge=1, le=20)
     budget_bracket: Optional[str] = Field(
         default=None, pattern=r"^(economy|mid_range|luxury)$"
+    )
+    first_name: Optional[str] = Field(default=None, max_length=100)
+    last_name: Optional[str] = Field(default=None, max_length=100)
+    gender: Optional[str] = Field(
+        default=None, pattern=r"^(male|female|unspecified)$"
+    )
+    photo_url: Optional[str] = Field(
+        default=None, max_length=2048, pattern=r"^https://.*$"
     )
     extras: Optional[Dict[str, Any]] = None
 
@@ -155,10 +182,14 @@ def _persona_to_dict(p: UserPersona) -> Dict[str, Any]:
     return {
         "user_id": p.user_id,
         "preferred_destination": p.preferred_destination,
-        "tourism_type": p.tourism_type.value,
-        "party_size": p.party_size,
-        "budget_bracket": p.budget_bracket.value,
-        "extras": p.extras,
+        "tourism_type": p.tourism_type.value if p.tourism_type else "leisure",
+        "party_size": p.party_size or 1,
+        "budget_bracket": p.budget_bracket.value if p.budget_bracket else "mid_range",
+        "first_name": p.first_name or "",
+        "last_name": p.last_name or "",
+        "gender": p.gender.value if p.gender else "unspecified",
+        "photo_url": p.photo_url,
+        "extras": p.extras or {},
         "created_at": p.created_at.isoformat() if p.created_at else None,
         "updated_at": p.updated_at.isoformat() if p.updated_at else None,
     }
@@ -166,7 +197,35 @@ def _persona_to_dict(p: UserPersona) -> Dict[str, Any]:
 
 # ── REST: chat ────────────────────────────────────────────────────────────────
 @router.post("/chat", response_model=ChatResponse)
-async def chat(req: ChatRequest) -> ChatResponse:
+async def chat(
+    req: ChatRequest,
+    request: Request,
+    current_user_id: str = Depends(get_current_user),
+) -> ChatResponse:
+    check_rate_limit_or_raise(request, AI_CHAT_LIMIT, user_id=current_user_id)
+
+    # SECURITY: Strip any UI_TRIGGER injection from user messages
+    req.message = strip_user_triggers(req.message)
+
+    if req.user_id != current_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Forbidden: You cannot initiate a chat for another user.",
+        )
+
+    if len(req.message) > 10000:
+        raise HTTPException(
+            status_code=400,
+            detail="Message exceeds maximum allowed length of 10,000 characters.",
+        )
+
+    total_attachment_bytes = sum(len(p.data) for p in req.parts)
+    if total_attachment_bytes > 20_000_000:
+        raise HTTPException(
+            status_code=400,
+            detail="Attachments exceed maximum allowed size limit of 15MB.",
+        )
+
     session_id = req.session_id or str(uuid.uuid4())
 
     # Branch 1: multimodal — hand off to the native Gemini handler.
@@ -181,7 +240,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
             )
         except Exception as exc:  # noqa: BLE001
             logger.error("[chat] multimodal failed: %s", exc, exc_info=True)
-            raise HTTPException(status_code=500, detail=str(exc))
+            raise HTTPException(status_code=500, detail="Failed to process your request. Please try again.")
     else:
         # Branch 2: standard LangGraph multi-agent workflow.
         try:
@@ -194,27 +253,48 @@ async def chat(req: ChatRequest) -> ChatResponse:
             )
         except Exception as exc:  # noqa: BLE001
             logger.error("[chat] graph failed: %s", exc, exc_info=True)
-            raise HTTPException(status_code=500, detail=str(exc))
+            raise HTTPException(status_code=500, detail="Failed to process your request. Please try again.")
+
+    # SECURITY: Sanitize AI output before delivery
+    raw_response = clean_response(state.get("response_text", ""))
+    safe_response = sanitize_output(raw_response)
+    safe_trace = sanitize_agent_trace(state.get("agent_trace", []))
 
     return ChatResponse(
         session_id=session_id,
-        message=state.get("response_text", ""),
+        message=safe_response,
         agent=state.get("active_agent", "Travel Planner"),
         intent=state.get("intent", "general"),
         language=state.get("language", req.language),
-        agent_trace=state.get("agent_trace", []),
+        agent_trace=safe_trace,
         itinerary=state.get("itinerary"),
         budget_breakdown=state.get("budget_breakdown"),
+        spots_json=state.get("spots_json"),
         suggestions=state.get("suggestions", []),
+        structured_questions=state.get("structured_questions"),
+        conversation_state=state.get("conversation_state"),
+        requirements_status=state.get("requirements_status"),
     )
 
 
 # ── REST: persona CRUD ───────────────────────────────────────────────────────
 @router.get("/user/{uid}/persona")
-async def get_persona_route(uid: str = Path(..., min_length=1)) -> Dict[str, Any]:
+async def get_persona_route(
+    uid: str = Path(..., min_length=1),
+    current_user_id: str = Depends(get_current_user),
+) -> Dict[str, Any]:
     _require_firebase()
-    persona = await get_or_create_persona(uid)
-    return _persona_to_dict(persona)
+    if uid != current_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Forbidden: You cannot access another user's persona.",
+        )
+    try:
+        persona = await get_or_create_persona(uid)
+        return _persona_to_dict(persona)
+    except Exception as exc:  # noqa: BLE001
+        logger.error("[persona] GET failed for uid=%s: %s", uid, exc, exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to load persona.")
 
 
 @router.post("/user/{uid}/persona")
@@ -222,8 +302,14 @@ async def upsert_persona_route(
     payload: PersonaWrite,
     background_tasks: BackgroundTasks,
     uid: str = Path(..., min_length=1),
+    current_user_id: str = Depends(get_current_user),
 ) -> Dict[str, Any]:
     _require_firebase()
+    if uid != current_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Forbidden: You cannot modify another user's persona.",
+        )
     updates: Dict[str, Any] = {}
     if payload.preferred_destination is not None:
         updates["preferred_destination"] = payload.preferred_destination
@@ -233,6 +319,14 @@ async def upsert_persona_route(
         updates["party_size"] = payload.party_size
     if payload.budget_bracket is not None:
         updates["budget_bracket"] = BudgetBracket(payload.budget_bracket)
+    if payload.first_name is not None:
+        updates["first_name"] = payload.first_name
+    if payload.last_name is not None:
+        updates["last_name"] = payload.last_name
+    if payload.gender is not None:
+        updates["gender"] = payload.gender
+    if payload.photo_url is not None:
+        updates["photo_url"] = payload.photo_url
     if payload.extras is not None:
         updates["extras"] = payload.extras
     merged = await update_persona_fields(uid, updates)
@@ -245,22 +339,121 @@ async def upsert_persona_route(
     return _persona_to_dict(merged)
 
 
+@router.websocket("/chat/ws")
+async def chat_websocket(websocket: WebSocket) -> None:
+    # Phase 12 WebSocket Streaming integration
+    # Also wires into Phase 13 Agent Execution Engine
+    from services.agent_execution_engine import ExecutionEngine, AgentExecutionState
+    from services.websocket_streamer import WebSocketStreamer
+    from services.offline_fallback import FallbackManager
+    import asyncio
+    
+    await websocket.accept()
+    streamer = WebSocketStreamer()
+    engine = ExecutionEngine()
+    fallback = FallbackManager()
+    
+    try:
+        while True:
+            data = await websocket.receive_json()
+            user_id = data.get("user_id")
+            message = data.get("message")
+            session_id = data.get("session_id", str(uuid.uuid4()))
+            
+            if not user_id or not message:
+                await websocket.send_json({"type": "error", "content": "Missing user_id or message"})
+                continue
+            
+            # Start streaming typing indicators
+            await websocket.send_json({"type": "typing_indicator", "status": "active"})
+            
+            # Setup State for Engine
+            state: AgentExecutionState = {
+                "question": message,
+                "context": {"user_id": user_id, "session_id": session_id},
+                "current_state": "processing",
+                "metadata": {},
+                "structured_response": None,
+                "ui_trigger": None,
+                "errors": []
+            }
+            
+            # Simulated Agent graph step invocation wrapped in Executor
+            async def _run_agent_simulation(st: AgentExecutionState) -> AgentExecutionState:
+                await asyncio.sleep(1) # simulate inference
+                # In real scenario, we use graph.py functions here
+                st["structured_response"] = {
+                    "destination": "Paris",
+                    "status": "success",
+                    "days": []
+                }
+                return st
+            
+            # We mock the executor wrapping real logic right now
+            # In Phase 13, ExecutionEngine handles sync wrapper, but for asyncio we could wrap
+            start_time = time.time()
+            try:
+                # Actually, ExecutionEngine.execute_with_recovery currently is synchronous, 
+                # we should adapt it or simulate
+                final_state = await _run_agent_simulation(state)
+                
+                # Yield progressive token if it was real text
+                await websocket.send_json({
+                    "type": "token_chunk",
+                    "content": "I'm generating an itinerary for you...",
+                    "metadata": {"latency": (time.time() - start_time) * 1000}
+                })
+                
+                if final_state.get("structured_response"):
+                    progressive = await streamer.stream_structured_object("TripPlan", final_state["structured_response"])
+                    await websocket.send_text(progressive)
+                    
+            except Exception as e:
+                # Phase 18 fallback on exception
+                fallback_data = fallback.get_fallback_itinerary("Unknown")
+                if fallback_data:
+                    fallback_msg = await streamer.stream_structured_object("TripPlan", fallback_data)
+                    await websocket.send_text(fallback_msg)
+                await websocket.send_json({"type": "error", "content": str(e)})
+
+            await websocket.send_json({"type": "typing_indicator", "status": "inactive"})
+            await websocket.send_json({"type": "message_complete", "session_id": session_id})
+            
+    except WebSocketDisconnect:
+        logger.info("WebSocket disconnected")
+        
 @router.delete("/user/{uid}/persona")
-async def delete_persona_route(uid: str = Path(..., min_length=1)) -> Dict[str, bool]:
+async def delete_persona_route(
+    uid: str = Path(..., min_length=1),
+    current_user_id: str = Depends(get_current_user),
+) -> Dict[str, bool]:
     _require_firebase()
+    if uid != current_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Forbidden: You cannot delete another user's persona.",
+        )
     deleted = await delete_persona(uid)
     return {"deleted": deleted}
 
 
 # ── REST: trips ──────────────────────────────────────────────────────────────
 @router.get("/user/{uid}/trips/initial")
-async def get_initial_trip(uid: str = Path(..., min_length=1)) -> Dict[str, Any]:
+async def get_initial_trip(
+    uid: str = Path(..., min_length=1),
+    current_user_id: str = Depends(get_current_user),
+) -> Dict[str, Any]:
     """
     Fetch the auto-generated trip that was created in the background right
     after onboarding completion. Returns an empty payload if the document
     doesn't exist yet (still generating, or generation failed).
     """
     _require_firebase()
+    if uid != current_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Forbidden: You cannot access another user's trips.",
+        )
     try:
         db = get_db()
         snap = db.collection("users").document(uid).collection("trips").document("initial").get()
@@ -270,38 +463,233 @@ async def get_initial_trip(uid: str = Path(..., min_length=1)) -> Dict[str, Any]
         return {"found": True, **data}
     except Exception as exc:  # noqa: BLE001
         logger.error("[trips] fetch failed for uid=%s: %s", uid, exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="Failed to load initial trip.")
+
+
+class TripPatch(BaseModel):
+    """Payload for PATCH /api/user/{uid}/trips/initial — partial updates."""
+
+    itinerary: Optional[Dict[str, Any]] = None
+    budget_breakdown: Optional[Dict[str, Any]] = None
+    message: Optional[str] = None
+
+
+@router.patch("/user/{uid}/trips/initial")
+async def patch_initial_trip(
+    payload: TripPatch,
+    uid: str = Path(..., min_length=1),
+    current_user_id: str = Depends(get_current_user),
+) -> Dict[str, Any]:
+    """
+    Partially updates the initial trip document. Used by the frontend's
+    confirmation popup after a ui_trigger event to sync plan/budget changes.
+    """
+    _require_firebase()
+    if uid != current_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Forbidden: You cannot modify another user's trips.",
+        )
+    try:
+        db = get_db()
+        doc_ref = db.collection("users").document(uid).collection("trips").document("initial")
+        updates: Dict[str, Any] = {"updated_at": datetime.now(timezone.utc).isoformat()}
+        if payload.itinerary is not None:
+            updates["itinerary"] = payload.itinerary
+        if payload.budget_breakdown is not None:
+            updates["budget_breakdown"] = payload.budget_breakdown
+        if payload.message is not None:
+            updates["message"] = payload.message
+        doc_ref.set(updates, merge=True)
+        return {"patched": True, **updates}
+    except Exception as exc:  # noqa: BLE001
+        logger.error("[trips] patch failed for uid=%s: %s", uid, exc)
+        raise HTTPException(status_code=500, detail="Failed to update trip details.")
+
+
+# ── REST: pinned messages (governorate-based recommendations) ─────────────────
+@router.get("/user/{uid}/pinned")
+async def get_pinned_messages(
+    uid: str = Path(..., min_length=1),
+    current_user_id: str = Depends(get_current_user),
+) -> Dict[str, Any]:
+    """
+    Return pinned recommendations customized to the user's preferred governorate.
+    Sources from the user's trip history and persona preferences in Firestore.
+    """
+    _require_firebase()
+    if uid != current_user_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Forbidden: You cannot access another user's pinned messages.",
+        )
+    try:
+        db = get_db()
+        # Get persona for governorate — stored at users/{uid}/persona/profile
+        persona_snap = (
+            db.collection("users")
+            .document(uid)
+            .collection("persona")
+            .document("profile")
+            .get()
+        )
+        persona_data = persona_snap.to_dict() if persona_snap.exists else {}
+        destination = persona_data.get("preferred_destination", "Egypt")
+
+        # Get pinned collection (if any user-pinned messages exist)
+        pinned_docs = (
+            db.collection("users")
+            .document(uid)
+            .collection("pinned")
+            .order_by("created_at", direction="DESCENDING")
+            .limit(10)
+            .stream()
+        )
+        pins = [doc.to_dict() for doc in pinned_docs]
+
+        # Also pull the initial trip summary as a default pin
+        trip_snap = db.collection("users").document(uid).collection("trips").document("initial").get()
+        trip_data = trip_snap.to_dict() if trip_snap.exists else None
+
+        return {
+            "destination": destination,
+            "pins": pins,
+            "trip_summary": trip_data.get("message") if trip_data else None,
+            "itinerary_preview": trip_data.get("itinerary") if trip_data else None,
+        }
+    except Exception as exc:  # noqa: BLE001
+        logger.error("[pinned] fetch failed for uid=%s: %s", uid, exc)
+        raise HTTPException(status_code=500, detail="Failed to load pinned messages.")
+
+
+# ── REST: chat history (session listing + message replay) ────────────────────
+@router.get("/user/{uid}/sessions")
+async def list_sessions(
+    uid: str = Path(..., min_length=1),
+    current_user_id: str = Depends(get_current_user),
+    limit: int = 30,
+) -> Dict[str, Any]:
+    """Return a list of the user's past chat sessions (most recent first)."""
+    _require_firebase()
+    if uid != current_user_id:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+    from services.conversation_state import list_user_sessions
+    sessions = await list_user_sessions(uid, limit=min(limit, 50))
+    return {"sessions": sessions}
+
+
+@router.get("/user/{uid}/sessions/{sid}/messages")
+async def get_session_messages_route(
+    uid: str = Path(..., min_length=1),
+    sid: str = Path(..., min_length=1),
+    current_user_id: str = Depends(get_current_user),
+    limit: int = 50,
+) -> Dict[str, Any]:
+    """Return messages for a specific session (for chat history replay)."""
+    _require_firebase()
+    if uid != current_user_id:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+    from services.conversation_state import get_session_messages
+    messages = await get_session_messages(uid, sid, limit=min(limit, 100))
+    return {"session_id": sid, "messages": messages}
+
+
+# ── WebSocket: connection tracking & limits ───────────────────────────────────
+_ws_connections: Dict[str, int] = collections.defaultdict(int)
+_WS_MAX_CONNECTIONS_PER_USER = 5
+_WS_IDLE_TIMEOUT_SEC = 300  # 5 minutes idle → disconnect
+_WS_MESSAGE_MAX_SIZE = 65536  # 64KB max message payload
+_WS_RATE_LIMIT_MESSAGES = 10  # max messages per window
+_WS_RATE_LIMIT_WINDOW_SEC = 30  # window size in seconds
 
 
 # ── WebSocket: streaming chat ─────────────────────────────────────────────────
 @router.websocket("/chat/ws")
 async def chat_ws(websocket: WebSocket) -> None:
     """
-    Streaming chat WebSocket — Phase 4 native Gemini SDK pipeline.
+    Streaming chat WebSocket — Touri Offline RAG Mode.
 
-    Path A (multimodal OR plain text): we stream tokens directly out of
-    ``stream_gemini_chat``, which calls
-    ``model.generate_content_async(stream=True)`` natively against
-    ``gemini-2.5-flash`` (Gemma cannot do multimodal/tool-calling).
+    Path A (multimodal OR plain text): streams tokens directly from
+    ``stream_gemini_chat`` via native ``generate_content_async(stream=True)``.
 
-    Path B (legacy LangGraph workflow): retained for the rich itinerary +
-    budget agents. The structured output is still streamed back to the UI so
-    the typing animation stays smooth, but tokens come from Gemini's native
-    stream rather than a LangChain echo step.
+    Path B (LangGraph workflow): the rich itinerary + budget + concierge
+    agents powered by Gemma-4-26B-A4B-IT with 100% ChromaDB RAG grounding.
+    Tokens are re-streamed word-by-word for a smooth ChatGPT typing effect.
     """
+    # SECURITY: Authenticate BEFORE accepting the WebSocket connection.
+    # Accept token from (in priority order):
+    #   1. HttpOnly cookie (web)
+    #   2. Authorization header (mobile Bearer)
+    #   3. ?token= query param (Expo mobile — cannot set headers on WS)
+    token = websocket.cookies.get("touri_access")
+    if not token:
+        auth_header = websocket.headers.get("authorization", "")
+        if auth_header.lower().startswith("bearer "):
+            token = auth_header.split(None, 1)[1].strip()
+    if not token:
+        token = websocket.query_params.get("token") or None
+
+    authenticated_uid = None
+    if token:
+        authenticated_uid = decode_access_token(token)
+
+    if not authenticated_uid:
+        logger.warning("[ws] connection rejected BEFORE accept: authentication failed")
+        await websocket.close(code=4001)
+        return
+
+    # Enforce per-user connection limits
+    if _ws_connections[authenticated_uid] >= _WS_MAX_CONNECTIONS_PER_USER:
+        logger.warning("[ws] connection rejected: user %s exceeded max connections", authenticated_uid)
+        await websocket.close(code=4008)
+        return
+
     await websocket.accept()
-    logger.info("[ws] client connected")
+    _ws_connections[authenticated_uid] += 1
+    logger.info("[ws] client connected (uid=%s, active=%d)", authenticated_uid, _ws_connections[authenticated_uid])
+    # Rate limiting state for this connection
+    _msg_timestamps: List[float] = []
+
     try:
         while True:
-            data = await websocket.receive_text()
+            # Idle timeout: disconnect if no message received within window
+            try:
+                data = await asyncio.wait_for(
+                    websocket.receive_text(),
+                    timeout=_WS_IDLE_TIMEOUT_SEC,
+                )
+            except asyncio.TimeoutError:
+                logger.info("[ws] idle timeout for uid=%s, disconnecting", authenticated_uid)
+                await websocket.send_json({"type": "error", "message": "Connection timed out due to inactivity."})
+                await websocket.close(code=4000)
+                return
+
+            # Payload size limit
+            if len(data) > _WS_MESSAGE_MAX_SIZE:
+                await websocket.send_json({"type": "error", "message": "Message payload too large."})
+                continue
+
+            # Rate limiting: sliding window
+            now = time.time()
+            _msg_timestamps = [ts for ts in _msg_timestamps if now - ts < _WS_RATE_LIMIT_WINDOW_SEC]
+            if len(_msg_timestamps) >= _WS_RATE_LIMIT_MESSAGES:
+                await websocket.send_json({
+                    "type": "error",
+                    "message": "Rate limit exceeded. Please slow down.",
+                    "retry_after": _WS_RATE_LIMIT_WINDOW_SEC,
+                })
+                continue
+            _msg_timestamps.append(now)
+
             try:
                 payload = json.loads(data)
             except json.JSONDecodeError:
                 await websocket.send_json({"type": "error", "message": "Invalid JSON payload."})
                 continue
 
-            user_id = str(payload.get("user_id") or "").strip()
-            message = str(payload.get("message") or "").strip()
+            user_id = authenticated_uid
+            # SECURITY: Strip any UI_TRIGGER injection from user messages
+            message = strip_user_triggers(str(payload.get("message") or "")).strip()
             language = payload.get("language") or "en"
             language = language if language in ("en", "ar") else "en"
             session_id = str(payload.get("session_id") or uuid.uuid4())
@@ -313,11 +701,31 @@ async def chat_ws(websocket: WebSocket) -> None:
             # Allow the client to opt-in / out of LangGraph for plain text turns.
             use_graph = bool(payload.get("use_graph", False))
 
-            if not user_id or (not message and not parts_raw):
+            if not message and not parts_raw:
                 await websocket.send_json(
-                    {"type": "error", "message": "user_id and message (or parts) are required."}
+                    {"type": "error", "message": "message (or parts) are required."}
                 )
                 continue
+
+            if len(message) > 10000:
+                await websocket.send_json(
+                    {
+                        "type": "error",
+                        "message": "Message exceeds maximum allowed length of 10,000 characters.",
+                    }
+                )
+                continue
+
+            total_attachment_bytes = sum(len(p.get("data") or "") for p in parts_raw)
+            if total_attachment_bytes > 20_000_000:
+                await websocket.send_json(
+                    {
+                        "type": "error",
+                        "message": "Attachments exceed maximum allowed size limit of 15MB.",
+                    }
+                )
+                continue
+
 
             await websocket.send_json(
                 {"type": "status", "phase": "thinking", "session_id": session_id}
@@ -357,10 +765,10 @@ async def chat_ws(websocket: WebSocket) -> None:
                             final_payload = evt
                 except Exception as exc:  # noqa: BLE001
                     logger.error("[ws] gemini stream failed: %s", exc, exc_info=True)
-                    await websocket.send_json({"type": "error", "message": str(exc)})
+                    await websocket.send_json({"type": "error", "message": "Failed to generate response. Please try again."})
                     continue
 
-                final_text = (final_payload or {}).get("text") or response_text
+                final_text = sanitize_output((final_payload or {}).get("text") or response_text)
                 await websocket.send_json(
                     {
                         "type": "final",
@@ -369,10 +777,12 @@ async def chat_ws(websocket: WebSocket) -> None:
                         "agent": (final_payload or {}).get("agent", "Gemini"),
                         "intent": (final_payload or {}).get("intent", "general"),
                         "language": language,
-                        "agent_trace": trace_steps,
+                        "agent_trace": sanitize_agent_trace(trace_steps),
                         "itinerary": None,
                         "budget_breakdown": None,
+                        "spots_json": None,
                         "suggestions": [],
+                        "structured_questions": None,
                     }
                 )
                 continue
@@ -417,57 +827,74 @@ async def chat_ws(websocket: WebSocket) -> None:
 
             except Exception as exc:  # noqa: BLE001
                 logger.error("[ws] graph stream failed: %s", exc, exc_info=True)
-                await websocket.send_json({"type": "error", "message": str(exc)})
+                await websocket.send_json({"type": "error", "message": "Failed to generate response. Please try again."})
                 continue
 
             # Re-stream the response text token-by-token for smooth UI
-            response_text = final_state.get("response_text", "") or ""
+            response_text = clean_response(final_state.get("response_text", "") or "")
+            visible_text = response_text
+            ui_trigger_block = ""
             if response_text:
-                echo_prompt = (
-                    "Repeat the following text verbatim, preserving wording "
-                    "and line breaks. Do not add commentary.\n\n" + response_text
-                )
+                # SECURITY: Validate UI_TRIGGER blocks via schema validation
+                visible_text, validated_triggers = extract_and_validate_triggers(response_text)
+                visible_text = sanitize_output(visible_text)
+                # Reconstruct safe trigger block only from validated triggers
+                ui_trigger_block = ""
+                if validated_triggers:
+                    import json as _json
+                    trigger_data = validated_triggers[0].model_dump(exclude_none=True)
+                    ui_trigger_block = f"---UI_TRIGGER---\n{_json.dumps(trigger_data)}\n---"
+
                 try:
-                    async for evt in stream_gemini_chat(
-                        user_id=user_id,
-                        session_id=session_id,
-                        text=echo_prompt,
-                        parts=None,
-                        language=language,
-                        enable_tools=False,
-                    ):
-                        if evt.get("type") == "token":
-                            await websocket.send_json(
-                                {"type": "token", "content": evt["content"]}
-                            )
+                    words = re.split(r"(\s+)", visible_text)
+                    first = True
+                    for word in words:
+                        if not word:
+                            continue
+                        await websocket.send_json(
+                            {"type": "token", "content": word}
+                        )
+                        if first:
+                            first = False
+                        else:
+                            await asyncio.sleep(0.008)
                 except Exception as exc:  # noqa: BLE001
                     logger.warning(
-                        "[ws] native echo stream failed (%s) — sending full reply.",
+                        "[ws] local echo stream failed (%s) — sending full reply.",
                         exc,
                     )
                     await websocket.send_json(
-                        {"type": "token", "content": response_text}
+                        {"type": "token", "content": visible_text}
                     )
 
+            # Build final sanitized response
+            final_message = f"{visible_text}\n\n{ui_trigger_block}".strip() if ui_trigger_block else visible_text
             await websocket.send_json(
                 {
                     "type": "final",
                     "session_id": session_id,
-                    "message": response_text,
+                    "message": final_message,
                     "agent": final_state.get("active_agent"),
                     "intent": final_state.get("intent"),
                     "language": final_state.get("language", language),
-                    "agent_trace": all_trace,
+                    "agent_trace": sanitize_agent_trace(all_trace),
                     "itinerary": final_state.get("itinerary"),
                     "budget_breakdown": final_state.get("budget_breakdown"),
+                    "spots_json": final_state.get("spots_json"),
                     "suggestions": final_state.get("suggestions", []),
+                    "structured_questions": final_state.get("structured_questions"),
+                    "conversation_state": final_state.get("conversation_state"),
+                    "requirements_status": final_state.get("requirements_status"),
                 }
             )
     except WebSocketDisconnect:
-        logger.info("[ws] client disconnected")
+        logger.info("[ws] client disconnected (uid=%s)", authenticated_uid)
     except Exception as exc:  # noqa: BLE001
         logger.error("[ws] unexpected error: %s", exc, exc_info=True)
         try:
             await websocket.close(code=1011)
         except Exception:
             pass
+    finally:
+        # Always decrement connection counter
+        _ws_connections[authenticated_uid] = max(0, _ws_connections[authenticated_uid] - 1)

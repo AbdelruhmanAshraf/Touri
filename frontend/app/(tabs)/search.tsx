@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useRouter } from 'expo-router';
 import { api, type CatalogCard, type CatalogItemType } from '@/services/api';
+import { BG, SURFACE, BORDER_COLOR, BORDER_WIDTH_CARD, PRIMARY, TEXT, MUTED, PLACEHOLDER, RADIUS, flatCard, flatInput } from '@/theme/tokens';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = (SCREEN_W - 48 - 12) / 2; // 2-col grid with 24px padding + 12px gap
@@ -38,8 +39,8 @@ type CategoryDef = {
 };
 
 const CATEGORIES: CategoryDef[] = [
-  { key: 'all',        typeFilter: 'all',        labelEn: 'All',        labelAr: 'الكل',        icon: 'apps-outline',        color: '#1C1C1E' },
-  { key: 'attraction', typeFilter: 'attraction', labelEn: 'Places',     labelAr: 'أماكن',       icon: 'location-outline',    color: '#00A896' },
+  { key: 'all',        typeFilter: 'all',        labelEn: 'All',        labelAr: 'الكل',        icon: 'apps-outline',        color: TEXT },
+  { key: 'attraction', typeFilter: 'attraction', labelEn: 'Places',     labelAr: 'أماكن',       icon: 'location-outline',    color: PRIMARY },
   { key: 'hotel',      typeFilter: 'hotel',      labelEn: 'Hotels',     labelAr: 'فنادق',       icon: 'bed-outline',         color: '#7C3AED' },
   { key: 'restaurant', typeFilter: 'restaurant', labelEn: 'Food',       labelAr: 'مطاعم',       icon: 'restaurant-outline',  color: '#EA580C' },
   { key: 'event',      typeFilter: 'event',      labelEn: 'Events',     labelAr: 'فعاليات',     icon: 'calendar-outline',    color: '#DB2777' },
@@ -48,7 +49,7 @@ const CATEGORIES: CategoryDef[] = [
 ];
 
 const TYPE_COLOR: Record<string, string> = {
-  attraction: '#00A896',
+  attraction: PRIMARY,
   hotel: '#7C3AED',
   restaurant: '#EA580C',
   transport: '#0284C7',
@@ -59,7 +60,7 @@ const TYPE_COLOR: Record<string, string> = {
 
 // ── Search result card ────────────────────────────────────────────────────────
 function ResultCard({ item, onPress }: { item: CatalogCard; onPress: () => void }) {
-  const color = TYPE_COLOR[item.type] ?? '#00A896';
+  const color = TYPE_COLOR[item.type] ?? PRIMARY;
   const fallback =
     item.type === 'hotel'
       ? 'https://images.unsplash.com/photo-1542314831-c6a4d14d8373?w=400&auto=format'
@@ -85,7 +86,7 @@ function ResultCard({ item, onPress }: { item: CatalogCard; onPress: () => void 
         <Text style={resultStyles.name} numberOfLines={2}>{item.name}</Text>
         {item.city ? (
           <View style={resultStyles.locRow}>
-            <Ionicons name="location-outline" size={11} color="#8E8E93" />
+            <Ionicons name="location-outline" size={11} color={MUTED} />
             <Text style={resultStyles.locTxt} numberOfLines={1}>{item.city}</Text>
           </View>
         ) : null}
@@ -102,11 +103,9 @@ function ResultCard({ item, onPress }: { item: CatalogCard; onPress: () => void 
 
 const resultStyles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    ...flatCard,
     borderRadius: 18,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
   },
   img: { width: '100%', height: 130, backgroundColor: '#E8E8ED' },
   typePill: {
@@ -117,9 +116,9 @@ const resultStyles = StyleSheet.create({
   },
   typeTxt: { color: '#fff', fontSize: 8, fontWeight: '800', letterSpacing: 0.5 },
   body: { padding: 10, gap: 4 },
-  name: { fontSize: 13, fontWeight: '700', color: '#1C1C1E', lineHeight: 18 },
+  name: { fontSize: 13, fontWeight: '700', color: TEXT, lineHeight: 18 },
   locRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  locTxt: { fontSize: 11, color: '#8E8E93', flex: 1 },
+  locTxt: { fontSize: 11, color: MUTED, flex: 1 },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   ratingTxt: { fontSize: 11, fontWeight: '700', color: '#FFB800' },
 });
@@ -227,12 +226,12 @@ export default function SearchScreen() {
 
         {/* Search bar */}
         <View style={[styles.searchBar, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-          <Feather name="search" size={18} color="#8E8E93" />
+          <Feather name="search" size={18} color={MUTED} />
           <TextInput
             ref={inputRef}
             style={[styles.searchInput, { textAlign: isAr ? 'right' : 'left' }]}
             placeholder={isAr ? 'ابحث عن أماكن، فنادق، مطاعم…' : 'Search places, hotels, restaurants…'}
-            placeholderTextColor="#C7C7CC"
+            placeholderTextColor={PLACEHOLDER}
             value={query}
             onChangeText={setQuery}
             returnKeyType="search"
@@ -241,7 +240,7 @@ export default function SearchScreen() {
           />
           {query.length > 0 && (
             <TouchableOpacity onPress={() => setQuery('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Feather name="x-circle" size={16} color="#C7C7CC" />
+              <Feather name="x-circle" size={16} color={PLACEHOLDER} />
             </TouchableOpacity>
           )}
         </View>
@@ -261,7 +260,7 @@ export default function SearchScreen() {
                 onPress={() => setSelectedCat(cat.key)}
                 activeOpacity={0.8}
               >
-                <Ionicons name={cat.icon} size={14} color={active ? '#fff' : '#8E8E93'} />
+                <Ionicons name={cat.icon} size={14} color={active ? '#fff' : MUTED} />
                 <Text style={[styles.tabTxt, active && { color: '#fff', fontWeight: '700' }]}>
                   {isAr ? cat.labelAr : cat.labelEn}
                 </Text>
@@ -274,7 +273,7 @@ export default function SearchScreen() {
       {/* ── Results ── */}
       {loading ? (
         <View style={styles.loadingWrap}>
-          <ActivityIndicator size="large" color="#00A896" />
+          <ActivityIndicator size="large" color={PRIMARY} />
           <Text style={styles.loadingTxt}>{isAr ? 'جاري البحث…' : 'Searching…'}</Text>
         </View>
       ) : (
@@ -299,7 +298,7 @@ export default function SearchScreen() {
           ListEmptyComponent={
             searched ? (
               <View style={styles.emptyWrap}>
-                <Feather name="search" size={40} color="#C7C7CC" />
+                <Feather name="search" size={40} color={PLACEHOLDER} />
                 <Text style={styles.emptyTxt}>
                   {isAr ? 'لا توجد نتائج' : 'No results found'}
                 </Text>
@@ -320,10 +319,10 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F2F2F7' },
+  container: { flex: 1, backgroundColor: BG },
 
   header: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: BG,
     paddingTop: 8,
     paddingBottom: 12,
     gap: 12,
@@ -331,23 +330,20 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#1C1C1E',
+    color: TEXT,
     letterSpacing: -0.5,
     paddingHorizontal: 24,
   },
 
   searchBar: {
+    ...flatInput,
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 10,
     marginHorizontal: 20,
     gap: 10,
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
   },
-  searchInput: { flex: 1, fontSize: 15, color: '#1C1C1E' },
+  searchInput: { flex: 1, fontSize: 15, color: TEXT },
 
   tabsScroll: { paddingHorizontal: 20, gap: 8 },
   tab: {
@@ -357,19 +353,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 20,
-    backgroundColor: '#fff',
+    backgroundColor: SURFACE,
     borderWidth: 1.5,
-    borderColor: '#E5E5EA',
+    borderColor: BORDER_COLOR,
   },
-  tabTxt: { fontSize: 13, fontWeight: '600', color: '#8E8E93' },
+  tabTxt: { fontSize: 13, fontWeight: '600', color: MUTED },
 
   loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
-  loadingTxt: { color: '#8E8E93', fontSize: 14 },
+  loadingTxt: { color: MUTED, fontSize: 14 },
 
   grid: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 120, gap: 12 },
-  resultCount: { fontSize: 13, color: '#8E8E93', fontWeight: '600', marginBottom: 8 },
+  resultCount: { fontSize: 13, color: MUTED, fontWeight: '600', marginBottom: 8 },
 
   emptyWrap: { alignItems: 'center', paddingTop: 60, gap: 8 },
-  emptyTxt: { fontSize: 17, fontWeight: '700', color: '#8E8E93' },
-  emptySubTxt: { fontSize: 14, color: '#C7C7CC' },
+  emptyTxt: { fontSize: 17, fontWeight: '700', color: MUTED },
+  emptySubTxt: { fontSize: 14, color: PLACEHOLDER },
 });

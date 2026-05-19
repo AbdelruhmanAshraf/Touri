@@ -17,6 +17,7 @@ import {
   Alert,
   Animated,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -26,7 +27,7 @@ import {
   View,
 } from 'react-native';
 import { Image } from 'expo-image';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
@@ -43,10 +44,17 @@ import {
   api,
   type AgentStep,
   type ChatResponse,
+  type ChatSessionSummary,
   type MultimodalPart,
+  type RequirementsStatus,
+  type SpotItem,
+  type StructuredQuestionSet,
+  type UiTrigger,
+  type UiTriggerType,
   getOrCreateSessionId,
   getOrCreateUserId,
   openChatStream,
+  resetSessionId,
   saveLastTrip,
   setSessionId,
 } from '@/services/api';
@@ -60,6 +68,7 @@ type Turn = {
   attachments?: Attachment[];
   agent?: string;
   suggestions?: string[];
+  structuredQuestions?: StructuredQuestionSet | null;
 };
 
 // ── Default starter suggestions ───────────────────────────────────────────────
@@ -83,6 +92,7 @@ export default function ChatScreen() {
   const router = useRouter();
   const { user, isGuest, signOut } = useAuth();
   const isAr = i18n.language === 'ar';
+  const insets = useSafeAreaInsets();
 
   const [turns, setTurns] = useState<Turn[]>([]);
   const [trace, setTrace] = useState<AgentStep[]>([]);
@@ -100,10 +110,55 @@ export default function ChatScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const recordingRef = useRef<Audio.Recording | null>(null);
 
+  // ── Multi-select state for structured questions ──
+  const [multiSelections, setMultiSelections] = useState<Record<string, Set<string>>>({});
+
+  // ── Chat history drawer state ──
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [chatSessions, setChatSessions] = useState<ChatSessionSummary[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const drawerAnim = useRef(new Animated.Value(0)).current;
+
+  // ── Requirements progress (from conversation state) ──
+  const [reqStatus, setReqStatus] = useState<RequirementsStatus | null>(null);
+
+  // ── UI Trigger confirmation modal state ──
+  const [confirmModal, setConfirmModal] = useState<{
+    visible: boolean;
+    type: UiTriggerType;
+    data: any;
+  }>({ visible: false, type: 'plan', data: null });
+
   const userIdRef = useRef<string | null>(null);
   const sessionIdRef = useRef<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
   const chipsAnim = useRef(new Animated.Value(1)).current;
+  // Buffer raw streamed tokens per assistant turn so we can re-strip the
+  // *full* text on every chunk. This keeps markdown stripping correct even
+  // when a `**` boundary spans two WebSocket tokens.
+  const rawBufferRef = useRef<Record<string, string>>({});
+
+  // ── Typing indicator animation ──
+  const typingDots = useRef([
+    new Animated.Value(0),
+    new Animated.Value(0),
+    new Animated.Value(0),
+  ]).current;
+
+  useEffect(() => {
+    if (!streaming) return;
+    const animations = typingDots.map((dot, i) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(i * 160),
+          Animated.timing(dot, { toValue: 1, duration: 320, useNativeDriver: true }),
+          Animated.timing(dot, { toValue: 0, duration: 320, useNativeDriver: true }),
+        ]),
+      ),
+    );
+    animations.forEach((a) => a.start());
+    return () => animations.forEach((a) => a.stop());
+  }, [streaming]);
 
   useEffect(() => {
     (async () => {
@@ -113,6 +168,23 @@ export default function ChatScreen() {
     })();
   }, [user?.uid]);
 
+  // Reset chat state when user signs out
+  useEffect(() => {
+    if (!user) {
+      setTurns([]);
+      setTrace([]);
+      setInput('');
+      setStreaming(false);
+      setStatusText(null);
+      setActiveAgent(null);
+      setActiveSuggestions(isAr ? STARTER_AR : STARTER_EN);
+      setPendingAttachments([]);
+      rawBufferRef.current = {};
+      userIdRef.current = null;
+      sessionIdRef.current = null;
+    }
+  }, [user]);
+
   // Collapse chips when user is typing
   useEffect(() => {
     Animated.timing(chipsAnim, {
@@ -121,6 +193,124 @@ export default function ChatScreen() {
       useNativeDriver: true,
     }).start();
   }, [input]);
+
+  // ── Drawer animation ──────────────────────────────────────────────────────
+  useEffect(() => {
+    Animated.timing(drawerAnim, {
+      toValue: drawerOpen ? 1 : 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+  }, [drawerOpen]);
+
+  const openDrawer = async () => {
+    setDrawerOpen(true);
+    setHistoryLoading(true);
+    try {
+      const uid = userIdRef.current ?? (await getOrCreateUserId());
+      const data = await api.listSessions(uid);
+      setChatSessions(data.sessions ?? []);
+    } catch { /* silently fail */ }
+    finally { setHistoryLoading(false); }
+  };
+
+  const loadSession = async (sid: string) => {
+    setDrawerOpen(false);
+    try {
+      const uid = userIdRef.current ?? (await getOrCreateUserId());
+      const data = await api.getSessionMessages(uid, sid);
+      const loadedTurns: Turn[] = (data.messages ?? []).map((m, i) => ({
+        id: `${sid}-${i}`,
+        role: m.role,
+        text: m.content,
+        agent: m.agent ?? undefined,
+      }));
+      setTurns(loadedTurns);
+      sessionIdRef.current = sid;
+      await setSessionId(sid);
+      setActiveSuggestions([]);
+      setTrace([]);
+      setReqStatus(null);
+      setErr(null);
+      setStatusText(null);
+      setActiveAgent(null);
+      setStreaming(false);
+      rawBufferRef.current = {};
+      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: false }), 200);
+    } catch {
+      setErr(isAr ? 'فشل تحميل المحادثة' : 'Failed to load conversation');
+    }
+  };
+
+  const startNewChat = async () => {
+    setDrawerOpen(false);
+    const newSid = await resetSessionId();
+    sessionIdRef.current = newSid;
+    setTurns([]);
+    setTrace([]);
+    setInput('');
+    setStreaming(false);
+    setStatusText(null);
+    setActiveAgent(null);
+    setActiveSuggestions(isAr ? STARTER_AR : STARTER_EN);
+    setReqStatus(null);
+    rawBufferRef.current = {};
+  };
+
+  // ── Strip markdown bold/italic asterisks for clean bidi rendering ───────────
+  // Handles both complete markdown tokens and partial mid-stream asterisks.
+  // Aggressively strips all `*` used for formatting so the bidi layout never
+  // shifts when a closing `*` arrives later in the token stream.
+  const stripMarkdown = (text: string): string =>
+    text
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/^\*{1,2}|\*{1,2}$/g, '')
+      .replace(/\*{2,}/g, '');
+
+  // ── Parse and extract UI trigger blocks from streamed text ─────────────────
+  const parseUiTrigger = (text: string): { cleanText: string; trigger: UiTrigger | null } => {
+    const marker = '---UI_TRIGGER---';
+    if (!text.includes(marker)) return { cleanText: text, trigger: null };
+    const [before, jsonPart] = text.split(marker, 2);
+    try {
+      const parsed = JSON.parse(jsonPart.trim()) as UiTrigger;
+      if (parsed.ui_trigger === 'show_popup') {
+        return { cleanText: before.trim(), trigger: parsed };
+      }
+    } catch { /* JSON parse failed — show full text */ }
+    return { cleanText: before.trim(), trigger: null };
+  };
+
+  // ── Confirm and sync trigger to Firestore ─────────────────────────────────
+  const handleConfirmTrigger = async () => {
+    const { type, data } = confirmModal;
+    setConfirmModal({ visible: false, type: 'plan', data: null });
+    try {
+      const uid = userIdRef.current ?? (await getOrCreateUserId());
+      if (type === 'plan') {
+        await api.patchInitialTrip(uid, { itinerary: data });
+        await saveLastTrip({
+          itinerary: data, budget_breakdown: null,
+          country: data?.city ?? null, tourism_type: null,
+          updated_at: new Date().toISOString(),
+        });
+      } else if (type === 'budget') {
+        await api.patchInitialTrip(uid, { budget_breakdown: data });
+        await saveLastTrip({
+          itinerary: null, budget_breakdown: data,
+          country: null, tourism_type: null,
+          updated_at: new Date().toISOString(),
+        });
+      } else if (type === 'spots') {
+        const spots = data as SpotItem[] | undefined;
+        const msg = spots?.map((s) => `${s.name} (${s.city})`).join(', ') ?? '';
+        await api.patchInitialTrip(uid, { message: `Recommended spots: ${msg}` });
+      }
+    } catch (e) {
+      console.warn('[chat] trigger sync failed', e);
+    }
+  };
 
   // ── Image picker ──────────────────────────────────────────────────────────
   const pickImage = async () => {
@@ -243,8 +433,15 @@ export default function ChatScreen() {
 
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
 
+    // Reset the raw buffer for this turn — we re-strip the FULL text on each
+    // token so a `**` boundary that spans two WS frames is still removed.
+    rawBufferRef.current[assistantTurnId] = '';
+
     const appendToken = (token: string) => {
-      setTurns((prev) => prev.map((m) => m.id === assistantTurnId ? { ...m, text: m.text + token } : m));
+      const buffered = (rawBufferRef.current[assistantTurnId] ?? '') + token;
+      rawBufferRef.current[assistantTurnId] = buffered;
+      const clean = stripMarkdown(buffered);
+      setTurns((prev) => prev.map((m) => (m.id === assistantTurnId ? { ...m, text: clean } : m)));
     };
 
     let finalSeen = false;
@@ -252,15 +449,18 @@ export default function ChatScreen() {
     const stream = openChatStream({
       onStatus: (s) => {
         if (s.phase === 'thinking') {
-          setStatusText(t('chat.thinking'));
+          const thinkingStages = [
+            isAr ? 'جاري التفكير...' : 'Thinking...',
+            isAr ? 'جاري التحليل...' : 'Analyzing...',
+          ];
+          setStatusText(thinkingStages[0]);
           setActiveAgent(null);
         }
         if (s.phase === 'streaming') {
-          // Show the live agent name + status message from the graph
           const agentLabel = (s as any).agent || '';
           const statusMsg = (s as any).status_msg || '';
           setActiveAgent(agentLabel);
-          setStatusText(statusMsg || agentLabel || t('chat.streaming'));
+          setStatusText(statusMsg || agentLabel || (isAr ? 'جاري الكتابة...' : 'Writing...'));
         }
       },
       onTrace: (step) => setTrace((prev) => [...prev, step]),
@@ -273,14 +473,25 @@ export default function ChatScreen() {
 
         const suggestions: string[] = final.suggestions ?? [];
 
+        // Parse ui_trigger block from the message and strip it for display
+        const { cleanText, trigger } = parseUiTrigger(stripMarkdown(final.message));
+
         setTurns((prev) =>
           prev.map((m) =>
             m.id === assistantTurnId
-              ? { ...m, text: final.message, agent: final.agent, suggestions }
+              ? { ...m, text: cleanText, agent: final.agent, suggestions, structuredQuestions: final.structured_questions ?? null }
               : m,
           ),
         );
         setActiveSuggestions(suggestions);
+        if (final.requirements_status) {
+          setReqStatus(final.requirements_status as RequirementsStatus);
+        }
+
+        // If backend injected a ui_trigger, show the confirmation popup
+        if (trigger) {
+          setConfirmModal({ visible: true, type: trigger.type, data: trigger.payload });
+        }
 
         if (final.session_id && final.session_id !== sid) {
           sessionIdRef.current = final.session_id;
@@ -323,6 +534,7 @@ export default function ChatScreen() {
         message: text,
         language: isAr ? 'ar' : 'en',
         history: turns.map((m) => ({ role: m.role, content: m.text })),
+        use_graph: !hasMultimodal,
         ...(hasMultimodal ? { type: 'multimodal', parts: encoded } : {}),
       });
     } catch {
@@ -335,15 +547,19 @@ export default function ChatScreen() {
           language: isAr ? 'ar' : 'en',
           ...(hasMultimodal ? { type: 'multimodal', parts: encoded } : {}),
         });
+        const { cleanText, trigger } = parseUiTrigger(stripMarkdown(res.message));
         setTurns((prev) =>
           prev.map((m) =>
             m.id === assistantTurnId
-              ? { ...m, text: res.message, agent: res.agent, suggestions: res.suggestions }
+              ? { ...m, text: cleanText, agent: res.agent, suggestions: res.suggestions, structuredQuestions: res.structured_questions ?? null }
               : m,
           ),
         );
         setTrace(res.agent_trace || []);
         setActiveSuggestions(res.suggestions ?? []);
+        if (trigger) {
+          setConfirmModal({ visible: true, type: trigger.type, data: trigger.payload });
+        }
         if (res.session_id && res.session_id !== sid) {
           sessionIdRef.current = res.session_id;
           await setSessionId(res.session_id);
@@ -366,10 +582,55 @@ export default function ChatScreen() {
     }
   };
 
+  // ── Chat session management ────────────────────────────────────────────────
+  const deleteSession = async (sid: string) => {
+    Alert.alert(
+      isAr ? 'حذف المحادثة' : 'Delete Chat',
+      isAr ? 'هل أنت متأكد من حذف هذه المحادثة؟' : 'Are you sure you want to delete this chat?',
+      [
+        { text: isAr ? 'إلغاء' : 'Cancel', style: 'cancel' },
+        {
+          text: isAr ? 'حذف' : 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setChatSessions((prev) => prev.filter((s) => s.session_id !== sid));
+            if (sessionIdRef.current === sid) {
+              await startNewChat();
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const renameSession = (sid: string, currentName: string) => {
+    Alert.prompt(
+      isAr ? 'تسمية المحادثة' : 'Rename Chat',
+      isAr ? 'أدخل اسمًا جديدًا' : 'Enter a new name',
+      [
+        { text: isAr ? 'إلغاء' : 'Cancel', style: 'cancel' },
+        {
+          text: isAr ? 'حفظ' : 'Save',
+          onPress: (newName?: string) => {
+            if (newName?.trim()) {
+              setChatSessions((prev) =>
+                prev.map((s) =>
+                  s.session_id === sid ? { ...s, destination: newName.trim() } : s,
+                ),
+              );
+            }
+          },
+        },
+      ],
+      'plain-text',
+      currentName,
+    );
+  };
+
   const handleSignIn = async () => { await signOut(); router.replace('/'); };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <View style={[styles.safeArea, { paddingTop: insets.top }]}>
       {/* ── Header ── */}
       <View style={[styles.header, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
         <View style={[styles.headerLeft, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
@@ -378,14 +639,31 @@ export default function ChatScreen() {
           </View>
           <Text style={styles.headerTitle}>{t('appName')}</Text>
         </View>
-        <TouchableOpacity
-          onPress={() => setIsTraceVisible(true)}
-          style={styles.traceBtn}
-        >
-          <MaterialIcons name="memory" size={16} color={Colors.primary} />
-          <Text style={styles.traceBtnTxt}>{t('chat.trace')}</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <TouchableOpacity
+            onPress={() => setIsTraceVisible(true)}
+            style={styles.traceBtn}
+          >
+            <MaterialIcons name="memory" size={16} color={Colors.primary} />
+            <Text style={styles.traceBtnTxt}>{t('chat.trace')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openDrawer} style={styles.hamburgerBtn}>
+            <Feather name="menu" size={20} color={TEXT} />
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {/* Requirements progress indicator (compact) */}
+      {reqStatus && reqStatus.percentage > 0 && reqStatus.percentage < 100 && (
+        <View style={styles.headerProgress}>
+          <View style={styles.headerProgressBar}>
+            <View style={[styles.headerProgressFill, { width: `${reqStatus.percentage}%` }]} />
+          </View>
+          <Text style={styles.headerProgressTxt}>
+            {isAr ? `${Math.round(reqStatus.percentage)}% مكتمل` : `${Math.round(reqStatus.percentage)}% complete`}
+          </Text>
+        </View>
+      )}
 
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {/* ── Messages ── */}
@@ -446,19 +724,122 @@ export default function ChatScreen() {
                     <Text style={styles.aiLabel}>{m.agent || t('chat.agentLabel')}</Text>
                   </View>
                   <View style={styles.aiBubble}>
-                    <Text style={[styles.aiText, { textAlign: isAr ? 'right' : 'left' }]}>
-                      {m.text || (streaming ? '…' : '')}
-                    </Text>
+                    {!m.text && streaming && m.id === turns[turns.length - 1]?.id ? (
+                      <View style={styles.skeletonContainer}>
+                        <View style={[styles.skeletonLine, { width: '90%' }]} />
+                        <View style={[styles.skeletonLine, { width: '70%' }]} />
+                        <View style={[styles.skeletonLine, { width: '45%' }]} />
+                      </View>
+                    ) : (
+                      <Text
+                        style={[
+                          styles.aiText,
+                          {
+                            textAlign: isAr ? 'right' : 'left',
+                            writingDirection: isAr ? 'rtl' : 'ltr',
+                          },
+                        ]}
+                      >
+                        {m.text || (streaming ? '…' : '')}
+                      </Text>
+                    )}
                   </View>
+                  {/* Structured question cards */}
+                  {m.structuredQuestions?.questions && m.structuredQuestions.questions.length > 0 && !streaming && (
+                    <View style={styles.sqContainer}>
+                      {m.structuredQuestions.questions.map((q) => {
+                        const isMulti = q.input_type === 'multi_select';
+                        const selected = multiSelections[q.field] ?? new Set<string>();
+                        return (
+                          <View key={q.field} style={styles.sqGroup}>
+                            <Text style={[styles.sqQuestion, { textAlign: isAr ? 'right' : 'left' }]}>
+                              {isAr ? q.question.ar : q.question.en}
+                            </Text>
+                            <View style={styles.sqOptionsRow}>
+                              {q.options.map((opt) => {
+                                const isSelected = selected.has(opt.id);
+                                return (
+                                  <TouchableOpacity
+                                    key={opt.id}
+                                    style={[styles.sqOption, isSelected && styles.sqOptionSelected]}
+                                    activeOpacity={0.7}
+                                    onPress={() => {
+                                      if (isMulti) {
+                                        setMultiSelections((prev) => {
+                                          const cur = new Set(prev[q.field] ?? []);
+                                          if (cur.has(opt.id)) cur.delete(opt.id);
+                                          else cur.add(opt.id);
+                                          return { ...prev, [q.field]: cur };
+                                        });
+                                      } else {
+                                        const label = isAr ? opt.label.ar : opt.label.en;
+                                        send(opt.emoji ? `${opt.emoji} ${label}` : label);
+                                      }
+                                    }}
+                                  >
+                                    {opt.emoji && <Text style={styles.sqEmoji}>{opt.emoji}</Text>}
+                                    <Text style={[styles.sqOptionLabel, isSelected && styles.sqOptionLabelSelected]}>
+                                      {isAr ? opt.label.ar : opt.label.en}
+                                    </Text>
+                                    {opt.description && (
+                                      <Text style={[styles.sqOptionDesc]}>
+                                        {isAr ? opt.description.ar : opt.description.en}
+                                      </Text>
+                                    )}
+                                    {isMulti && isSelected && (
+                                      <Feather name="check" size={14} color={PRIMARY} style={{ marginTop: 2 }} />
+                                    )}
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </View>
+                            {isMulti && selected.size > 0 && (
+                              <TouchableOpacity
+                                style={styles.sqConfirmBtn}
+                                onPress={() => {
+                                  const labels = q.options
+                                    .filter((o) => selected.has(o.id))
+                                    .map((o) => {
+                                      const lbl = isAr ? o.label.ar : o.label.en;
+                                      return o.emoji ? `${o.emoji} ${lbl}` : lbl;
+                                    });
+                                  send(labels.join(', '));
+                                  setMultiSelections((prev) => {
+                                    const next = { ...prev };
+                                    delete next[q.field];
+                                    return next;
+                                  });
+                                }}
+                              >
+                                <Text style={styles.sqConfirmTxt}>
+                                  {isAr ? `تأكيد (${selected.size})` : `Confirm (${selected.size})`}
+                                </Text>
+                              </TouchableOpacity>
+                            )}
+                          </View>
+                        );
+                      })}
+                    </View>
+                  )}
                 </View>
               ),
             )}
 
             {streaming && statusText && (
               <View style={[styles.statusRow, { justifyContent: isAr ? 'flex-end' : 'flex-start' }]}>
-                <View style={styles.statusDot} />
+                <View style={styles.typingDotsRow}>
+                  {typingDots.map((dot, i) => (
+                    <Animated.View
+                      key={i}
+                      style={[
+                        styles.typingDot,
+                        { transform: [{ scale: dot.interpolate({ inputRange: [0, 1], outputRange: [0.7, 1.2] }) }], opacity: dot.interpolate({ inputRange: [0, 1], outputRange: [0.4, 1] }) },
+                      ]}
+                    />
+                  ))}
+                </View>
                 <Text style={styles.statusTxt}>
-                  {activeAgent ? `[${activeAgent}] ${statusText}` : statusText}
+                  {activeAgent ? `${activeAgent} · ${statusText}` : statusText}
                 </Text>
               </View>
             )}
@@ -598,7 +979,151 @@ export default function ChatScreen() {
         onClose={() => setIsTraceVisible(false)}
         trace={trace}
       />
-    </SafeAreaView>
+
+      {/* ── Chat History Drawer ── */}
+      <Modal visible={drawerOpen} animationType="slide" transparent presentationStyle="overFullScreen">
+        <View style={styles.drawerOverlay}>
+          <TouchableOpacity style={styles.drawerBackdrop} onPress={() => setDrawerOpen(false)} activeOpacity={1} />
+          <Animated.View style={[styles.drawerPanel, { transform: [{ translateX: drawerAnim.interpolate({ inputRange: [0, 1], outputRange: [300, 0] }) }], paddingTop: insets.top }]}>
+            <View style={styles.drawerHeader}>
+              <Text style={styles.drawerTitle}>
+                {isAr ? 'المحادثات' : 'Chat History'}
+              </Text>
+              <TouchableOpacity onPress={() => setDrawerOpen(false)}>
+                <Feather name="x" size={22} color={MUTED} />
+              </TouchableOpacity>
+            </View>
+
+            {/* New Chat button */}
+            <TouchableOpacity style={styles.newChatBtn} onPress={startNewChat}>
+              <Feather name="plus" size={16} color="#fff" />
+              <Text style={styles.newChatTxt}>{isAr ? 'محادثة جديدة' : 'New Chat'}</Text>
+            </TouchableOpacity>
+
+            {/* Requirements progress bar */}
+            {reqStatus && reqStatus.percentage > 0 && (
+              <View style={styles.reqProgressContainer}>
+                <View style={styles.reqProgressRow}>
+                  <Text style={styles.reqProgressLabel}>
+                    {isAr ? 'اكتمال المتطلبات' : 'Requirements'}
+                  </Text>
+                  <Text style={styles.reqProgressPct}>{reqStatus.percentage}%</Text>
+                </View>
+                <View style={styles.reqProgressBar}>
+                  <View style={[styles.reqProgressFill, { width: `${reqStatus.percentage}%` }]} />
+                </View>
+              </View>
+            )}
+
+            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16, gap: 8 }}>
+              {historyLoading ? (
+                <View style={{ padding: 40, alignItems: 'center' }}>
+                  <Text style={{ color: MUTED }}>{isAr ? 'جاري التحميل...' : 'Loading...'}</Text>
+                </View>
+              ) : chatSessions.length > 0 ? (
+                chatSessions.map((s) => (
+                  <TouchableOpacity
+                    key={s.session_id}
+                    style={[
+                      styles.sessionCard,
+                      s.session_id === sessionIdRef.current && styles.sessionCardActive,
+                    ]}
+                    onPress={() => loadSession(s.session_id)}
+                    onLongPress={() => {
+                      Alert.alert(
+                        s.destination || (isAr ? 'محادثة' : 'Chat'),
+                        '',
+                        [
+                          { text: isAr ? 'إعادة تسمية' : 'Rename', onPress: () => renameSession(s.session_id, s.destination || '') },
+                          { text: isAr ? 'حذف' : 'Delete', style: 'destructive', onPress: () => deleteSession(s.session_id) },
+                          { text: isAr ? 'إلغاء' : 'Cancel', style: 'cancel' },
+                        ],
+                      );
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.sessionCardTop}>
+                      <View style={styles.sessionIcon}>
+                        <Feather name="message-circle" size={14} color={PRIMARY} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.sessionDest} numberOfLines={1}>
+                          {s.destination || (isAr ? 'محادثة' : 'Chat')}
+                        </Text>
+                        <Text style={styles.sessionPreview} numberOfLines={2}>
+                          {s.preview || (isAr ? 'لا يوجد رسائل' : 'No messages')}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.sessionMeta}>
+                      <Text style={styles.sessionDate}>
+                        {s.last_active ? new Date(s.last_active).toLocaleDateString() : ''}
+                      </Text>
+                      {s.message_count > 0 && (
+                        <Text style={styles.sessionCount}>
+                          {s.message_count} {isAr ? 'رسالة' : 'msgs'}
+                        </Text>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))
+              ) : (
+                <View style={{ padding: 40, alignItems: 'center' }}>
+                  <Feather name="message-circle" size={32} color={BORDER_COLOR} />
+                  <Text style={{ color: MUTED, textAlign: 'center', marginTop: 12 }}>
+                    {isAr ? 'لا توجد محادثات سابقة.\nابدأ محادثة جديدة!' : 'No previous chats.\nStart a new conversation!'}
+                  </Text>
+                </View>
+              )}
+            </ScrollView>
+          </Animated.View>
+        </View>
+      </Modal>
+
+      {/* ── Action Confirmation Pop-up ── */}
+      <Modal visible={confirmModal.visible} animationType="fade" transparent>
+        <View style={styles.confirmOverlay}>
+          <View style={styles.confirmCard}>
+            <View style={styles.confirmIcon}>
+              <MaterialIcons
+                name={
+                  confirmModal.type === 'plan'
+                    ? 'map'
+                    : confirmModal.type === 'spots'
+                      ? 'place'
+                      : 'account-balance-wallet'
+                }
+                size={28}
+                color={PRIMARY}
+              />
+            </View>
+            <Text style={styles.confirmTitle}>
+              {isAr
+                ? 'هل تريد إضافة التعديلات لخطتك؟'
+                : 'Would you like to sync this update to your plan?'}
+            </Text>
+            <Text style={styles.confirmSub}>
+              {confirmModal.type === 'plan'
+                ? (isAr ? 'سيتم تحديث جدولك السياحي' : 'Your travel itinerary will be updated')
+                : confirmModal.type === 'spots'
+                  ? (isAr ? 'سيتم حفظ الأماكن المقترحة في خطتك' : 'Recommended spots will be saved to your plan')
+                  : (isAr ? 'سيتم تحديث تفاصيل ميزانيتك' : 'Your budget breakdown will be updated')}
+            </Text>
+            <View style={styles.confirmActions}>
+              <TouchableOpacity
+                style={styles.confirmBtnSecondary}
+                onPress={() => setConfirmModal({ visible: false, type: 'plan', data: null })}
+              >
+                <Text style={styles.confirmBtnSecondaryTxt}>{isAr ? 'لاحقًا' : 'Later'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.confirmBtnPrimary} onPress={handleConfirmTrigger}>
+                <Text style={styles.confirmBtnPrimaryTxt}>{isAr ? 'نعم، حدّث' : 'Yes, Sync'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 }
 
@@ -620,6 +1145,23 @@ const styles = StyleSheet.create({
     backgroundColor: PRIMARY, alignItems: 'center', justifyContent: 'center',
   },
   headerTitle: { fontSize: 18, fontWeight: '800', color: TEXT, letterSpacing: -0.3 },
+
+  // ── Header progress bar (requirements completion) ──
+  headerProgress: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    paddingHorizontal: 20, paddingVertical: 6,
+    backgroundColor: 'rgba(255,255,255,0.96)',
+  },
+  headerProgressBar: {
+    flex: 1, height: 3, backgroundColor: BORDER_COLOR, borderRadius: 2, overflow: 'hidden',
+  },
+  headerProgressFill: {
+    height: '100%', backgroundColor: PRIMARY, borderRadius: 2,
+  },
+  headerProgressTxt: {
+    fontSize: 10, fontWeight: '600', color: MUTED, minWidth: 80, textAlign: 'right',
+  },
+
   traceBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
     backgroundColor: BG,
@@ -656,12 +1198,21 @@ const styles = StyleSheet.create({
     backgroundColor: SURFACE, borderRadius: 20, borderTopLeftRadius: 4,
     paddingHorizontal: 18, paddingVertical: 14,
     borderWidth: 1, borderColor: BORDER_COLOR,
+    minHeight: 52, // keep bubble height stable while tokens stream in
   },
-  aiText: { fontSize: 15, color: TEXT, lineHeight: 24 },
+  // Fixed lineHeight + Android font-padding off => zero layout shift while
+  // tokens append word-by-word in either RTL (Arabic) or LTR (English).
+  aiText: {
+    fontSize: 15,
+    color: TEXT,
+    lineHeight: 24,
+    includeFontPadding: false,
+  },
 
-  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  statusDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: PRIMARY },
-  statusTxt: { color: MUTED, fontSize: 13, fontStyle: 'italic' },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4 },
+  typingDotsRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  typingDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: PRIMARY },
+  statusTxt: { color: MUTED, fontSize: 13, fontWeight: '500' },
 
   errBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
@@ -691,7 +1242,7 @@ const styles = StyleSheet.create({
 
   inputArea: {
     padding: 12,
-    paddingBottom: Platform.OS === 'ios' ? 16 : 12,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 12,
     backgroundColor: BG,
   },
   inputRow: {
@@ -750,4 +1301,166 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   msgAttachAudioTxt: { fontSize: 12, color: PRIMARY, fontWeight: '600' },
+
+  // ── Hamburger button ──
+  hamburgerBtn: {
+    width: 36, height: 36, borderRadius: 18,
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: BG,
+  },
+
+  // ── Chat History Drawer ──
+  drawerOverlay: {
+    flex: 1, flexDirection: 'row',
+  },
+  drawerBackdrop: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  drawerPanel: {
+    width: 300, backgroundColor: SURFACE,
+    borderTopLeftRadius: RADIUS_XL, borderBottomLeftRadius: RADIUS_XL,
+    ...Platform.select({ ios: {}, android: { elevation: 8 } }),
+  },
+  drawerHeader: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 20, paddingVertical: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: BORDER_COLOR,
+  },
+  drawerTitle: { fontSize: 16, fontWeight: '700', color: TEXT },
+
+  newChatBtn: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    marginHorizontal: 16, marginTop: 12,
+    paddingVertical: 12, borderRadius: 12,
+    backgroundColor: PRIMARY,
+  },
+  newChatTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
+
+  // ── Requirements progress ──
+  reqProgressContainer: {
+    marginHorizontal: 16, marginTop: 12, gap: 4,
+  },
+  reqProgressRow: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+  },
+  reqProgressLabel: { fontSize: 11, fontWeight: '600', color: MUTED },
+  reqProgressPct: { fontSize: 11, fontWeight: '700', color: PRIMARY },
+  reqProgressBar: {
+    height: 4, backgroundColor: BORDER_COLOR, borderRadius: 2, overflow: 'hidden',
+  },
+  reqProgressFill: {
+    height: '100%', backgroundColor: PRIMARY, borderRadius: 2,
+  },
+
+  // ── Session cards ──
+  sessionCard: {
+    backgroundColor: BG, borderRadius: RADIUS,
+    padding: 12, gap: 8,
+    borderWidth: 1, borderColor: BORDER_COLOR,
+  },
+  sessionCardActive: {
+    borderColor: PRIMARY, backgroundColor: PRIMARY_LIGHT,
+  },
+  sessionCardTop: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 10,
+  },
+  sessionIcon: {
+    width: 28, height: 28, borderRadius: 14,
+    backgroundColor: PRIMARY_LIGHT, alignItems: 'center', justifyContent: 'center',
+    marginTop: 2,
+  },
+  sessionDest: {
+    fontSize: 14, fontWeight: '700', color: TEXT,
+  },
+  sessionPreview: {
+    fontSize: 12, color: MUTED, lineHeight: 18, marginTop: 2,
+  },
+  sessionMeta: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingLeft: 38,
+  },
+  sessionDate: {
+    fontSize: 11, color: MUTED,
+  },
+  sessionCount: {
+    fontSize: 11, color: PRIMARY, fontWeight: '600',
+  },
+
+  // ── Confirmation Modal ──
+  confirmOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center', justifyContent: 'center', padding: 24,
+  },
+  confirmCard: {
+    width: '100%', maxWidth: 340, backgroundColor: SURFACE,
+    borderRadius: RADIUS_XL, padding: 28, alignItems: 'center', gap: 14,
+    borderWidth: 1, borderColor: BORDER_COLOR,
+  },
+  confirmIcon: {
+    width: 56, height: 56, borderRadius: 28,
+    backgroundColor: PRIMARY_LIGHT, alignItems: 'center', justifyContent: 'center',
+  },
+  confirmTitle: {
+    fontSize: 16, fontWeight: '700', color: TEXT, textAlign: 'center', lineHeight: 24,
+  },
+  confirmSub: {
+    fontSize: 13, color: MUTED, textAlign: 'center', lineHeight: 20,
+  },
+  confirmActions: {
+    flexDirection: 'row', gap: 12, marginTop: 8, width: '100%',
+  },
+  confirmBtnSecondary: {
+    flex: 1, paddingVertical: 12, borderRadius: 12,
+    backgroundColor: BG, alignItems: 'center',
+    borderWidth: 1, borderColor: BORDER_COLOR,
+  },
+  confirmBtnSecondaryTxt: { fontSize: 14, fontWeight: '600', color: MUTED },
+  confirmBtnPrimary: {
+    flex: 1, paddingVertical: 12, borderRadius: 12,
+    backgroundColor: PRIMARY, alignItems: 'center',
+  },
+  confirmBtnPrimaryTxt: { fontSize: 14, fontWeight: '700', color: '#fff' },
+
+  // ── Structured question cards ──
+  sqContainer: { gap: 14, marginTop: 8 },
+  sqGroup: { gap: 8 },
+  sqQuestion: { fontSize: 13, fontWeight: '600', color: TEXT, paddingHorizontal: 4 },
+  sqOptionsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  sqOption: {
+    backgroundColor: SURFACE,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: `${PRIMARY}30`,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    minWidth: 80,
+    alignItems: 'center',
+    gap: 2,
+  },
+  sqEmoji: { fontSize: 18 },
+  sqOptionLabel: { fontSize: 13, fontWeight: '700', color: TEXT },
+  sqOptionLabelSelected: { color: PRIMARY },
+  sqOptionSelected: {
+    borderColor: PRIMARY,
+    backgroundColor: PRIMARY_LIGHT,
+  },
+  sqOptionDesc: { fontSize: 11, color: MUTED },
+  sqConfirmBtn: {
+    backgroundColor: PRIMARY,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignSelf: 'flex-start',
+    marginTop: 4,
+  },
+  sqConfirmTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
+
+  // ── Loading skeletons ──
+  skeletonContainer: { gap: 8, paddingVertical: 4 },
+  skeletonLine: {
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: BORDER_COLOR,
+    opacity: 0.6,
+  },
 });

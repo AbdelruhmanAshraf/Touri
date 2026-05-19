@@ -1,5 +1,5 @@
 /**
- * Tripmind API client (Phase 2).
+ * Touri API client (Phase 2).
  *
  * Live connection to the FastAPI backend at ``EXPO_PUBLIC_API_BASE_URL``:
  *   - REST:     POST /api/chat
@@ -13,12 +13,27 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Crypto from 'expo-crypto';
+import Constants from 'expo-constants';
 
 import { SECURE_KEYS, deleteSecure, getSecure, setSecure } from './secureStore';
 
-const RAW_BASE =
-  process.env.EXPO_PUBLIC_API_BASE_URL?.replace(/\/$/, '') ??
-  'http://localhost:8000';
+const RAW_BASE = (() => {
+  const envUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return envUrl.replace(/\/$/, '');
+  }
+
+  // Fallback to Expo's hostUri in development when on localhost or fallback
+  const hostUri = Constants.expoConfig?.hostUri;
+  if (hostUri) {
+    const hostIp = hostUri.split(':')[0];
+    if (hostIp) {
+      return `http://${hostIp}:8000`;
+    }
+  }
+
+  return envUrl?.replace(/\/$/, '') ?? 'http://localhost:8000';
+})();
 
 export const API_BASE_URL = RAW_BASE;
 
@@ -40,6 +55,8 @@ export type Activity = {
   title?: string;
   type?: 'attraction' | 'restaurant' | 'hotel' | 'transport' | 'medical';
   rating?: number | null;
+  done?: boolean;
+  cost?: number;
 };
 
 export type ItineraryDay = {
@@ -71,6 +88,7 @@ export type BudgetBreakdown = {
   };
   total_usd?: number;
   per_person_usd?: number;
+  remaining_budget?: number;
   [k: string]: unknown;
 };
 
@@ -89,6 +107,7 @@ export type ChatRequest = {
   // request to the native Gemini multimodal handler instead of LangGraph.
   parts?: MultimodalPart[];
   type?: 'multimodal' | 'text';
+  use_graph?: boolean;
 };
 
 export type InitialTrip = {
@@ -106,6 +125,61 @@ export type InitialTrip = {
   generated_at?: string;
 };
 
+export type SpotItem = {
+  name: string;
+  city: string;
+  type: 'restaurant' | 'attraction' | 'event';
+  rating?: number | null;
+  price_hint?: string;
+  safe_for_allergies?: boolean;
+};
+
+// ── Conversation state machine types ────────────────────────────────────────
+export type ConversationStateName =
+  | 'onboarding'
+  | 'collecting_requirements'
+  | 'planning'
+  | 'budgeting'
+  | 'concierge'
+  | 'refining'
+  | 'completed';
+
+export type ConversationStateInfo = {
+  session_id: string;
+  current_state: ConversationStateName;
+  previous_state?: ConversationStateName | null;
+  completed_requirements: string[];
+  missing_requirements: string[];
+  active_agent?: string | null;
+  turn_count: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type RequirementsStatus = {
+  completed: string[];
+  missing: string[];
+  total: number;
+  percentage: number;
+};
+
+// ── Chat session history types ──────────────────────────────────────────────
+export type ChatSessionSummary = {
+  session_id: string;
+  destination: string;
+  preview: string;
+  last_active: string;
+  message_count: number;
+  created_at: string;
+};
+
+export type SessionMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+  agent?: string | null;
+  timestamp: string;
+};
+
 export type ChatResponse = {
   session_id: string;
   message: string;
@@ -115,7 +189,36 @@ export type ChatResponse = {
   agent_trace: AgentStep[];
   itinerary?: Itinerary | null;
   budget_breakdown?: BudgetBreakdown | null;
+  spots_json?: SpotItem[] | null;
   suggestions?: string[];
+  structured_questions?: StructuredQuestionSet | null;
+  conversation_state?: ConversationStateInfo | null;
+  requirements_status?: RequirementsStatus | null;
+};
+
+// ── Structured question types (from backend models/question_schema.py) ────────
+export type BilingualLabel = { en: string; ar: string };
+
+export type QuestionOption = {
+  id: string;
+  label: BilingualLabel;
+  emoji?: string | null;
+  description?: BilingualLabel | null;
+};
+
+export type StructuredQuestion = {
+  field: string;
+  question: BilingualLabel;
+  options: QuestionOption[];
+  input_type: 'single_select' | 'multi_select' | 'text_input' | 'number_input';
+  required: boolean;
+  allow_custom: boolean;
+};
+
+export type StructuredQuestionSet = {
+  questions: StructuredQuestion[];
+  intro_text: BilingualLabel;
+  remaining_fields: number;
 };
 
 // ── Catalog types ─────────────────────────────────────────────────────────────
@@ -208,6 +311,10 @@ export type UserPersona = {
   tourism_type: 'leisure' | 'medical';
   party_size: number;
   budget_bracket: 'economy' | 'mid_range' | 'luxury';
+  first_name?: string | null;
+  last_name?: string | null;
+  gender?: 'male' | 'female' | 'unspecified';
+  photo_url?: string | null;
   extras: Record<string, unknown>;
   created_at?: string | null;
   updated_at?: string | null;
@@ -218,8 +325,34 @@ export type PersonaWrite = Partial<{
   tourism_type: 'leisure' | 'medical';
   party_size: number;
   budget_bracket: 'economy' | 'mid_range' | 'luxury';
+  first_name: string | null;
+  last_name: string | null;
+  gender: 'male' | 'female' | 'unspecified';
+  photo_url: string | null;
   extras: Record<string, unknown>;
 }>;
+
+// ── UI Trigger types (injected by backend agents into streamed text) ──────────
+export type UiTriggerType = 'plan' | 'budget' | 'spots';
+export type UiTrigger =
+  | { ui_trigger: 'show_popup'; type: 'plan'; payload: Itinerary }
+  | { ui_trigger: 'show_popup'; type: 'budget'; payload: BudgetBreakdown }
+  | { ui_trigger: 'show_popup'; type: 'spots'; payload: SpotItem[] };
+
+// ── Pinned messages response ──────────────────────────────────────────────────
+export type PinnedMessagesResponse = {
+  destination: string;
+  pins: Array<{ text?: string; agent?: string; created_at?: string }>;
+  trip_summary: string | null;
+  itinerary_preview: Itinerary | null;
+};
+
+// ── Trip patch payload ────────────────────────────────────────────────────────
+export type TripPatch = {
+  itinerary?: Itinerary | null;
+  budget_breakdown?: BudgetBreakdown | null;
+  message?: string;
+};
 
 export type IntakeData = {
   country: string;
@@ -300,6 +433,24 @@ export const api = {
     }),
   getInitialTrip: (uid: string) =>
     request<InitialTrip>(`/api/user/${encodeURIComponent(uid)}/trips/initial`),
+  patchInitialTrip: (uid: string, body: TripPatch) =>
+    request<{ patched: boolean }>(`/api/user/${encodeURIComponent(uid)}/trips/initial`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+  getPinnedMessages: (uid: string) =>
+    request<PinnedMessagesResponse>(`/api/user/${encodeURIComponent(uid)}/pinned`),
+
+  // ── Chat history ────────────────────────────────────────────────────────
+  listSessions: (uid: string, limit: number = 30) =>
+    request<{ sessions: ChatSessionSummary[] }>(
+      `/api/user/${encodeURIComponent(uid)}/sessions?limit=${limit}`,
+    ),
+  getSessionMessages: (uid: string, sid: string, limit: number = 50) =>
+    request<{ session_id: string; messages: SessionMessage[] }>(
+      `/api/user/${encodeURIComponent(uid)}/sessions/${encodeURIComponent(sid)}/messages?limit=${limit}`,
+    ),
+
   health: () =>
     fetch(`${API_BASE_URL}/health`).then(
       (r) => r.json() as Promise<Record<string, unknown>>,
@@ -323,7 +474,9 @@ export const api = {
     request<Record<string, string[]>>('/api/catalog/categories'),
 
   // ── Auth / Session (Phase 5) ─────────────────────────────────────────────
-  startSession: async (body: { user_id: string; id_token?: string }) => {
+  // SECURITY: id_token is required — backend always verifies via Firebase Admin SDK.
+  // user_id is NOT sent; the backend derives uid from the verified token only.
+  startSession: async (body: { id_token: string }) => {
     const data = await request<AuthSession>('/api/auth/session', {
       method: 'POST',
       body: JSON.stringify(body),
@@ -368,7 +521,11 @@ export type WSEvent =
       agent_trace: AgentStep[];
       itinerary?: Itinerary | null;
       budget_breakdown?: BudgetBreakdown | null;
+      spots_json?: SpotItem[] | null;
       suggestions?: string[];
+      structured_questions?: StructuredQuestionSet | null;
+      conversation_state?: ConversationStateInfo | null;
+      requirements_status?: RequirementsStatus | null;
     }
   | { type: 'error'; message: string };
 
@@ -386,65 +543,98 @@ export type StreamHandlers = {
  * Returns a small controller with ``send`` and ``close``.
  */
 export function openChatStream(handlers: StreamHandlers) {
-  const wsUrl =
-    API_BASE_URL.replace(/^http/, 'ws') + '/api/chat/ws';
-  const ws = new WebSocket(wsUrl);
+  let ws: WebSocket | null = null;
+  const wsUrlPromise = (async () => {
+    const token = await getAccessToken();
+    const qs = token ? `?token=${encodeURIComponent(token)}` : '';
+    return API_BASE_URL.replace(/^http/, 'ws') + '/api/chat/ws' + qs;
+  })();
 
-  ws.onmessage = (ev) => {
-    try {
-      const data: WSEvent = JSON.parse(ev.data as string);
-      switch (data.type) {
-        case 'status':
-          handlers.onStatus?.(data);
-          break;
-        case 'trace':
-          handlers.onTrace?.(data.step);
-          break;
-        case 'token':
-          handlers.onToken?.(data.content);
-          break;
-        case 'final':
-          handlers.onFinal?.(data);
-          break;
-        case 'error':
-          handlers.onError?.(data.message);
-          break;
+  const initPromise = (async () => {
+    const url = await wsUrlPromise;
+    const activeWs = new WebSocket(url);
+    activeWs.onmessage = (ev) => {
+      try {
+        const data: WSEvent = JSON.parse(ev.data as string);
+        switch (data.type) {
+          case 'status':
+            handlers.onStatus?.(data);
+            break;
+          case 'trace':
+            handlers.onTrace?.(data.step);
+            break;
+          case 'token':
+            handlers.onToken?.(data.content);
+            break;
+          case 'final':
+            handlers.onFinal?.(data);
+            break;
+          case 'error':
+            handlers.onError?.(data.message);
+            break;
+        }
+      } catch (e) {
+        handlers.onError?.(String(e));
       }
-    } catch (e) {
-      handlers.onError?.(String(e));
-    }
-  };
-  ws.onerror = () => handlers.onError?.('WebSocket error');
-  ws.onclose = () => handlers.onClose?.();
+    };
+    activeWs.onerror = () => handlers.onError?.('WebSocket error');
+    activeWs.onclose = () => handlers.onClose?.();
+    return activeWs;
+  })();
 
   return {
     send: (payload: ChatRequest) =>
       new Promise<void>((resolve, reject) => {
-        const trySend = () => {
-          if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify(payload));
-            resolve();
-          } else if (ws.readyState === WebSocket.CONNECTING) {
-            ws.addEventListener('open', () => {
-              ws.send(JSON.stringify(payload));
-              resolve();
-            }, { once: true });
-            ws.addEventListener('error', () => reject(new Error('WS failed')), { once: true });
-          } else {
-            reject(new Error('WS already closed'));
-          }
-        };
-        trySend();
+        initPromise
+          .then((activeWs) => {
+            const trySend = () => {
+              if (activeWs.readyState === WebSocket.OPEN) {
+                activeWs.send(JSON.stringify(payload));
+                resolve();
+              } else if (activeWs.readyState === WebSocket.CONNECTING) {
+                activeWs.addEventListener(
+                  'open',
+                  () => {
+                    activeWs.send(JSON.stringify(payload));
+                    resolve();
+                  },
+                  { once: true },
+                );
+                activeWs.addEventListener(
+                  'error',
+                  () => reject(new Error('WS failed')),
+                  { once: true },
+                );
+              } else {
+                reject(new Error('WS already closed'));
+              }
+            };
+            trySend();
+          })
+          .catch(reject);
       }),
-    close: () => ws.close(),
+    close: () => {
+      initPromise.then((activeWs) => activeWs.close()).catch(() => {});
+    },
   };
 }
 
+
 // ── Persistent client identifiers ────────────────────────────────────────────
-const USER_ID_KEY = 'tripmind_user_id';
-const SESSION_ID_KEY = 'tripmind_session_id';
-const INTAKE_KEY = 'tripmind_intake';
-const LAST_TRIP_KEY = 'tripmind_last_trip';
+const USER_ID_KEY = 'touri_user_id';
+const SESSION_ID_KEY = 'touri_session_id';
+const INTAKE_KEY = 'touri_intake';
+const LAST_TRIP_KEY = 'touri_last_trip';
+
+export async function clearAllLocalData(): Promise<void> {
+  await Promise.all([
+    clearSessionTokens(),
+    AsyncStorage.removeItem(USER_ID_KEY),
+    AsyncStorage.removeItem(SESSION_ID_KEY),
+    AsyncStorage.removeItem(INTAKE_KEY),
+    AsyncStorage.removeItem(LAST_TRIP_KEY),
+  ]);
+}
 
 function uuid(): string {
   return Crypto.randomUUID();

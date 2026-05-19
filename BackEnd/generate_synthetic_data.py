@@ -3,7 +3,7 @@ import random
 import os
 from pathlib import Path
 
-BASE_DIR = Path("/Users/abdelruhamanelfekky/Desktop/Gen project/Tripmind/BackEnd/data/datasets")
+BASE_DIR = Path("/Users/abdelruhamanelfekky/Desktop/Gen project/Touri/BackEnd/data/datasets")
 
 # Ensure directories exist
 countries = ["egypt", "saudi_arabia", "qatar", "turkey", "morocco"]

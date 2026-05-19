@@ -16,17 +16,31 @@ import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Circle, Path } from 'react-native-svg';
 
 import { useAuth } from '@/hooks/useAuth';
 import { api, getOrCreateUserId, type CatalogCard, type CatalogHome, type CatalogItemType, type UserPersona } from '@/services/api';
+import { BG, SURFACE, BORDER_COLOR, PRIMARY, PRIMARY_DARK, TEXT, MUTED, PLACEHOLDER, flatCard } from '@/theme/tokens';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = SCREEN_W * 0.68;
 const CARD_W_SM = SCREEN_W * 0.52;
 
+function TouriLogo({ size = 34 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="5 5 90 90">
+      <Circle cx="52" cy="42" r="35" fill="none" stroke={PRIMARY} strokeWidth={8} strokeLinecap="round" />
+      <Path d="M21 42H78" stroke={PRIMARY_DARK} strokeWidth={10} strokeLinecap="round" />
+      <Path d="M49 42V67" stroke={PRIMARY_DARK} strokeWidth={10} strokeLinecap="round" />
+      <Path d="M24 50C32 52 42 58 50 69C42 75 34 81 28 89C19 74 15 62 18 49C20 49 22 50 24 50Z" fill={PRIMARY_DARK} />
+      <Path d="M49 69C57 72 64 78 70 88C73 82 78 77 84 73C75 63 64 56 52 52" fill={PRIMARY} />
+    </Svg>
+  );
+}
+
 // ── Type chip colours ─────────────────────────────────────────────────────────
 const TYPE_COLOR: Record<CatalogItemType, string> = {
-  attraction: '#00A896',
+  attraction: PRIMARY,
   hotel: '#7C3AED',
   restaurant: '#EA580C',
   transport: '#0284C7',
@@ -57,7 +71,7 @@ function CatalogCardView({
   small?: boolean;
   onPress: () => void;
 }) {
-  const color = TYPE_COLOR[item.type] ?? '#00A896';
+  const color = TYPE_COLOR[item.type] ?? PRIMARY;
   const cardWidth = small ? CARD_W_SM : CARD_W;
   const imgHeight = small ? 130 : 170;
 
@@ -107,7 +121,7 @@ function CatalogCardView({
 
         {item.city ? (
           <View style={cardStyles.locRow}>
-            <Ionicons name="location-outline" size={12} color="#8E8E93" />
+            <Ionicons name="location-outline" size={12} color={MUTED} />
             <Text style={cardStyles.locTxt} numberOfLines={1}>{item.city}</Text>
           </View>
         ) : null}
@@ -126,10 +140,8 @@ function CatalogCardView({
 
 const cardStyles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    ...flatCard,
     borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
     overflow: 'hidden',
   },
   img: { backgroundColor: '#E8E8ED' },
@@ -151,7 +163,7 @@ const cardStyles = StyleSheet.create({
   typeText: { color: '#fff', fontSize: 9, fontWeight: '800', letterSpacing: 0.6 },
   body: { padding: 12 },
   nameRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginBottom: 4 },
-  name: { flex: 1, fontSize: 14, fontWeight: '700', color: '#1C1C1E' },
+  name: { flex: 1, fontSize: 14, fontWeight: '700', color: TEXT },
   ratingPill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -164,9 +176,9 @@ const cardStyles = StyleSheet.create({
   },
   ratingTxt: { fontSize: 11, fontWeight: '700', color: '#FFB800' },
   locRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginBottom: 4 },
-  locTxt: { fontSize: 12, color: '#8E8E93', flex: 1 },
+  locTxt: { fontSize: 12, color: MUTED, flex: 1 },
   price: { fontSize: 14, fontWeight: '800' },
-  priceSub: { fontSize: 11, fontWeight: '500', color: '#8E8E93' },
+  priceSub: { fontSize: 11, fontWeight: '500', color: MUTED },
 });
 
 // ── Section component ──────────────────────────────────────────────────────────
@@ -192,7 +204,7 @@ function CatalogSection({
     <View style={sectionStyles.section}>
       <View style={[sectionStyles.header, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
         <View style={[sectionStyles.titleGroup, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-          <Ionicons name={icon} size={18} color="#00A896" />
+          <Ionicons name={icon} size={18} color={PRIMARY} />
           <Text style={sectionStyles.title}>{title}</Text>
         </View>
         {onSeeAll && (
@@ -228,15 +240,15 @@ const sectionStyles = StyleSheet.create({
     alignItems: 'center',
   },
   titleGroup: { alignItems: 'center', gap: 8 },
-  title: { fontSize: 18, fontWeight: '700', color: '#1C1C1E', letterSpacing: -0.2 },
-  seeAll: { fontSize: 13, fontWeight: '600', color: '#00A896' },
+  title: { fontSize: 18, fontWeight: '700', color: TEXT, letterSpacing: -0.2 },
+  seeAll: { fontSize: 13, fontWeight: '600', color: PRIMARY },
   scroll: { paddingHorizontal: 24, gap: 14 },
 });
 
 // ── Main screen ────────────────────────────────────────────────────────────────
 export default function ExploreScreen() {
   const { t, i18n } = useTranslation();
-  const { user, isGuest } = useAuth();
+  const { user, isGuest, loading: authLoading } = useAuth();
   const router = useRouter();
   const isAr = i18n.language === 'ar';
 
@@ -265,21 +277,31 @@ export default function ExploreScreen() {
     try {
       const [cat, p] = await Promise.allSettled([
         api.getCatalogHome({ limit: 10 }),
-        !isGuest
-          ? api.getPersona(user?.uid ?? (await getOrCreateUserId()))
-          : Promise.reject(new Error('guest')),
+        (!isGuest && user?.uid)
+          ? api.getPersona(user.uid)
+          : Promise.reject(new Error('not_ready_or_guest')),
       ]);
-      if (cat.status === 'fulfilled') setCatalog(cat.value);
-      if (p.status === 'fulfilled') setPersona(p.value as UserPersona);
-    } catch {
-      /* silently handled via allSettled */
+      if (cat.status === 'fulfilled') {
+        setCatalog(cat.value);
+      } else {
+        console.error('[ExploreScreen] getCatalogHome rejected:', cat.reason);
+      }
+      if (p.status === 'fulfilled') {
+        setPersona(p.value as UserPersona);
+      } else if (!isGuest && !authLoading) {
+        console.warn('[ExploreScreen] getPersona rejected:', p.reason);
+      }
+    } catch (err) {
+      console.error('[ExploreScreen] Error in loadData:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [user?.uid, isGuest]);
+  }, [user?.uid, isGuest, authLoading]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => {
+    if (!authLoading) loadData();
+  }, [loadData, authLoading]);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -306,25 +328,19 @@ export default function ExploreScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#00A896"
-            colors={['#00A896']}
+            tintColor={PRIMARY}
+            colors={[PRIMARY]}
           />
         }
       >
         {/* ── Header ── */}
         <View style={[styles.header, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
           <View style={[styles.logoRow, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
-            <Image
-              source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCpO7gZzXXTZDL5yRCrLEHL_isGfSt1h4-PzCHdvKFBUtAWj5Q-xFURHfyGE2PilbyHE4WsoE0dJp0sVSim98DBd-a0F-7V7VxG8h2dDd3zmzOBDQaZJFhPS8eBv56aze9cEmNoov3ZlTuVCDSQkIVHpVEhjbGWe_nXw_YCGnQlcyD0tg4_yQZj8fsm6I6oWGhjSxOGwA--xAvXevncLwGIjbTvq2-rSgzmqhp1ddWi1tgUM2knzKpQxWCrsX1lWDYckr3gcSkIiAM' }}
-              style={styles.logo}
-              contentFit="cover"
-              transition={200}
-              cachePolicy="memory-disk"
-            />
-            <Text style={styles.logoText}>Tripmind</Text>
+            <TouriLogo size={36} />
+            <Text style={styles.logoText}>Touri</Text>
           </View>
           <TouchableOpacity style={styles.bellBtn} onPress={() => router.push('/(tabs)/search' as any)}>
-            <Feather name="search" size={20} color="#1C1C1E" />
+            <Feather name="search" size={20} color={TEXT} />
           </TouchableOpacity>
         </View>
 
@@ -352,13 +368,13 @@ export default function ExploreScreen() {
           onPress={() => router.push('/(tabs)/chat' as any)}
         >
           <LinearGradient
-            colors={['#00A896', '#028090']}
+            colors={[PRIMARY, PRIMARY_DARK]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={[styles.ctaInner, { flexDirection: isAr ? 'row-reverse' : 'row' }]}
           >
             <View style={styles.ctaIcon}>
-              <MaterialIcons name="auto-awesome" size={20} color="#00A896" />
+              <MaterialIcons name="auto-awesome" size={20} color={PRIMARY} />
             </View>
             <View style={{ flex: 1, paddingHorizontal: 12 }}>
               <Text style={[styles.ctaText, { textAlign: isAr ? 'right' : 'left' }]}>
@@ -409,7 +425,7 @@ export default function ExploreScreen() {
         {/* ── Empty state ── */}
         {!loading && !catalog && (
           <View style={styles.emptyState}>
-            <MaterialIcons name="cloud-off" size={48} color="#C7C7CC" />
+            <MaterialIcons name="cloud-off" size={48} color={PLACEHOLDER} />
             <Text style={styles.emptyTitle}>
               {isAr ? 'تعذّر تحميل البيانات' : 'Couldn\'t load data'}
             </Text>
@@ -428,25 +444,25 @@ export default function ExploreScreen() {
 function MetaChip({ icon, value }: { icon: keyof typeof Ionicons.glyphMap; value: string }) {
   return (
     <View style={metaStyles.chip}>
-      <Ionicons name={icon} size={12} color="#8E8E93" />
+      <Ionicons name={icon} size={12} color={MUTED} />
       <Text style={metaStyles.txt}>{value}</Text>
     </View>
   );
 }
 const metaStyles = StyleSheet.create({
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#F2F2F7', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-  txt: { fontSize: 11, color: '#8E8E93', fontWeight: '600' },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: BG, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  txt: { fontSize: 11, color: MUTED, fontWeight: '600' },
 });
 
 // ── Skeleton styles ───────────────────────────────────────────────────────────
 const skeletonStyles = StyleSheet.create({
-  titleBar: { width: 160, height: 18, borderRadius: 9, backgroundColor: '#E5E5EA', marginBottom: 12 },
-  card: { width: CARD_W, height: 220, borderRadius: 20, backgroundColor: '#E5E5EA' },
+  titleBar: { width: 160, height: 18, borderRadius: 9, backgroundColor: BORDER_COLOR, marginBottom: 12 },
+  card: { width: CARD_W, height: 220, borderRadius: 20, backgroundColor: BORDER_COLOR },
 });
 
 // ── Screen styles ─────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F2F2F7' },
+  container: { flex: 1, backgroundColor: BG },
   scrollContent: { paddingBottom: 20 },
 
   header: {
@@ -457,17 +473,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   logoRow: { alignItems: 'center', gap: 8 },
-  logo: { width: 34, height: 34, borderRadius: 8 },
-  logoText: { fontSize: 20, fontWeight: '800', color: '#1C1C1E', letterSpacing: -0.5 },
+  logoText: { fontSize: 20, fontWeight: '800', color: TEXT, letterSpacing: -0.5 },
   bellBtn: {
     width: 42, height: 42, borderRadius: 21,
-    backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: '#E5E5EA',
+    backgroundColor: SURFACE, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: BORDER_COLOR,
   },
 
   hero: { paddingHorizontal: 24, marginBottom: 24, marginTop: 16 },
-  greeting: { fontSize: 15, color: '#8E8E93', marginBottom: 4 },
-  destination: { fontSize: 32, fontWeight: '800', color: '#1C1C1E', letterSpacing: -0.5, marginBottom: 12 },
+  greeting: { fontSize: 15, color: MUTED, marginBottom: 4 },
+  destination: { fontSize: 32, fontWeight: '800', color: TEXT, letterSpacing: -0.5, marginBottom: 12 },
   metaRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
 
   cta: {
@@ -477,12 +492,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   ctaInner: { alignItems: 'center', padding: 16, borderRadius: 20 },
-  ctaIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
+  ctaIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: SURFACE, alignItems: 'center', justifyContent: 'center' },
   ctaText: { color: '#fff', fontSize: 15, fontWeight: '700', marginBottom: 2 },
   ctaSub: { color: 'rgba(255,255,255,0.82)', fontSize: 12 },
 
   emptyState: { alignItems: 'center', paddingTop: 60, gap: 12 },
-  emptyTitle: { fontSize: 16, color: '#8E8E93', fontWeight: '600' },
-  retryBtn: { marginTop: 4, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#00A896', borderRadius: 12 },
+  emptyTitle: { fontSize: 16, color: MUTED, fontWeight: '600' },
+  retryBtn: { marginTop: 4, paddingHorizontal: 20, paddingVertical: 10, backgroundColor: PRIMARY, borderRadius: 12 },
   retryTxt: { color: '#fff', fontWeight: '700', fontSize: 14 },
 });

@@ -16,8 +16,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+  TextInput,
+  Alert,
 } from 'react-native';
 import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -42,6 +45,11 @@ import {
   RADIUS_PILL,
   SPACING,
 } from '@/theme/tokens';
+
+const GENDER_OPTS: { value: 'male' | 'female'; en: string; ar: string }[] = [
+  { value: 'male', en: 'Male', ar: 'ذكر' },
+  { value: 'female', en: 'Female', ar: 'أنثى' },
+];
 
 const TOURISM_OPTS: { value: 'leisure' | 'medical'; en: string; ar: string; icon: keyof typeof Ionicons.glyphMap }[] = [
   { value: 'leisure', en: 'Leisure',  ar: 'ترفيهية', icon: 'sunny-outline' },
@@ -106,6 +114,51 @@ const propStyles = StyleSheet.create({
   label: { fontSize: 14, fontWeight: '500', color: TEXT },
   right: { flex: 1.2, alignItems: 'flex-end' },
 });
+
+// ── Inline Input ──────────────────────────────────────────────────────────────
+function InlineInput({
+  value,
+  placeholder,
+  onChangeText,
+}: {
+  value?: string;
+  placeholder?: string;
+  onChangeText: (text: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [localVal, setLocalVal] = useState(value || '');
+
+  useEffect(() => {
+    setLocalVal(value || '');
+  }, [value]);
+
+  if (editing) {
+    return (
+      <TextInput
+        style={[styles.valuePillTxt, { borderBottomWidth: 1, borderColor: PRIMARY, minWidth: 100 }]}
+        value={localVal}
+        onChangeText={setLocalVal}
+        onBlur={() => {
+          setEditing(false);
+          if (localVal !== (value || '')) {
+            onChangeText(localVal);
+          }
+        }}
+        autoFocus
+        placeholder={placeholder}
+      />
+    );
+  }
+
+  return (
+    <TouchableOpacity onPress={() => setEditing(true)} style={styles.valuePill}>
+      <Text style={styles.valuePillTxt} numberOfLines={1}>
+        {value || placeholder}
+      </Text>
+      <Feather name="edit-2" size={11} color={MUTED} />
+    </TouchableOpacity>
+  );
+}
 
 // ── Toggle chip group ─────────────────────────────────────────────────────────
 function ToggleGroup<T extends string>({
@@ -216,7 +269,7 @@ const sectionStyles = StyleSheet.create({
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
-  const { user, isGuest, signOut } = useAuth();
+  const { user, isGuest, signOut, loading } = useAuth();
   const router = useRouter();
   const isAr = i18n.language === 'ar';
 
@@ -224,6 +277,7 @@ export default function ProfileScreen() {
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [destModalOpen, setDestModalOpen] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const savingAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -231,27 +285,27 @@ export default function ProfileScreen() {
   }, [saving]);
 
   const refresh = useCallback(async () => {
+    if (loading) return;
     if (isGuest) return;
+    if (!user?.uid) return;
     try {
-      const uid = user?.uid ?? (await getOrCreateUserId());
-      const p = await api.getPersona(uid);
+      const p = await api.getPersona(user.uid);
       setPersona(p);
       const langPref = (p.extras as Record<string, unknown> | undefined)?.language_preference;
       if (langPref === 'en' || langPref === 'ar') applyLanguage(langPref as AppLanguage);
     } catch (e: any) {
       setLoadErr(e?.message ?? 'Failed to load persona');
     }
-  }, [user?.uid, isGuest]);
+  }, [user?.uid, isGuest, loading]);
 
   useEffect(() => { refresh(); }, [refresh]);
 
   const update = async (changes: PersonaWrite) => {
-    if (!persona) return;
+    if (!persona || loading || !user?.uid) return;
     setSaving(true);
     setPersona((p) => p ? { ...p, ...(changes as Partial<UserPersona>) } : p);
     try {
-      const uid = user?.uid ?? (await getOrCreateUserId());
-      const next = await api.updatePersona(uid, changes);
+      const next = await api.updatePersona(user.uid, changes);
       setPersona(next);
     } catch (e) {
       setLoadErr((e as Error)?.message ?? 'Update failed');
@@ -265,10 +319,63 @@ export default function ProfileScreen() {
     if (persona) await update({ extras: { ...(persona.extras || {}), language_preference: lang } });
   };
 
-  const handleSignOut = async () => { await signOut(); router.replace('/'); };
+  const handleSignOut = () => {
+    Alert.alert(
+      isAr ? 'تسجيل الخروج' : 'Sign Out',
+      isAr ? 'هل أنت متأكد أنك تريد تسجيل الخروج؟' : 'Are you sure you want to sign out?',
+      [
+        { text: isAr ? 'إلغاء' : 'Cancel', style: 'cancel' },
+        { text: isAr ? 'خروج' : 'Sign Out', style: 'destructive', onPress: async () => { await signOut(); router.replace('/'); } },
+      ]
+    );
+  };
 
-  const displayName = user?.email?.split('@')[0] || (isAr ? 'مستخدم' : 'Tripmind User');
-  const avatarLetters = initials(user?.email);
+  const pickImage = async () => {
+    if (isGuest) return;
+    Alert.alert(
+      isAr ? 'تغيير الصورة' : 'Change Photo',
+      isAr ? 'اختر مصدر الصورة' : 'Select photo source',
+      [
+        { text: isAr ? 'الكاميرا' : 'Camera', onPress: launchCamera },
+        { text: isAr ? 'المعرض' : 'Gallery', onPress: launchGallery },
+        { text: isAr ? 'إلغاء' : 'Cancel', style: 'cancel' },
+      ]
+    );
+  };
+
+  const launchCamera = async () => {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (perm.granted) {
+      const res = await ImagePicker.launchCameraAsync({ 
+        base64: true, 
+        quality: 0.3,
+        allowsEditing: true,
+        aspect: [1, 1],
+      });
+      if (!res.canceled && res.assets[0].base64) {
+        update({ photo_url: `data:image/jpeg;base64,${res.assets[0].base64}` });
+      }
+    }
+  };
+
+  const launchGallery = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (perm.granted) {
+      const res = await ImagePicker.launchImageLibraryAsync({ 
+        base64: true, 
+        quality: 0.3,
+        allowsEditing: true,
+        aspect: [1, 1],
+      });
+      if (!res.canceled && res.assets[0].base64) {
+        update({ photo_url: `data:image/jpeg;base64,${res.assets[0].base64}` });
+      }
+    }
+  };
+
+  const displayName = [persona?.first_name, persona?.last_name].filter(Boolean).join(' ') 
+    || user?.email?.split('@')[0] 
+    || (isAr ? 'مستخدم' : 'Touri User');
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -282,21 +389,36 @@ export default function ProfileScreen() {
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* ── Avatar + identity block (Notion-style B&W line art) ── */}
+        {/* ── Avatar + identity block (Notion-style centered B&W line art) ── */}
         <View style={styles.identityBlock}>
-          <View style={styles.avatarShell}>
-            <NotionAvatar
-              id={user?.uid ?? user?.email ?? 'guest'}
-              size={56}
-            />
-          </View>
-          <View style={styles.identityText}>
-            <Text style={styles.displayName}>{displayName}</Text>
+          <TouchableOpacity style={styles.avatarShell} onPress={pickImage} activeOpacity={0.8}>
+            {persona?.photo_url ? (
+              <Image source={{ uri: persona.photo_url }} style={styles.avatarImg} />
+            ) : (
+              <NotionAvatar
+                id={user?.uid ?? user?.email ?? 'guest'}
+                gender={persona?.gender === 'unspecified' ? undefined : persona?.gender}
+                size={88}
+              />
+            )}
+            {!isGuest && (
+              <View style={styles.camBadge}>
+                <Feather name="camera" size={13} color="#fff" />
+              </View>
+            )}
+          </TouchableOpacity>
+          <Text style={styles.displayName}>{displayName}</Text>
+          <View style={styles.emailRow}>
             <Text style={styles.emailLine}>{user?.email || (isAr ? 'وضع الضيف' : 'Guest Mode')}</Text>
+            {!isGuest && (
+              <View style={styles.verifiedBadge}>
+                <Feather name="check" size={10} color="#fff" />
+              </View>
+            )}
+            {isGuest && (
+              <Text style={styles.guestBadgeText}>{isAr ? 'حساب زائر' : 'Guest Mode'}</Text>
+            )}
           </View>
-          {!isGuest && <View style={styles.verifiedBadge}>
-            <Feather name="check" size={11} color="#fff" />
-          </View>}
         </View>
 
         {loadErr && (
@@ -316,6 +438,50 @@ export default function ProfileScreen() {
                 <Text style={styles.guestCTATxt}>{isAr ? 'تسجيل الدخول' : 'Sign In'}</Text>
               </TouchableOpacity>
             </View>
+          </Section>
+        )}
+
+        {/* ── Personal Information ── */}
+        {!isGuest && persona && (
+          <Section label={isAr ? 'البيانات الشخصية' : 'Personal Information'}>
+            <PropRow icon="person-outline" label={isAr ? 'الاسم الأول' : 'First Name'}>
+              <InlineInput
+                value={persona.first_name || ''}
+                placeholder={isAr ? 'أضف الاسم الأول' : 'Add first name'}
+                onChangeText={(v) => update({ first_name: v })}
+              />
+            </PropRow>
+            
+            <PropRow icon="person-outline" label={isAr ? 'الاسم الأخير' : 'Last Name'}>
+              <InlineInput
+                value={persona.last_name || ''}
+                placeholder={isAr ? 'أضف الاسم الأخير' : 'Add last name'}
+                onChangeText={(v) => update({ last_name: v })}
+              />
+            </PropRow>
+
+            <PropRow icon="mail-outline" label={isAr ? 'البريد الإلكتروني' : 'Email Address'}>
+              <View style={styles.valuePill}>
+                <Text style={[styles.valuePillTxt, { color: MUTED }]} numberOfLines={1}>
+                  {user?.email}
+                </Text>
+              </View>
+            </PropRow>
+
+            <PropRow icon="transgender-outline" label={isAr ? 'الجنس' : 'Gender'}>
+              <ToggleGroup
+                value={persona.gender === 'unspecified' ? undefined : persona.gender}
+                options={GENDER_OPTS.map((o) => ({ value: o.value, label: isAr ? o.ar : o.en }))}
+                onChange={(v) => update({ gender: v })}
+              />
+            </PropRow>
+
+            <PropRow icon="lock-closed-outline" label={isAr ? 'تغيير كلمة المرور' : 'Change Password'} last>
+              <TouchableOpacity onPress={() => setPasswordModalOpen(true)} style={styles.valuePill}>
+                <Text style={styles.valuePillTxt}>{isAr ? 'تعديل' : 'Edit'}</Text>
+                <Feather name="chevron-right" size={11} color={MUTED} />
+              </TouchableOpacity>
+            </PropRow>
           </Section>
         )}
 
@@ -419,8 +585,39 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </Section>
 
-        <Text style={styles.version}>Tripmind v1.0 · Egypt Travel AI</Text>
+        <Text style={styles.version}>Touri v2.0 · Egypt Travel AI · Offline RAG Mode</Text>
       </ScrollView>
+
+      {/* ── Password Change Modal ── */}
+      <Modal visible={passwordModalOpen} animationType="slide" transparent presentationStyle="overFullScreen">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={[styles.modalHeader, { flexDirection: isAr ? 'row-reverse' : 'row' }]}>
+              <Text style={styles.modalTitle}>{isAr ? 'تغيير كلمة المرور' : 'Change Password'}</Text>
+              <TouchableOpacity onPress={() => setPasswordModalOpen(false)}>
+                <Feather name="x" size={22} color={MUTED} />
+              </TouchableOpacity>
+            </View>
+            <View style={{ padding: 20, gap: 16 }}>
+              <View style={{ gap: 8 }}>
+                <Text style={styles.modalLabel}>{isAr ? 'كلمة المرور الحالية' : 'Current Password'}</Text>
+                <TextInput style={[styles.modalInput, isAr && { textAlign: 'right' }]} secureTextEntry placeholder="••••••••" />
+              </View>
+              <View style={{ gap: 8 }}>
+                <Text style={styles.modalLabel}>{isAr ? 'كلمة المرور الجديدة' : 'New Password'}</Text>
+                <TextInput style={[styles.modalInput, isAr && { textAlign: 'right' }]} secureTextEntry placeholder="••••••••" />
+              </View>
+              <View style={{ gap: 8 }}>
+                <Text style={styles.modalLabel}>{isAr ? 'تأكيد كلمة المرور' : 'Confirm Password'}</Text>
+                <TextInput style={[styles.modalInput, isAr && { textAlign: 'right' }]} secureTextEntry placeholder="••••••••" />
+              </View>
+              <TouchableOpacity style={styles.saveBtn} onPress={() => setPasswordModalOpen(false)}>
+                <Text style={styles.saveBtnTxt}>{isAr ? 'حفظ التغييرات' : 'Save Changes'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* ── Governorate picker modal ── */}
       <Modal visible={destModalOpen} animationType="slide" transparent presentationStyle="overFullScreen">
@@ -472,24 +669,36 @@ const styles = StyleSheet.create({
 
   // ── Identity block ──
   identityBlock: {
-    flexDirection: 'row', alignItems: 'center', gap: 14,
+    alignItems: 'center', gap: 10,
     backgroundColor: SURFACE, borderRadius: RADIUS,
-    padding: SPACING, borderWidth: 1, borderColor: BORDER_COLOR,
+    paddingVertical: 24, paddingHorizontal: SPACING,
+    borderWidth: 1, borderColor: BORDER_COLOR,
   },
   avatarShell: { position: 'relative' },
-  avatarImg: { width: 52, height: 52, borderRadius: 26 },
+  avatarImg: { width: 88, height: 88, borderRadius: 44 },
   avatarFallback: {
-    width: 52, height: 52, borderRadius: 26,
+    width: 88, height: 88, borderRadius: 44,
     backgroundColor: `${PRIMARY}20`,
     alignItems: 'center', justifyContent: 'center',
   },
-  avatarLetters: { fontSize: 18, fontWeight: '800', color: PRIMARY },
-  identityText: { flex: 1, gap: 2 },
-  displayName: { fontSize: 17, fontWeight: '700', color: TEXT },
+  camBadge: {
+    position: 'absolute', bottom: 0, right: 0,
+    backgroundColor: '#000', width: 28, height: 28, borderRadius: 14,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2.5, borderColor: SURFACE,
+  },
+  avatarLetters: { fontSize: 22, fontWeight: '800', color: PRIMARY },
+  displayName: { fontSize: 22, fontWeight: '800', color: TEXT, textAlign: 'center', letterSpacing: -0.3 },
+  emailRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   emailLine: { fontSize: 13, color: MUTED },
   verifiedBadge: {
-    width: 20, height: 20, borderRadius: RADIUS_SM,
-    backgroundColor: PRIMARY, alignItems: 'center', justifyContent: 'center',
+    width: 18, height: 18, borderRadius: 9,
+    backgroundColor: '#34C759', alignItems: 'center', justifyContent: 'center',
+  },
+  guestBadgeText: {
+    fontSize: 11, fontWeight: '600', color: '#FF9500',
+    backgroundColor: '#FFF3E0', paddingHorizontal: 8, paddingVertical: 2,
+    borderRadius: 8, overflow: 'hidden',
   },
 
   errTxt: { color: ERROR, fontSize: 13, textAlign: 'center', marginTop: -8 },
@@ -572,4 +781,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: BORDER_COLOR,
   },
   modalRowTxt: { fontSize: 14, color: TEXT, fontWeight: '500' },
+  modalLabel: { fontSize: 13, fontWeight: '600', color: TEXT },
+  modalInput: {
+    backgroundColor: BG,
+    borderWidth: 1, borderColor: BORDER_COLOR,
+    borderRadius: RADIUS_SM,
+    paddingHorizontal: 14, paddingVertical: 12,
+    fontSize: 15, color: TEXT,
+  },
+  saveBtn: {
+    backgroundColor: PRIMARY,
+    borderRadius: RADIUS,
+    paddingVertical: 14,
+    alignItems: 'center', marginTop: 10,
+  },
+  saveBtnTxt: { color: '#fff', fontSize: 15, fontWeight: '700' },
 });

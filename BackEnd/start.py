@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tripmind — Backend startup script.
+Touri — Backend startup script.
 Sets up Python path and launches the FastAPI server.
 """
 import sys

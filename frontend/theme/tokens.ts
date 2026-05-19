@@ -1,5 +1,5 @@
 /**
- * TripMind Flat 2D Design Tokens — Phase 4
+ * Touri Flat 2D Design Tokens — Phase 4
  *
  * Flat iOS 16+ minimal design language:
  *   - NO shadows anywhere. Depth is achieved via tonal background contrast.
