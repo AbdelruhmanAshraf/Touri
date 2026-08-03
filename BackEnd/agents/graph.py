@@ -32,7 +32,9 @@ from langgraph.graph import END, StateGraph
 from agents.budget_specialist import calculate as budget_node
 from agents.general_chat import chitchat as general_node
 from agents.local_concierge import recommend as concierge_node
+from agents.memory_enforcer import enforce_memory as enforcer_node
 from agents.memory_manager import load_memory_into_state as memory_node, persist_exchange
+from agents.requirements_node import gather_requirements as requirements_node
 from agents.router_agent import route as router_node
 from agents.state import AgentState, fresh_state
 from agents.travel_planner import plan as planner_node
@@ -46,7 +48,9 @@ async def _needs_info_node(state: AgentState) -> AgentState:
 # ── Human-readable node labels (for streaming status) ─────────────────────────
 _NODE_LABELS = {
     "memory": {"en": "Memory Manager", "ar": "مدير الذاكرة"},
+    "enforcer": {"en": "Memory Enforcer", "ar": "محقق الذاكرة"},
     "router": {"en": "Router Agent", "ar": "وكيل التوجيه"},
+    "requirements": {"en": "Requirements Check", "ar": "فحص المتطلبات"},
     "planner": {"en": "Travel Planner", "ar": "وكيل التخطيط"},
     "budget": {"en": "Budget Specialist", "ar": "خبير الميزانية"},
     "concierge": {"en": "Local Concierge", "ar": "الكونسيرج المحلي"},
@@ -56,7 +60,9 @@ _NODE_LABELS = {
 
 _NODE_STATUS_MSG = {
     "memory": {"en": "Loading your profile...", "ar": "جاري تحميل ملفك الشخصي..."},
+    "enforcer": {"en": "Applying memory constraints...", "ar": "جاري تطبيق قيود الذاكرة..."},
     "router": {"en": "Analyzing your request...", "ar": "جاري تحليل طلبك..."},
+    "requirements": {"en": "Checking trip details...", "ar": "جاري التحقق من تفاصيل الرحلة..."},
     "planner": {"en": "Building your travel itinerary...", "ar": "جاري بناء جدولك السياحي..."},
     "budget": {"en": "Calculating costs and budget...", "ar": "جاري حساب التكاليف والميزانية..."},
     "concierge": {"en": "Finding personalized recommendations...", "ar": "جاري البحث عن توصيات مخصصة لك..."},
@@ -84,18 +90,23 @@ def _branch(state: AgentState) -> Literal["planner", "budget", "concierge", "gen
 def build_graph():
     g = StateGraph(AgentState)
     g.add_node("memory", memory_node)
+    g.add_node("enforcer", enforcer_node)
     g.add_node("router", router_node)
+    g.add_node("requirements", requirements_node)
     g.add_node("planner", planner_node)
     g.add_node("budget", budget_node)
     g.add_node("concierge", concierge_node)
     g.add_node("general", general_node)
     g.add_node("needs_info", _needs_info_node)
 
-    # Entry: memory → router → branch
+    # Entry: memory → enforcer → router → requirements → branch
     g.set_entry_point("memory")
-    g.add_edge("memory", "router")
+    g.add_edge("memory", "enforcer")
+    g.add_edge("enforcer", "router")
+    # Router resolves intent; requirements node checks slots before dispatching
+    g.add_edge("router", "requirements")
     g.add_conditional_edges(
-        "router",
+        "requirements",
         _branch,
         {
             "planner": "planner",

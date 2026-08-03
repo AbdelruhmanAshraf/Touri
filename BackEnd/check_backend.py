@@ -24,7 +24,7 @@ CHROMA_DIR = DATA_DIR / "chroma_db"
 
 # SECURITY: API keys are NEVER hardcoded here. They must be present in .env.
 TARGET_API_KEY: str = ""  # Populated from .env only — see step1_env_validation()
-TARGET_MODEL = "gemma-4-26b-a4b-it"
+TARGET_MODEL = "mistral-large-latest"
 CHROMA_COLLECTION = "egypt_travel_knowledge"
 
 MANDATORY_CSV_FILES = [
@@ -101,32 +101,32 @@ def step1_env_validation() -> dict[str, str]:
                 key, _, value = line.partition("=")
                 env_vars[key.strip()] = value.strip()
 
-    # Check GEMINI_API_KEY — never inject or overwrite; must be set manually
-    gemini_key = env_vars.get("GEMINI_API_KEY", "")
-    if not gemini_key:
-        fail("GEMINI_API_KEY is EMPTY or MISSING in .env")
-        warn("  → Set it manually: echo 'GEMINI_API_KEY=your_key' >> .env")
+    # Check MISTRAL_API_KEY — never inject or overwrite; must be set manually
+    mistral_key = env_vars.get("MISTRAL_API_KEY", "")
+    if not mistral_key:
+        fail("MISTRAL_API_KEY is EMPTY or MISSING in .env")
+        warn("  → Set it manually: echo 'MISTRAL_API_KEY=your_key' >> .env")
     else:
-        ok(f"GEMINI_API_KEY is set: {gemini_key[:8]}...{gemini_key[-4:]}")
+        ok(f"MISTRAL_API_KEY is set: {mistral_key[:8]}...{mistral_key[-4:]}")
 
     # Check model names — only auto-fix if unset (never overwrite user config)
-    pro_model = env_vars.get("GEMINI_PRO_MODEL", "")
-    fast_model = env_vars.get("GEMINI_FAST_MODEL", "")
+    pro_model = env_vars.get("MISTRAL_PRO_MODEL", "")
+    fast_model = env_vars.get("MISTRAL_FAST_MODEL", "")
     if pro_model == TARGET_MODEL:
-        ok(f"GEMINI_PRO_MODEL = {TARGET_MODEL}")
+        ok(f"MISTRAL_PRO_MODEL = {TARGET_MODEL}")
     elif not pro_model:
-        repair(f"GEMINI_PRO_MODEL not set → defaulting to {TARGET_MODEL}")
-        _inject_env_var("GEMINI_PRO_MODEL", TARGET_MODEL)
+        repair(f"MISTRAL_PRO_MODEL not set → defaulting to {TARGET_MODEL}")
+        _inject_env_var("MISTRAL_PRO_MODEL", TARGET_MODEL)
     else:
-        warn(f"GEMINI_PRO_MODEL = '{pro_model}' (expected '{TARGET_MODEL}')")
+        warn(f"MISTRAL_PRO_MODEL = '{pro_model}' (expected '{TARGET_MODEL}')")
 
-    if fast_model == TARGET_MODEL:
-        ok(f"GEMINI_FAST_MODEL = {TARGET_MODEL}")
+    if fast_model == "mistral-small-latest":
+        ok("MISTRAL_FAST_MODEL = mistral-small-latest")
     elif not fast_model:
-        repair(f"GEMINI_FAST_MODEL not set → defaulting to {TARGET_MODEL}")
-        _inject_env_var("GEMINI_FAST_MODEL", TARGET_MODEL)
+        repair("MISTRAL_FAST_MODEL not set → defaulting to mistral-small-latest")
+        _inject_env_var("MISTRAL_FAST_MODEL", "mistral-small-latest")
     else:
-        warn(f"GEMINI_FAST_MODEL = '{fast_model}' (expected '{TARGET_MODEL}')")
+        warn(f"MISTRAL_FAST_MODEL = '{fast_model}' (expected 'mistral-small-latest')")
 
     # Check Firebase credentials path
     fb_path = env_vars.get("FIREBASE_CREDENTIALS_PATH", "")
@@ -195,45 +195,42 @@ def _inject_env_var(key: str, value: str) -> None:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  STEP 2: Google GenAI SDK Test Connection
+#  STEP 2: Mistral AI SDK Test Connection
 # ═══════════════════════════════════════════════════════════════════════════════
-def step2_genai_connection(env_vars: dict[str, str]) -> None:
-    header("STEP 2: Google GenAI SDK Test Connection")
+def step2_mistral_connection(env_vars: dict[str, str]) -> None:
+    header("STEP 2: Mistral AI SDK Test Connection")
 
-    api_key = env_vars.get("GEMINI_API_KEY", "")
+    api_key = env_vars.get("MISTRAL_API_KEY", "")
     if not api_key:
-        fail("GEMINI_API_KEY is not set — skipping API connection test")
+        fail("MISTRAL_API_KEY is not set — skipping API connection test")
         return
 
     try:
-        import google.generativeai as genai
-        ok("google-generativeai SDK imported successfully")
+        from mistralai.client import Mistral
+        ok("mistralai SDK imported successfully")
     except ImportError:
-        fail("google-generativeai is NOT installed")
-        print("       Run: pip install google-generativeai")
+        fail("mistralai is NOT installed")
+        print("       Run: pip install mistralai")
         return
 
     try:
-        genai.configure(api_key=api_key)
-        ok(f"GenAI client configured with API key: {api_key[:12]}...{api_key[-4:]}")
+        client = Mistral(api_key=api_key)
+        ok(f"Mistral client configured with API key: {api_key[:12]}...{api_key[-4:]}")
     except Exception as exc:
-        fail(f"GenAI client configuration failed: {exc}")
+        fail(f"Mistral client configuration failed: {exc}")
         return
 
     # Lightweight model probe
     print(f"  🔄 Testing model '{TARGET_MODEL}' with a lightweight probe...")
     try:
-        model = genai.GenerativeModel(
-            model_name=TARGET_MODEL,
-            generation_config=genai.GenerationConfig(
-                temperature=0.1,
-                max_output_tokens=30,
-            ),
-        )
         t0 = time.time()
-        response = model.generate_content("Reply with only: OK")
+        response = client.chat.complete(
+            model=TARGET_MODEL,
+            messages=[{"role": "user", "content": "Reply with only: OK"}],
+            max_tokens=10,
+        )
         elapsed = time.time() - t0
-        text = (response.text or "").strip()
+        text = (response.choices[0].message.content or "").strip()
         if text:
             ok(f"Model responded in {elapsed:.2f}s: \"{text[:50]}\"")
         else:
@@ -247,7 +244,7 @@ def step2_genai_connection(env_vars: dict[str, str]) -> None:
         elif "403" in exc_str or "permission" in exc_str.lower():
             fail(f"API key lacks permission for '{TARGET_MODEL}': {exc_str[:100]}")
         else:
-            fail(f"GenAI probe call failed: {exc_str[:120]}")
+            fail(f"Mistral probe call failed: {exc_str[:120]}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -399,10 +396,11 @@ def step5_import_test() -> None:
             ok(f"DEFAULT_MODEL = '{DEFAULT_MODEL}'")
         else:
             fail(f"DEFAULT_MODEL = '{DEFAULT_MODEL}' (expected '{TARGET_MODEL}')")
-        if FAST_MODEL == TARGET_MODEL:
+        expected_fast = "mistral-small-latest" if "mistral" in TARGET_MODEL else TARGET_MODEL
+        if FAST_MODEL == expected_fast:
             ok(f"FAST_MODEL = '{FAST_MODEL}'")
         else:
-            fail(f"FAST_MODEL = '{FAST_MODEL}' (expected '{TARGET_MODEL}')")
+            fail(f"FAST_MODEL = '{FAST_MODEL}' (expected '{expected_fast}')")
     except Exception as exc:
         fail(f"Could not verify model constants: {exc}")
 
@@ -451,7 +449,7 @@ def main() -> None:
     print(f"  Target model: {TARGET_MODEL}")
 
     env_vars = step1_env_validation()
-    step2_genai_connection(env_vars)
+    step2_mistral_connection(env_vars)
     step3_csv_check()
     step4_chromadb_test()
     step5_import_test()

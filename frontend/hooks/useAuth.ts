@@ -1,5 +1,5 @@
 /**
- * Touri auth hook — wraps Firebase + expo-auth-session Google Sign-In.
+ * Touri auth hook wraps Firebase + expo-auth-session Google Sign-In.
  *
  * Safe in dev: if Google OAuth client IDs aren't yet configured, the hook
  * still mounts and returns a `notConfigured` flag instead of throwing,
@@ -14,6 +14,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import { onAuthStateChanged, signOut as fbSignOut, type User } from 'firebase/auth';
 import {
   auth,
@@ -26,7 +27,7 @@ import { api, clearSessionTokens, clearAllLocalData } from '@/services/api';
 
 WebBrowser.maybeCompleteAuthSession();
 
-// ── Module-level session deduplication ────────────────────────────────────────
+// Module-level session deduplication
 // useAuth() is called in every tab/screen, creating multiple onAuthStateChanged
 // listeners. Without dedup, each listener fires startSession concurrently,
 // instantly exceeding the backend's 5 req/min AUTH_LIMIT and returning 429.
@@ -72,10 +73,14 @@ const platformConfigured =
     ? !!androidId
     : !!webId;
 
+const ONBOARDING_KEY = 'touri_onboarded';
+
 export function useAuth() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const [, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: webId || PLACEHOLDER,
@@ -101,7 +106,9 @@ export function useAuth() {
       });
       return unsub;
     } catch (e) {
-      // Firebase auth not initialised — stay in loading=false, user=null
+      // Firebase auth not initialised; stay in loading=false, user=null
+      const errMsg = e instanceof Error ? e.message : String(e);
+      setAuthError(errMsg);
       // eslint-disable-next-line no-console
       console.warn('[useAuth] auth state subscription failed:', e);
       setLoading(false);
@@ -113,33 +120,38 @@ export function useAuth() {
     try {
       await fbSignInAnonymously();
     } catch (e) {
+      const errMsg = e instanceof Error ? e.message : String(e);
+      setAuthError(errMsg);
       console.warn('[useAuth] Anonymous sign-in failed:', e);
     }
   }, []);
 
   useEffect(() => {
     if (response?.type === 'success' && response.params.id_token) {
-      signInWithGoogleIdToken(response.params.id_token).catch((e) =>
+      signInWithGoogleIdToken(response.params.id_token).catch((e) => {
+        const errMsg = e instanceof Error ? e.message : String(e);
+        setAuthError(errMsg);
         // eslint-disable-next-line no-console
-        console.warn('[useAuth] Firebase sign-in failed:', e),
-      );
+        console.warn('[useAuth] Firebase sign-in failed:', e);
+      });
     }
   }, [response]);
 
   const signInWithGoogle = useCallback(() => {
     if (!platformConfigured) {
-      // eslint-disable-next-line no-console
-      console.warn(
+      const msg =
         '[useAuth] Google OAuth client ID not configured for ' +
-          Platform.OS +
-          '. Set EXPO_PUBLIC_GOOGLE_' +
-          (Platform.OS === 'ios'
-            ? 'IOS'
-            : Platform.OS === 'android'
-            ? 'ANDROID'
-            : 'WEB') +
-          '_CLIENT_ID in mobile/.env',
-      );
+        Platform.OS +
+        '. Set EXPO_PUBLIC_GOOGLE_' +
+        (Platform.OS === 'ios'
+          ? 'IOS'
+          : Platform.OS === 'android'
+          ? 'ANDROID'
+          : 'WEB') +
+        '_CLIENT_ID in mobile/.env';
+      setAuthError(msg);
+      // eslint-disable-next-line no-console
+      console.warn(msg);
       return Promise.resolve({ type: 'dismiss' as const });
     }
     return promptAsync();
@@ -153,27 +165,57 @@ export function useAuth() {
     } catch {
       /* non-fatal */
     }
-    // 2. Clear all local AsyncStorage data (session, intake, last trip, user id)
+    // 2. Clear all local AsyncStorage data (session, intake, last trip, user id, onboarding flag)
     try {
       await clearAllLocalData();
+      await AsyncStorage.removeItem(ONBOARDING_KEY);
     } catch {
       /* non-fatal */
     }
-    // 3. Sign out of Firebase (triggers onAuthStateChanged → user=null)
+    // 3. Clear Firebase auth state
+    setUser(null);
     try {
       await fbSignOut(auth);
     } catch {
       /* ignore */
     }
-  }, []);
+    // 4. Redirect to entry gate so auth routing re-evaluates cleanly
+    try {
+      router.replace('/');
+    } catch {
+      /* ignore if router not mounted */
+    }
+  }, [router]);
 
   const signInWithEmail = useCallback(
-    (email: string, password: string) => fbSignInWithEmail(email, password),
+    async (email: string, password: string) => {
+      try {
+        const result = await fbSignInWithEmail(email, password);
+        setAuthError(null);
+        return result;
+      } catch (error) {
+        const err = error as Record<string, unknown>;
+        const errMsg = `${err.code}: ${err.message}`;
+        setAuthError(errMsg);
+        throw error;
+      }
+    },
     [],
   );
 
   const signUpWithEmail = useCallback(
-    (email: string, password: string) => fbSignUpWithEmail(email, password),
+    async (email: string, password: string) => {
+      try {
+        const result = await fbSignUpWithEmail(email, password);
+        setAuthError(null);
+        return result;
+      } catch (error) {
+        const err = error as Record<string, unknown>;
+        const errMsg = `${err.code}: ${err.message}`;
+        setAuthError(errMsg);
+        throw error;
+      }
+    },
     [],
   );
 
@@ -189,5 +231,6 @@ export function useAuth() {
     signUpWithEmail,
     signOut,
     notConfigured: !platformConfigured,
+    authError,
   };
 }

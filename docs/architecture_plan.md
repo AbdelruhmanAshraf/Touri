@@ -1,6 +1,6 @@
 # Touri Architecture Integration Guide (Phases 9-20)
 
-This document outlines the conceptual integration path for the newly generated modular services into the core `Tripmind` system.
+This document outlines the conceptual integration path for the newly generated modular services into the core `Touri` system.
 
 ## 1. State Machine Integration (`backend/services/state_machine.py`)
 - **Current logic**: Conversations loosely flow based on pure LLM direction.

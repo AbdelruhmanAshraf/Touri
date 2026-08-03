@@ -22,7 +22,13 @@
       "output": "static"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Touri needs microphone access so you can send voice messages in chat."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -141,6 +141,7 @@ def detect_missing_fields(
     travel_prefs: Optional[TravelPreferences] = None,
     chat_history: Optional[List[Dict[str, str]]] = None,
     intent: str = "trip_planning",
+    known_fields: Optional[Dict[str, Any]] = None,
 ) -> List[str]:
     """
     Return a list of missing field names required for the given intent.
@@ -159,9 +160,17 @@ def detect_missing_fields(
     # Gather known fields from all sources
     msg_fields = _extract_from_message(message)
     hist_fields = _extract_from_history(chat_history or [])
+    enforcer_known = known_fields or {}
 
     # Check each required field
     known: Set[str] = set()
+
+    # Seed from memory enforcer (authoritative)
+    for field in enforcer_known:
+        if field == "trip_duration":
+            known.add("duration")
+        else:
+            known.add(field)
 
     # Destination
     if (

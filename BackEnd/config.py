@@ -42,17 +42,26 @@ class Settings(BaseSettings):
         populate_by_name=True,
     )
 
-    # ── Google Gemini (primary LLM engine) ────────────────────────────────────
+    # ── Mistral AI ────────────────────────────────────────────────────────────
+    MISTRAL_API_KEY: str = Field(
+        default="",
+        description="Mistral AI API key — required for all chat agents.",
+    )
+    MISTRAL_PRO_MODEL: str = Field(
+        default="mistral-large-latest",
+        description="Default LLM for the LangGraph text agents (Mistral Large).",
+    )
+    MISTRAL_FAST_MODEL: str = Field(
+        default="mistral-small-latest",
+        description="Fast text LLM for router / concierge / streaming echo.",
+    )
+
+    # ── Google Gemini (fallback / legacy support) ─────────────────────────────
     GEMINI_API_KEY: str = Field(
         default="",
         validation_alias=AliasChoices("GEMINI_API_KEY", "GOOGLE_AI_STUDY_API_KEY"),
-        description="Google AI Studio API key — required for all chat agents.",
+        description="Google AI Studio API key — optional fallback.",
     )
-    # Phase 4 model choice — Gemma-4 for text, Gemini-2.5 for multimodal/tools.
-    # NOTE: Gemma models do NOT support image/audio/PDF inputs or function-
-    # calling. The multimodal handler (`agents/gemini_chat.py`) hard-pins
-    # `gemini-2.5-flash` for those paths regardless of these defaults so the
-    # full Phase-4 feature set (audio, PDFs, tool calls) keeps working.
     GEMINI_PRO_MODEL: str = Field(
         default="gemma-4-26b-a4b-it",
         description="Default LLM for the LangGraph text agents (Gemma-4).",
@@ -170,8 +179,8 @@ class Settings(BaseSettings):
         Note: TAVILY_API_KEY is excluded — Touri runs in pure offline RAG mode.
         """
         missing: list[str] = []
-        if not self.GEMINI_API_KEY:
-            missing.append("GEMINI_API_KEY")
+        if not self.MISTRAL_API_KEY:
+            missing.append("MISTRAL_API_KEY")
         # TAVILY_API_KEY intentionally excluded — bypassed in offline RAG mode.
         if not self.FIREBASE_CREDENTIALS_PATH:
             missing.append("FIREBASE_CREDENTIALS_PATH")

@@ -20,7 +20,7 @@ from typing import Any, Dict
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from agents.llm import get_llm, lang_directive, t, safe_extract_text, clean_response
+from agents.llm import ainvoke_with_retry, lang_directive, t, safe_extract_text, clean_response
 from agents.state import AgentState, make_step
 from rag.vector_store import query as rag_query
 # BYPASSED: Tavily web search disabled for pure offline RAG mode.
@@ -32,27 +32,26 @@ logger = logging.getLogger(__name__)
 # ── Fallback pricing heuristics (offline mode) ──────────────────────────────
 _BUDGET_HEURISTICS = {
     "economy": {
-        "flights_per_person": 350,
         "accommodation_per_night": 40,
         "meals_per_day": 20,
         "activities_per_day": 15,
-        "transport_per_day": 10,
+        "local_transport_per_day": 10,
     },
     "mid_range": {
-        "flights_per_person": 550,
         "accommodation_per_night": 90,
         "meals_per_day": 45,
         "activities_per_day": 30,
-        "transport_per_day": 20,
+        "local_transport_per_day": 20,
     },
     "luxury": {
-        "flights_per_person": 900,
         "accommodation_per_night": 200,
         "meals_per_day": 80,
         "activities_per_day": 60,
-        "transport_per_day": 40,
+        "local_transport_per_day": 40,
     },
 }
+
+_TRANSPORT_OPTIONS = ["uber", "train", "bus", "private_car", "walking"]
 
 
 # ── Prompts ──────────────────────────────────────────────────────────────────
@@ -91,19 +90,21 @@ Return a JSON object with this exact shape (no commentary):
   "people": <int travellers>,
   "currency": "USD",
   "breakdown": {{
-    "flights": <int>,
     "accommodation": <int>,
     "meals": <int>,
     "activities": <int>,
     "local_transport": <int>
   }},
+  "transport_options": ["uber", "train", "bus", "private_car", "walking"],
   "total_usd": <int>,
   "per_person_usd": <int>,
-  "summary_message": "<friendly 2-3 sentence rundown>"
+  "summary_message": "<friendly 2-3 sentence rundown mentioning local transport options>"
 }}
 
 Rules:
 - Every cost is in whole-number USD.
+- Do NOT include a flights line item — this app covers domestic Egypt travel only.
+- local_transport covers Uber, taxis, trains, buses, and private cars within Egypt.
 - Prefer prices visible in the ChromaDB contexts above; use heuristic baselines only when no source data exists.
 - Reference approximate EGP→USD rate of 1 USD ≈ 50 EGP in summary_message.
 - Do NOT use markdown bold asterisks in summary_message. Use plain text only.
@@ -145,19 +146,21 @@ _BUDGET_PROMPT_AR = """\
   "people": <عدد المسافرين>,
   "currency": "USD",
   "breakdown": {{
-    "flights": <عدد>,
     "accommodation": <عدد>,
     "meals": <عدد>,
     "activities": <عدد>,
     "local_transport": <عدد>
   }},
+  "transport_options": ["uber", "train", "bus", "private_car", "walking"],
   "total_usd": <عدد>,
   "per_person_usd": <عدد>,
-  "summary_message": "<ملخص ودود من جملتين أو ثلاث>"
+  "summary_message": "<ملخص ودود من جملتين أو ثلاث مع ذكر خيارات النقل المحلي>"
 }}
 
 شروط:
 - جميع التكاليف بالدولار الأمريكي وأرقام صحيحة.
+- لا تُدرج تكاليف رحلات الطيران — هذا التطبيق مخصص للسياحة المحلية داخل مصر فقط.
+- local_transport يشمل أوبر والتاكسي والقطار والحافلات والسيارات الخاصة.
 - استخدم الأسعار الموجودة في سياق ChromaDB قدر الإمكان، واستخدم النماذج الاحتياطية فقط عند الضرورة.
 - اذكر سعر صرف تقريبي 1 دولار ≈ 50 جنيه مصري ضمن summary_message.
 - لا تستخدم نجوم markdown في summary_message. استخدم نص عادي فقط.
@@ -243,7 +246,6 @@ async def calculate(state: AgentState) -> AgentState:
     heuristics_text = f"Budget bracket: {bracket}\n{heuristics_text}"
 
     # 4. Compose breakdown via Gemini (no live web data)
-    llm = get_llm(temperature=0.2, streaming=False)
     template = _BUDGET_PROMPT_AR if language == "ar" else _BUDGET_PROMPT_EN
     memory_ctx = state.get("memory_context", "")
     memory_block = f"Conversation memory & preferences:\n{memory_ctx}" if memory_ctx else ""
@@ -255,13 +257,23 @@ async def calculate(state: AgentState) -> AgentState:
         transport=transport_text or t(language, "(no local transport data)", "(لا توجد بيانات نقل محلية)"),
         heuristics=heuristics_text,
     )
-    resp = await llm.ainvoke(
-        [SystemMessage(content=lang_directive(language)), HumanMessage(content=user_prompt)]
+    resp = await ainvoke_with_retry(
+        [SystemMessage(content=lang_directive(language)), HumanMessage(content=user_prompt)],
+        temperature=0.2,
+        streaming=False,
     )
     raw = safe_extract_text(resp.content)
     parsed = _extract_json(raw)
 
     if parsed:
+        # Backward-compat: fold any legacy `flights` key into local_transport silently
+        breakdown = parsed.get("breakdown") or {}
+        if "flights" in breakdown:
+            breakdown["local_transport"] = breakdown.get("local_transport", 0) + breakdown.pop("flights")
+            parsed["breakdown"] = breakdown
+        # Ensure transport_options is always present
+        if "transport_options" not in parsed:
+            parsed["transport_options"] = _TRANSPORT_OPTIONS
         budget_data = {k: v for k, v in parsed.items() if k != "summary_message"}
         state["budget_breakdown"] = budget_data
 

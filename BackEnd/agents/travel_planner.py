@@ -17,7 +17,7 @@ from typing import Any, Dict, List
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from agents.llm import get_llm, lang_directive, t, safe_extract_text, clean_response
+from agents.llm import ainvoke_with_retry, lang_directive, t, safe_extract_text, clean_response
 from agents.state import AgentState, make_step
 from rag.vector_store import query as rag_query
 from services.personalization import PersonalizationEngine
@@ -90,7 +90,9 @@ Build a structured day-by-day itinerary as STRICT JSON with this shape:
           "emoji": "🏛️",
           "title": "<short>",
           "type": "attraction|restaurant|hotel|transport|medical",
-          "rating": null
+          "rating": null,
+          "cost": <estimated USD cost as integer, e.g. 15>,
+          "done": false
         }}
       ]
     }}
@@ -142,7 +144,9 @@ _PLANNER_PROMPT_AR = """\
           "emoji": "🏛️",
           "title": "<نشاط>",
           "type": "attraction|restaurant|hotel|transport|medical",
-          "rating": null
+          "rating": null,
+          "cost": <تكلفة تقديرية بالدولار كرقم صحيح>,
+          "done": false
         }}
       ]
     }}
@@ -258,7 +262,6 @@ async def plan(state: AgentState) -> AgentState:
     )
 
     # 2. Generate structured itinerary
-    llm = get_llm(temperature=0.4, streaming=False)
     template = _PLANNER_PROMPT_AR if language == "ar" else _PLANNER_PROMPT_EN
     memory_ctx = state.get("memory_context", "")
     memory_block = f"Conversation memory & preferences:\n{memory_ctx}" if memory_ctx else ""
@@ -277,8 +280,10 @@ async def plan(state: AgentState) -> AgentState:
             existing_plan=existing_json,
         )
         user_prompt += addendum
-    resp = await llm.ainvoke(
-        [SystemMessage(content=lang_directive(language)), HumanMessage(content=user_prompt)]
+    resp = await ainvoke_with_retry(
+        [SystemMessage(content=lang_directive(language)), HumanMessage(content=user_prompt)],
+        temperature=0.4,
+        streaming=False,
     )
     raw = safe_extract_text(resp.content)
     parsed = _extract_json(raw)

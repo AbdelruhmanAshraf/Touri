@@ -19,7 +19,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List, Optional
 
-from agents.llm import FAST_MODEL, get_llm, safe_extract_text, t
+from agents.llm import FAST_MODEL, ainvoke_with_retry, safe_extract_text, t
 from agents.state import AgentState, make_step
 from services.conversation_state import (
     ConversationState,
@@ -242,7 +242,6 @@ async def maybe_summarise(user_id: str, session_id: str) -> None:
         conversation_block = "\n".join(msg_text_parts[-_SUMMARY_TRIGGER:])
 
         # Use LLM to summarise
-        llm = get_llm(model=FAST_MODEL, temperature=0.1, streaming=False)
         from langchain_core.messages import HumanMessage, SystemMessage
 
         prompt = (
@@ -253,10 +252,15 @@ async def maybe_summarise(user_id: str, session_id: str) -> None:
             f"New messages:\n{conversation_block}"
         )
 
-        resp = await llm.ainvoke([
-            SystemMessage(content="You are a conversation summariser. Output only the summary, no commentary."),
-            HumanMessage(content=prompt),
-        ])
+        resp = await ainvoke_with_retry(
+            [
+                SystemMessage(content="You are a conversation summariser. Output only the summary, no commentary."),
+                HumanMessage(content=prompt),
+            ],
+            model=FAST_MODEL,
+            temperature=0.1,
+            streaming=False,
+        )
         summary_text = safe_extract_text(resp.content)
 
         # Extract key topics

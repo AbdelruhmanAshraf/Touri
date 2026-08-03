@@ -20,7 +20,7 @@ from typing import Any, Dict, List, Optional
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from agents.llm import get_llm, lang_directive, t, safe_extract_text, clean_response
+from agents.llm import ainvoke_with_retry, lang_directive, t, safe_extract_text, clean_response
 from agents.state import AgentState, make_step
 from memory.user_persona import UserPersona
 from rag.vector_store import query as rag_query
@@ -245,7 +245,6 @@ async def recommend(state: AgentState) -> AgentState:
         )
     )
 
-    llm = get_llm(temperature=0.5, streaming=False)
     template = _CONCIERGE_PROMPT_AR if language == "ar" else _CONCIERGE_PROMPT_EN
     memory_ctx = state.get("memory_context", "")
     memory_block = f"Conversation memory & preferences:\n{memory_ctx}" if memory_ctx else ""
@@ -256,8 +255,10 @@ async def recommend(state: AgentState) -> AgentState:
         context=context or t(language, "(no matches in local data)", "(لا توجد نتائج محلية)"),
         allergen_note=allergen_note,
     )
-    resp = await llm.ainvoke(
-        [SystemMessage(content=lang_directive(language)), HumanMessage(content=user_prompt)]
+    resp = await ainvoke_with_retry(
+        [SystemMessage(content=lang_directive(language)), HumanMessage(content=user_prompt)],
+        temperature=0.5,
+        streaming=False,
     )
     raw_output = safe_extract_text(resp.content)
 

@@ -11,6 +11,7 @@ import { Feather, FontAwesome } from '@expo/vector-icons';
 import { api, getOrCreateUserId, setIntake, type IntakeData } from '@/services/api';
 import { applyLanguage } from '@/i18n';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 import { prefetchDestinationImages, DESTINATION_WIKI_TITLES, getWikipediaImage } from '@/services/wikipedia';
 import { EGYPT_GOVERNORATES, COUNTRY_CODE } from '@/constants/Governorates';
 import { SURFACE, BORDER_COLOR, PRIMARY, PRIMARY_DARK, MUTED, PLACEHOLDER, ERROR, RADIUS_SM, flatCard, flatInput } from '@/theme/tokens';
@@ -44,6 +45,7 @@ const STEPS = [
 export default function OnboardingScreen() {
   const router = useRouter();
   const { user, isAuthed, isGuest, continueAsGuest, signInWithGoogle, signInWithEmail, signUpWithEmail, notConfigured } = useAuth();
+  const { onboardingCompleted, markOnboardingComplete } = useProfile(user ?? null);
 
   // If user is already authenticated, skip auth step (step 0) → start at step 1
   const initialStep = isAuthed ? 1 : 0;
@@ -73,24 +75,17 @@ export default function OnboardingScreen() {
   // When user authenticates at step 0, check if they already have a persona.
   // Existing users (signin) → go straight to app. New users (signup) → continue onboarding.
   useEffect(() => {
-    if (isAuthed && step === 0) {
-      const checkAndRoute = async () => {
-        try {
-          const uid = user?.uid ?? (await getOrCreateUserId());
-          const p = await api.getPersona(uid).catch(() => null);
-          if (p?.preferred_destination) {
-            router.replace('/(tabs)');
-            return;
-          }
-        } catch {
-          /* continue to onboarding if check fails */
-        }
-        setDirection('right');
-        setStep(1);
-      };
-      checkAndRoute();
+    // Already onboarded users who land here (e.g. deep-link edge case) → go to tabs
+    if (isAuthed && onboardingCompleted === true) {
+      router.replace('/(tabs)');
+      return;
     }
-  }, [isAuthed, step]);
+    // Newly-authed users: skip auth step → move to preferences
+    if (isAuthed && step === 0) {
+      setDirection('right');
+      setStep(1);
+    }
+  }, [isAuthed, onboardingCompleted, step]);
 
   // Animation
   const opacity = useRef(new Animated.Value(1)).current;
@@ -156,6 +151,7 @@ export default function OnboardingScreen() {
         }).catch((e) => console.warn('[onboarding] persona sync failed:', e?.message ?? e));
       } catch (e) { console.warn('[onboarding] failed to persist intake:', e); }
       await applyLanguage(persona.language as 'ar' | 'en');
+      await markOnboardingComplete();
       router.replace('/(tabs)');
     }
   };

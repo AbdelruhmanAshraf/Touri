@@ -22,7 +22,7 @@ from typing import List, Optional
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from agents.llm import FAST_MODEL, get_llm, lang_directive, t, safe_extract_text, detect_language
+from agents.llm import FAST_MODEL, ainvoke_with_retry, lang_directive, t, safe_extract_text, detect_language
 from agents.state import AgentState, Intent, make_step
 from memory.firebase_client import is_ready as firebase_ready
 from memory.user_persona import UserPersona, get_or_create_persona
@@ -116,15 +116,17 @@ def _build_persona_context(persona: Optional[UserPersona]) -> str:
 
 
 async def _llm_intent(message: str, language: str, persona: Optional[UserPersona] = None) -> Intent:
-    llm = get_llm(model=FAST_MODEL, temperature=0.0, streaming=False)
     persona_context = _build_persona_context(persona)
     prompt = (_INTENT_PROMPT_AR if language == "ar" else _INTENT_PROMPT_EN).format(
         message=message,
         persona_context=persona_context,
     )
     try:
-        resp = await llm.ainvoke(
-            [SystemMessage(content=lang_directive(language)), HumanMessage(content=prompt)]
+        resp = await ainvoke_with_retry(
+            [SystemMessage(content=lang_directive(language)), HumanMessage(content=prompt)],
+            model=FAST_MODEL,
+            temperature=0.0,
+            streaming=False,
         )
         raw = safe_extract_text(resp.content)
         match = re.search(r"\{.*\}", raw, re.DOTALL)
@@ -185,23 +187,29 @@ def _detect_gaps(
     message: str,
     persona: Optional[UserPersona],
     intent: Intent,
+    known_fields: Optional[dict] = None,
 ) -> List[str]:
     """Return a list of missing info keys for the given intent.
 
-    Cross-references: message text, persona profile, and stored travel preferences.
+    Cross-references: message text, persona profile, stored travel preferences,
+    and the memory-enforcer's known_fields so we never re-ask what we already know.
     """
     if intent not in ("trip_planning", "budget_query"):
         return []
 
+    known = known_fields or {}
     gaps: List[str] = []
 
     has_destination = bool(
-        _extract_destination_from_msg(message)
+        "destination" in known
+        or _extract_destination_from_msg(message)
         or (persona and persona.preferred_destination)
     )
-    has_duration = bool(_extract_duration_from_msg(message))
-    has_budget = bool(persona and persona.budget_bracket)
-    has_party = bool(persona and persona.party_size and persona.party_size > 0)
+    # Only require duration if we truly have no signal from memory or message
+    has_duration = bool(
+        "trip_duration" in known
+        or _extract_duration_from_msg(message)
+    )
 
     if not has_destination:
         gaps.append("destination")
@@ -381,12 +389,14 @@ async def route(state: AgentState) -> AgentState:
         except Exception:
             travel_prefs = None
 
+    known_fields = state.get("known_fields") or {}
     gaps = detect_missing_fields(
         message=message,
         persona=persona,
         travel_prefs=travel_prefs,
         chat_history=state.get("chat_history", []),
         intent=intent,
+        known_fields=known_fields,
     )
 
     # Update conversation state requirements tracking

@@ -180,20 +180,23 @@ for _ip in _get_local_ips():
 
 if IS_PRODUCTION:
     _allowed_origins = _PRODUCTION_ORIGINS
+    _allowed_headers = ["Authorization", "Content-Type", "X-Requested-With", "Accept"]
 else:
-    # In development, allow configured origins OR dev defaults
+    # In development, allow all origins/headers when explicitly configured as "*".
     _configured = settings.CORS_ORIGINS
     if _configured == ["*"]:
-        _allowed_origins = _DEV_ORIGINS
+        _allowed_origins = ["*"]
+        _allowed_headers = ["*"]
     else:
         _allowed_origins = _configured
+        _allowed_headers = ["Authorization", "Content-Type", "X-Requested-With", "Accept"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-Requested-With", "Accept"],
+    allow_headers=_allowed_headers,
     max_age=600,
 )
 

@@ -182,14 +182,19 @@ async def save_message(
             db.collection("users").document(user_id)
             .collection("chats").document(session_id)
         )
+        session_doc = session_ref.get()
         session_update = {
             "last_active": ts,
             "session_id": session_id,
             "message_count": Increment(1),
             "last_message_preview": content[:100],
         }
-        if not session_ref.get().exists:
+        if not session_doc.exists:
             session_update["created_at"] = ts
+            # Auto-generate title from the first user message (max 60 chars)
+            if role == "user" and content.strip():
+                raw_title = content.strip()[:60]
+                session_update["title"] = raw_title + ("..." if len(content.strip()) > 60 else "")
         session_ref.set(session_update, merge=True)
 
         return True
@@ -721,6 +726,53 @@ async def cleanup_stale_sessions(user_id: str, max_age_days: int = _SESSION_STAL
         return 0
 
 
+async def rename_session(user_id: str, session_id: str, new_title: str) -> bool:
+    """Rename a chat session (updates the title field)."""
+    if not firebase_ready():
+        return False
+    try:
+        db = get_db()
+        (
+            db.collection("users").document(user_id)
+            .collection("chats").document(session_id)
+            .set({"title": new_title[:120], "updated_at": _now_iso()}, merge=True)
+        )
+        return True
+    except Exception as exc:
+        logger.warning("[memory_service] rename_session failed: %s", exc)
+        return False
+
+
+async def delete_session(user_id: str, session_id: str) -> bool:
+    """Delete a chat session and all its messages (cascade, batched)."""
+    if not firebase_ready():
+        return False
+    try:
+        db = get_db()
+        session_ref = (
+            db.collection("users").document(user_id)
+            .collection("chats").document(session_id)
+        )
+        # Cascade-delete messages in batches of 400
+        while True:
+            msgs = (
+                session_ref.collection("messages")
+                .limit(400)
+                .get()
+            )
+            if not msgs:
+                break
+            batch = db.batch()
+            for msg in msgs:
+                batch.delete(msg.reference)
+            batch.commit()
+        session_ref.delete()
+        return True
+    except Exception as exc:
+        logger.warning("[memory_service] delete_session failed: %s", exc)
+        return False
+
+
 __all__ = [
     "TravelPreferences",
     "ChatMessageDoc",
@@ -739,4 +791,6 @@ __all__ = [
     "extract_preferences_from_message",
     "save_generated_plan",
     "cleanup_stale_sessions",
+    "rename_session",
+    "delete_session",
 ]

@@ -1,43 +1,22 @@
-import { useState, useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 import { Redirect } from 'expo-router';
-import { api, getOrCreateUserId } from '@/services/api';
 
 /**
  * Entry point — decides where to send the user:
- *   • Not authenticated → /onboarding (starts with sign-in/up)
- *   • Authenticated + has persona → /(tabs)
- *   • Authenticated + no persona → /onboarding (skips auth step)
+ *   • Not authenticated → /onboarding (sign-in/up screen)
+ *   • Authenticated + onboarding_completed === true → /(tabs)
+ *   • Authenticated + onboarding_completed !== true → /onboarding
+ *
+ * Route decision is instant when AsyncStorage cache is warm (returning users).
+ * For fresh installs Firestore is checked in the background by useProfile.
  */
 export default function EntryScreen() {
-  const { user, loading, isAuthed, isGuest } = useAuth();
+  const { user, loading } = useAuth();
+  const { onboardingCompleted } = useProfile(user ?? null);
 
-  const [checkingPersona, setCheckingPersona] = useState(false);
-  const [hasPersona, setHasPersona] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    if (isAuthed) {
-      let isMounted = true;
-      const checkPersona = async () => {
-        setCheckingPersona(true);
-        try {
-          const uid = user?.uid ?? (await getOrCreateUserId());
-          const p = await api.getPersona(uid);
-          if (isMounted) setHasPersona(!!p?.preferred_destination);
-        } catch {
-          if (isMounted) setHasPersona(false);
-        } finally {
-          if (isMounted) setCheckingPersona(false);
-        }
-      };
-      checkPersona();
-      return () => { isMounted = false; };
-    }
-  }, [isAuthed, user]);
-
-  // Still loading auth state
-  if (loading || checkingPersona) {
+  if (loading || onboardingCompleted === null) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#00A896" />
@@ -45,27 +24,15 @@ export default function EntryScreen() {
     );
   }
 
-  // Not authenticated at all → send to onboarding (which starts with sign-in/up)
-  if (!isAuthed) {
+  if (!user) {
     return <Redirect href="/onboarding" />;
   }
 
-  // Authenticated but no persona → onboarding (will skip auth step automatically)
-  if (hasPersona === false) {
-    return <Redirect href="/onboarding" />;
-  }
-
-  // Authenticated + has persona → main app
-  if (hasPersona === true) {
+  if (onboardingCompleted) {
     return <Redirect href="/(tabs)" />;
   }
 
-  // Still resolving
-  return (
-    <View style={styles.center}>
-      <ActivityIndicator size="large" color="#00A896" />
-    </View>
-  );
+  return <Redirect href="/onboarding" />;
 }
 
 const styles = StyleSheet.create({

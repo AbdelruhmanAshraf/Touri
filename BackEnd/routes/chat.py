@@ -29,7 +29,7 @@ from middleware.rate_limit import AI_CHAT_LIMIT, ONBOARDING_LIMIT, check_rate_li
 from middleware.output_sanitizer import sanitize_output, sanitize_agent_trace
 from middleware.ui_trigger_validator import strip_user_triggers, extract_and_validate_triggers
 
-from agents.gemini_chat import run_multimodal_chat, stream_gemini_chat
+from agents.mistral_chat import run_multimodal_chat, stream_mistral_chat
 from agents.graph import run_chat, stream_chat
 from agents.llm import FAST_MODEL, get_llm, lang_directive, clean_response
 from agents.state import AgentStep, ChatMessage, fresh_state
@@ -339,89 +339,6 @@ async def upsert_persona_route(
     return _persona_to_dict(merged)
 
 
-@router.websocket("/chat/ws")
-async def chat_websocket(websocket: WebSocket) -> None:
-    # Phase 12 WebSocket Streaming integration
-    # Also wires into Phase 13 Agent Execution Engine
-    from services.agent_execution_engine import ExecutionEngine, AgentExecutionState
-    from services.websocket_streamer import WebSocketStreamer
-    from services.offline_fallback import FallbackManager
-    import asyncio
-    
-    await websocket.accept()
-    streamer = WebSocketStreamer()
-    engine = ExecutionEngine()
-    fallback = FallbackManager()
-    
-    try:
-        while True:
-            data = await websocket.receive_json()
-            user_id = data.get("user_id")
-            message = data.get("message")
-            session_id = data.get("session_id", str(uuid.uuid4()))
-            
-            if not user_id or not message:
-                await websocket.send_json({"type": "error", "content": "Missing user_id or message"})
-                continue
-            
-            # Start streaming typing indicators
-            await websocket.send_json({"type": "typing_indicator", "status": "active"})
-            
-            # Setup State for Engine
-            state: AgentExecutionState = {
-                "question": message,
-                "context": {"user_id": user_id, "session_id": session_id},
-                "current_state": "processing",
-                "metadata": {},
-                "structured_response": None,
-                "ui_trigger": None,
-                "errors": []
-            }
-            
-            # Simulated Agent graph step invocation wrapped in Executor
-            async def _run_agent_simulation(st: AgentExecutionState) -> AgentExecutionState:
-                await asyncio.sleep(1) # simulate inference
-                # In real scenario, we use graph.py functions here
-                st["structured_response"] = {
-                    "destination": "Paris",
-                    "status": "success",
-                    "days": []
-                }
-                return st
-            
-            # We mock the executor wrapping real logic right now
-            # In Phase 13, ExecutionEngine handles sync wrapper, but for asyncio we could wrap
-            start_time = time.time()
-            try:
-                # Actually, ExecutionEngine.execute_with_recovery currently is synchronous, 
-                # we should adapt it or simulate
-                final_state = await _run_agent_simulation(state)
-                
-                # Yield progressive token if it was real text
-                await websocket.send_json({
-                    "type": "token_chunk",
-                    "content": "I'm generating an itinerary for you...",
-                    "metadata": {"latency": (time.time() - start_time) * 1000}
-                })
-                
-                if final_state.get("structured_response"):
-                    progressive = await streamer.stream_structured_object("TripPlan", final_state["structured_response"])
-                    await websocket.send_text(progressive)
-                    
-            except Exception as e:
-                # Phase 18 fallback on exception
-                fallback_data = fallback.get_fallback_itinerary("Unknown")
-                if fallback_data:
-                    fallback_msg = await streamer.stream_structured_object("TripPlan", fallback_data)
-                    await websocket.send_text(fallback_msg)
-                await websocket.send_json({"type": "error", "content": str(e)})
-
-            await websocket.send_json({"type": "typing_indicator", "status": "inactive"})
-            await websocket.send_json({"type": "message_complete", "session_id": session_id})
-            
-    except WebSocketDisconnect:
-        logger.info("WebSocket disconnected")
-        
 @router.delete("/user/{uid}/persona")
 async def delete_persona_route(
     uid: str = Path(..., min_length=1),
@@ -594,6 +511,130 @@ async def get_session_messages_route(
     return {"session_id": sid, "messages": messages}
 
 
+class ActivityToggleRequest(BaseModel):
+    """Payload for PATCH /api/user/{uid}/trips/initial/activity."""
+    day_index: int
+    activity_index: int
+    done: bool
+
+
+@router.patch("/user/{uid}/trips/initial/activity")
+async def toggle_activity_route(
+    payload: ActivityToggleRequest,
+    uid: str = Path(..., min_length=1),
+    current_user_id: str = Depends(get_current_user),
+) -> Dict[str, Any]:
+    """
+    Atomically toggle one activity's done flag and recompute remaining_budget.
+    Reads the current doc, applies the delta, writes back in a single set().
+    """
+    _require_firebase()
+    if uid != current_user_id:
+        raise HTTPException(status_code=403, detail="Forbidden: cannot modify another user's trips.")
+    try:
+        db = get_db()
+        doc_ref = db.collection("users").document(uid).collection("trips").document("initial")
+        snap = doc_ref.get()
+        if not snap.exists:
+            raise HTTPException(status_code=404, detail="Trip not found.")
+
+        data = snap.to_dict() or {}
+        itinerary = data.get("itinerary") or {}
+        days = itinerary.get("days") or []
+        budget = data.get("budget_breakdown") or {}
+
+        day_idx = payload.day_index
+        act_idx = payload.activity_index
+        if day_idx < 0 or day_idx >= len(days):
+            raise HTTPException(status_code=422, detail="day_index out of range.")
+        activities = days[day_idx].get("activities") or []
+        if act_idx < 0 or act_idx >= len(activities):
+            raise HTTPException(status_code=422, detail="activity_index out of range.")
+
+        activity = dict(activities[act_idx])
+        cost = float(activity.get("cost") or 0)
+        was_done = bool(activity.get("done", False))
+        activity["done"] = payload.done
+
+        # Recompute remaining_budget
+        total_usd = budget.get("total_usd")
+        remaining = budget.get("remaining_budget")
+        if total_usd is not None:
+            if remaining is None:
+                remaining = total_usd
+            if payload.done and not was_done:
+                remaining = max(0, remaining - cost)
+            elif not payload.done and was_done:
+                remaining = min(total_usd, remaining + cost)
+            budget["remaining_budget"] = remaining
+
+        activities[act_idx] = activity
+        days[day_idx]["activities"] = activities
+        itinerary["days"] = days
+
+        doc_ref.set(
+            {
+                "itinerary": itinerary,
+                "budget_breakdown": budget,
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            },
+            merge=True,
+        )
+        return {
+            "updated": True,
+            "done": payload.done,
+            "remaining_budget": budget.get("remaining_budget"),
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error("[trips] toggle_activity failed for uid=%s: %s", uid, exc)
+        raise HTTPException(status_code=500, detail="Failed to toggle activity.")
+
+
+class SessionPatch(BaseModel):
+    """Payload for PATCH /api/user/{uid}/sessions/{sid} — rename."""
+    title: str
+
+
+@router.patch("/user/{uid}/sessions/{sid}")
+async def rename_session_route(
+    payload: SessionPatch,
+    uid: str = Path(..., min_length=1),
+    sid: str = Path(..., min_length=1),
+    current_user_id: str = Depends(get_current_user),
+) -> Dict[str, Any]:
+    """Rename a chat session."""
+    _require_firebase()
+    if uid != current_user_id:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+    title = payload.title.strip()[:120]
+    if not title:
+        raise HTTPException(status_code=422, detail="title must not be blank.")
+    from services.memory_service import rename_session
+    ok = await rename_session(uid, sid, title)
+    if not ok:
+        raise HTTPException(status_code=500, detail="Failed to rename session.")
+    return {"session_id": sid, "title": title, "renamed": True}
+
+
+@router.delete("/user/{uid}/sessions/{sid}")
+async def delete_session_route(
+    uid: str = Path(..., min_length=1),
+    sid: str = Path(..., min_length=1),
+    current_user_id: str = Depends(get_current_user),
+) -> Dict[str, Any]:
+    """Delete a chat session and all its messages."""
+    _require_firebase()
+    if uid != current_user_id:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+    from services.memory_service import delete_session
+    ok = await delete_session(uid, sid)
+    if not ok:
+        raise HTTPException(status_code=500, detail="Failed to delete session.")
+    return {"session_id": sid, "deleted": True}
+
+
 # ── WebSocket: connection tracking & limits ───────────────────────────────────
 _ws_connections: Dict[str, int] = collections.defaultdict(int)
 _WS_MAX_CONNECTIONS_PER_USER = 5
@@ -731,18 +772,18 @@ async def chat_ws(websocket: WebSocket) -> None:
                 {"type": "status", "phase": "thinking", "session_id": session_id}
             )
 
-            # ── Path A: native Gemini streaming (multimodal OR fast text) ──
+            # ── Path A: native Mistral streaming (multimodal OR fast text) ──
             if is_multimodal or not use_graph:
                 response_text = ""
                 trace_steps: List[Dict[str, Any]] = []
                 final_payload: Optional[Dict[str, Any]] = None
 
                 await websocket.send_json(
-                    {"type": "status", "phase": "streaming", "agent": "Gemini"}
+                    {"type": "status", "phase": "streaming", "agent": "Mistral"}
                 )
 
                 try:
-                    async for evt in stream_gemini_chat(
+                    async for evt in stream_mistral_chat(
                         user_id=user_id,
                         session_id=session_id,
                         text=message,
@@ -764,7 +805,7 @@ async def chat_ws(websocket: WebSocket) -> None:
                         elif kind == "final":
                             final_payload = evt
                 except Exception as exc:  # noqa: BLE001
-                    logger.error("[ws] gemini stream failed: %s", exc, exc_info=True)
+                    logger.error("[ws] mistral stream failed: %s", exc, exc_info=True)
                     await websocket.send_json({"type": "error", "message": "Failed to generate response. Please try again."})
                     continue
 
@@ -774,7 +815,7 @@ async def chat_ws(websocket: WebSocket) -> None:
                         "type": "final",
                         "session_id": session_id,
                         "message": final_text,
-                        "agent": (final_payload or {}).get("agent", "Gemini"),
+                        "agent": (final_payload or {}).get("agent", "Mistral"),
                         "intent": (final_payload or {}).get("intent", "general"),
                         "language": language,
                         "agent_trace": sanitize_agent_trace(trace_steps),
@@ -788,10 +829,12 @@ async def chat_ws(websocket: WebSocket) -> None:
                 continue
 
             # ── Path B: full LangGraph workflow with live streaming ─────────
-            try:
-                all_trace: List[Dict[str, Any]] = []
-                final_state: Dict[str, Any] = {}
+            # Wrap in a Task so WebSocketDisconnect mid-stream can cancel it,
+            # preventing wasted LLM token spend on abandoned clients.
+            all_trace: List[Dict[str, Any]] = []
+            final_state: Dict[str, Any] = {}
 
+            async def _run_graph_stream() -> None:
                 async for evt in stream_chat(
                     user_id=user_id,
                     session_id=session_id,
@@ -800,9 +843,7 @@ async def chat_ws(websocket: WebSocket) -> None:
                     chat_history=history_raw,
                 ):
                     evt_type = evt.get("type")
-
                     if evt_type == "node_start":
-                        # Stream the active agent node label to the UI
                         await websocket.send_json(
                             {
                                 "type": "status",
@@ -812,22 +853,34 @@ async def chat_ws(websocket: WebSocket) -> None:
                                 "node": evt.get("node", ""),
                             }
                         )
-
                     elif evt_type == "trace":
                         step = evt.get("step", {})
                         all_trace.append(step)
                         await websocket.send_json({"type": "trace", "step": step})
-
                     elif evt_type == "node_end":
-                        node_state = evt.get("state", {})
-                        final_state.update(node_state)
-
+                        final_state.update(evt.get("state", {}))
                     elif evt_type == "final":
                         final_state.update(evt.get("state", {}))
 
+            graph_task = asyncio.create_task(_run_graph_stream())
+            try:
+                await graph_task
+            except asyncio.CancelledError:
+                logger.info("[ws] graph task cancelled mid-stream (uid=%s)", user_id)
+                raise  # re-raise → caught by outer WebSocketDisconnect handler
+            except WebSocketDisconnect:
+                graph_task.cancel()
+                try:
+                    await graph_task
+                except (asyncio.CancelledError, Exception):
+                    pass
+                raise
             except Exception as exc:  # noqa: BLE001
                 logger.error("[ws] graph stream failed: %s", exc, exc_info=True)
-                await websocket.send_json({"type": "error", "message": "Failed to generate response. Please try again."})
+                try:
+                    await websocket.send_json({"type": "error", "message": "Failed to generate response. Please try again."})
+                except Exception:
+                    pass
                 continue
 
             # Re-stream the response text token-by-token for smooth UI

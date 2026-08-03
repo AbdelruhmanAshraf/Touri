@@ -106,9 +106,19 @@ service cloud.firestore {
         allow read: if isOwner(userId);
         allow write: if false; // Backend-only via Admin SDK
       }
+
+      // ── users/{userId}/profile/{docId} — onboarding completion flag ───────
+      match /profile/{docId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isOwner(userId)
+          && (!request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['user_id', 'created_at']));
+        allow delete: if false;
+      }
     }
 
-    // ── onboarding/{userId} — onboarding state ───────────────────────────
+    // ── onboarding/{userId} — onboarding state (legacy, keep for compat) ──
     match /onboarding/{userId} {
       allow read: if isOwner(userId);
       allow write: if isOwner(userId);

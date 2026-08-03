@@ -34,7 +34,12 @@ import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
-import { Audio } from 'expo-av';
+import {
+  useAudioRecorder,
+  AudioModule,
+  RecordingPresets,
+  setAudioModeAsync,
+} from 'expo-audio';
 
 import { Colors } from '@/constants/Colors';
 import { BG, SURFACE, BORDER_COLOR, PRIMARY, PRIMARY_DARK, PRIMARY_LIGHT, TEXT, MUTED, PLACEHOLDER, ERROR, RADIUS, RADIUS_XL, RADIUS_PILL } from '@/theme/tokens';
@@ -108,7 +113,8 @@ export default function ChatScreen() {
 
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const [isRecording, setIsRecording] = useState(false);
-  const recordingRef = useRef<Audio.Recording | null>(null);
+  // expo-audio hook-based recorder (replaces the imperative expo-av API).
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
 
   // ── Multi-select state for structured questions ──
   const [multiSelections, setMultiSelections] = useState<Record<string, Set<string>>>({});
@@ -137,6 +143,10 @@ export default function ChatScreen() {
   // *full* text on every chunk. This keeps markdown stripping correct even
   // when a `**` boundary spans two WebSocket tokens.
   const rawBufferRef = useRef<Record<string, string>>({});
+  // Tracks the in-flight WS stream so we can cancel it when the user sends again
+  const activeStreamRef = useRef<ReturnType<typeof openChatStream> | null>(null);
+  // Guards against double-send while a request is in-flight
+  const sendingRef = useRef(false);
 
   // ── Typing indicator animation ──
   const typingDots = useRef([
@@ -243,6 +253,10 @@ export default function ChatScreen() {
   };
 
   const startNewChat = async () => {
+    // Cancel any in-flight stream before resetting
+    activeStreamRef.current?.cancel();
+    activeStreamRef.current = null;
+    sendingRef.current = false;
     setDrawerOpen(false);
     const newSid = await resetSessionId();
     sessionIdRef.current = newSid;
@@ -369,13 +383,13 @@ export default function ChatScreen() {
     }
   };
 
-  // ── Audio recorder ────────────────────────────────────────────────────────
+  // ── Audio recorder (expo-audio) ───────────────────────────────────────────
   const toggleRecording = async () => {
     if (isRecording) {
       // Stop and attach the audio
       try {
-        await recordingRef.current?.stopAndUnloadAsync();
-        const uri = recordingRef.current?.getURI();
+        await audioRecorder.stop();
+        const uri = audioRecorder.uri;
         if (uri) {
           setPendingAttachments((prev) => [
             ...prev,
@@ -383,21 +397,18 @@ export default function ChatScreen() {
           ]);
         }
       } catch (e) { console.warn('[chat] stop recording error', e); }
-      recordingRef.current = null;
       setIsRecording(false);
     } else {
       // Start recording
       try {
-        const { status } = await Audio.requestPermissionsAsync();
-        if (status !== 'granted') {
+        const perm = await AudioModule.requestRecordingPermissionsAsync();
+        if (!perm.granted) {
           Alert.alert('Permission required', 'Microphone access is needed to record voice.');
           return;
         }
-        await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
-        const { recording } = await Audio.Recording.createAsync(
-          Audio.RecordingOptionsPresets.HIGH_QUALITY,
-        );
-        recordingRef.current = recording;
+        await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
+        await audioRecorder.prepareToRecordAsync();
+        audioRecorder.record();
         setIsRecording(true);
       } catch (e) { console.warn('[chat] start recording error', e); }
     }
@@ -409,7 +420,16 @@ export default function ChatScreen() {
   const send = async (overrideText?: string) => {
     const text = (overrideText ?? input).trim();
     // Allow sending with attachments only (no text), but never with neither.
-    if ((!text && pendingAttachments.length === 0) || streaming) return;
+    if (!text && pendingAttachments.length === 0) return;
+    // Hard guard: prevent double-send if a send is already in-flight
+    if (sendingRef.current) {
+      // Cancel the previous stream so the new message takes over
+      activeStreamRef.current?.cancel();
+      activeStreamRef.current = null;
+      sendingRef.current = false;
+      setStreaming(false);
+      setStatusText(null);
+    }
     if (guestLimitReached) {
       setErr(t('chat.guestEnded', { used: userMessageCount, limit: GUEST_LIMITS.maxChatMessagesPerSession }) ?? 'Guest preview ended.');
       return;
@@ -427,6 +447,7 @@ export default function ChatScreen() {
     setPendingAttachments([]);
     setActiveSuggestions([]);
     setStreaming(true);
+    sendingRef.current = true;
     setStatusText(t('chat.thinking'));
     setErr(null);
     setTrace([]);
@@ -444,29 +465,35 @@ export default function ChatScreen() {
       setTurns((prev) => prev.map((m) => (m.id === assistantTurnId ? { ...m, text: clean } : m)));
     };
 
-    let finalSeen = false;
-
     const stream = openChatStream({
       onStatus: (s) => {
         if (s.phase === 'thinking') {
-          const thinkingStages = [
-            isAr ? 'جاري التفكير...' : 'Thinking...',
-            isAr ? 'جاري التحليل...' : 'Analyzing...',
-          ];
-          setStatusText(thinkingStages[0]);
+          setStatusText(isAr ? 'جاري التفكير...' : 'Thinking...');
           setActiveAgent(null);
         }
         if (s.phase === 'streaming') {
+          const node = (s as any).node || '';
           const agentLabel = (s as any).agent || '';
           const statusMsg = (s as any).status_msg || '';
+          const phaseMap: Record<string, { en: string; ar: string }> = {
+            memory: { en: 'Loading profile...', ar: 'جاري تحميل ملفك...' },
+            enforcer: { en: 'Applying memory...', ar: 'جاري تطبيق الذاكرة...' },
+            router: { en: 'Analyzing request...', ar: 'جاري تحليل طلبك...' },
+            planner: { en: 'Building itinerary...', ar: 'جاري بناء خطتك...' },
+            budget: { en: 'Calculating costs...', ar: 'جاري حساب التكاليف...' },
+            concierge: { en: 'Finding recommendations...', ar: 'جاري البحث عن توصيات...' },
+            general: { en: 'Preparing response...', ar: 'جاري إعداد الرد...' },
+            needs_info: { en: 'Getting ready...', ar: 'جاري التحضير...' },
+          };
+          const mapped = node && phaseMap[node] ? (isAr ? phaseMap[node].ar : phaseMap[node].en) : null;
           setActiveAgent(agentLabel);
-          setStatusText(statusMsg || agentLabel || (isAr ? 'جاري الكتابة...' : 'Writing...'));
+          setStatusText(mapped || statusMsg || agentLabel || (isAr ? 'جاري الكتابة...' : 'Writing...'));
         }
       },
       onTrace: (step) => setTrace((prev) => [...prev, step]),
       onToken: appendToken,
       onFinal: async (final) => {
-        finalSeen = true;
+        sendingRef.current = false;
         setStatusText(null);
         setActiveAgent(null);
         setStreaming(false);
@@ -508,16 +535,25 @@ export default function ChatScreen() {
         }
 
         stream.close();
+        activeStreamRef.current = null;
         setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
       },
       onError: (msg) => {
+        sendingRef.current = false;
         setErr(msg);
         setStreaming(false);
         setStatusText(null);
         stream.close();
+        activeStreamRef.current = null;
       },
-      onClose: () => { if (!finalSeen) setStreaming(false); },
+      onClose: () => {
+        if (!stream.finalSeen) {
+          sendingRef.current = false;
+          setStreaming(false);
+        }
+      },
     });
+    activeStreamRef.current = stream;
 
     // Encode all attachments to base64 before sending (parallel for speed).
     const encoded: MultimodalPart[] = [];
@@ -537,8 +573,12 @@ export default function ChatScreen() {
         use_graph: !hasMultimodal,
         ...(hasMultimodal ? { type: 'multimodal', parts: encoded } : {}),
       });
-    } catch {
-      // WebSocket unavailable — degrade to single-shot REST.
+    } catch (wsErr: any) {
+      // WebSocket unavailable or timed-out — degrade to single-shot REST once.
+      // Guard: if WS already delivered a final event, skip REST to avoid double-final.
+      if (stream.finalSeen) return;
+      stream.cancel();
+      activeStreamRef.current = null;
       try {
         const res: ChatResponse = await api.chat({
           user_id: uid,
@@ -547,6 +587,8 @@ export default function ChatScreen() {
           language: isAr ? 'ar' : 'en',
           ...(hasMultimodal ? { type: 'multimodal', parts: encoded } : {}),
         });
+        // Mark final seen so the WS onFinal (if it ever fires) is ignored
+        stream.setFinalSeen();
         const { cleanText, trigger } = parseUiTrigger(stripMarkdown(res.message));
         setTurns((prev) =>
           prev.map((m) =>
@@ -557,9 +599,8 @@ export default function ChatScreen() {
         );
         setTrace(res.agent_trace || []);
         setActiveSuggestions(res.suggestions ?? []);
-        if (trigger) {
-          setConfirmModal({ visible: true, type: trigger.type, data: trigger.payload });
-        }
+        if (res.requirements_status) setReqStatus(res.requirements_status as RequirementsStatus);
+        if (trigger) setConfirmModal({ visible: true, type: trigger.type, data: trigger.payload });
         if (res.session_id && res.session_id !== sid) {
           sessionIdRef.current = res.session_id;
           await setSessionId(res.session_id);
@@ -574,8 +615,9 @@ export default function ChatScreen() {
           });
         }
       } catch (e: any) {
-        setErr(e?.message ?? 'Connection error');
+        setErr(e?.message ?? 'Connection error. Please try again.');
       } finally {
+        sendingRef.current = false;
         setStreaming(false);
         setStatusText(null);
       }
@@ -597,6 +639,10 @@ export default function ChatScreen() {
             if (sessionIdRef.current === sid) {
               await startNewChat();
             }
+            try {
+              const uid = userIdRef.current ?? (await getOrCreateUserId());
+              await api.deleteSession(uid, sid);
+            } catch { /* silent — local state already updated */ }
           },
         },
       ],
@@ -611,13 +657,18 @@ export default function ChatScreen() {
         { text: isAr ? 'إلغاء' : 'Cancel', style: 'cancel' },
         {
           text: isAr ? 'حفظ' : 'Save',
-          onPress: (newName?: string) => {
+          onPress: async (newName?: string) => {
             if (newName?.trim()) {
+              const trimmed = newName.trim();
               setChatSessions((prev) =>
                 prev.map((s) =>
-                  s.session_id === sid ? { ...s, destination: newName.trim() } : s,
+                  s.session_id === sid ? { ...s, destination: trimmed, title: trimmed } : s,
                 ),
               );
+              try {
+                const uid = userIdRef.current ?? (await getOrCreateUserId());
+                await api.renameSession(uid, sid, trimmed);
+              } catch { /* silent — local state already updated */ }
             }
           },
         },

@@ -16,8 +16,10 @@ Model target: **gemma-4-26b-a4b-it**
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
+import random
 import re as _re
 from functools import lru_cache
 from typing import Literal
@@ -26,8 +28,9 @@ from config import settings
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MODEL: str = os.environ.get("GEMINI_PRO_MODEL", "gemma-4-26b-a4b-it")
-FAST_MODEL: str = os.environ.get("GEMINI_FAST_MODEL", "gemma-4-26b-a4b-it")
+DEFAULT_MODEL: str = os.environ.get("MISTRAL_PRO_MODEL", "mistral-large-latest")
+FAST_MODEL: str = os.environ.get("MISTRAL_FAST_MODEL", "mistral-small-latest")
+FALLBACK_MODEL: str = os.environ.get("MISTRAL_FALLBACK_MODEL", "mistral-large-latest")
 DEFAULT_TEMPERATURE: float = 0.4
 
 Language = Literal["en", "ar"]
@@ -80,66 +83,110 @@ def get_llm(
     temperature: float = DEFAULT_TEMPERATURE,
     streaming: bool = True,
 ):
-    """Cached ChatGoogleGenerativeAI instance.
+    """Cached ChatMistralAI instance.
 
     The cache is keyed on (model, temperature, streaming) so each unique
     combination creates exactly one client object for the process lifetime.
     """
     try:
-        from langchain_google_genai import ChatGoogleGenerativeAI
+        from langchain_mistralai import ChatMistralAI
     except ImportError as exc:
         raise RuntimeError(
-            "langchain-google-genai is not installed. "
-            "Run: pip install langchain-google-genai"
+            "langchain-mistralai is not installed. "
+            "Run: pip install langchain-mistralai"
         ) from exc
 
-    api_key = settings.GEMINI_API_KEY
+    api_key = settings.MISTRAL_API_KEY
     if not api_key:
         raise RuntimeError(
-            "GEMINI_API_KEY is not configured (see backend/.env)."
+            "MISTRAL_API_KEY is not configured (see backend/.env)."
         )
 
-    return ChatGoogleGenerativeAI(
+    return ChatMistralAI(
         model=model,
         temperature=temperature,
-        google_api_key=api_key,
+        api_key=api_key,
         streaming=streaming,
     )
 
 
-# ── Native Google GenAI SDK model (for streaming / direct calls) ──────────────
-@lru_cache(maxsize=4)
-def get_gemini_model(
+def _is_transient_error(exc: Exception) -> bool:
+    text = str(exc).lower()
+    return any(
+        token in text
+        for token in (
+            "internal",
+            "500",
+            "502",
+            "503",
+            "504",
+            "timeout",
+            "unavailable",
+            "deadline",
+            "rate",
+            "quota",
+        )
+    )
+
+
+async def ainvoke_with_retry(
+    messages: list[Any],
     *,
     model: str = DEFAULT_MODEL,
     temperature: float = DEFAULT_TEMPERATURE,
-):
+    streaming: bool = False,
+    max_retries: int = 2,
+    base_delay: float = 0.8,
+    fallback_model: str | None = FALLBACK_MODEL,
+) -> Any:
+    """Invoke the LLM with retries for transient server errors."""
+    llm = get_llm(model=model, temperature=temperature, streaming=streaming)
+    last_exc: Exception | None = None
+    for attempt in range(max_retries + 1):
+        try:
+            return await llm.ainvoke(messages)
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            if not _is_transient_error(exc) or attempt >= max_retries:
+                break
+            delay = min(8.0, base_delay * (2 ** attempt))
+            delay += random.uniform(0, 0.4)
+            logger.warning("[llm] transient error, retrying in %.2fs: %s", delay, exc)
+            await asyncio.sleep(delay)
+
+    if fallback_model and fallback_model != model and last_exc and _is_transient_error(last_exc):
+        logger.warning("[llm] falling back to model=%s after error: %s", fallback_model, last_exc)
+        fallback = get_llm(model=fallback_model, temperature=temperature, streaming=streaming)
+        return await fallback.ainvoke(messages)
+
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("LLM invocation failed without an exception.")
+
+
+# ── Native Mistral SDK model (for streaming / direct calls) ──────────────
+@lru_cache(maxsize=4)
+def get_mistral_client():
     """
-    Return a native ``google.generativeai.GenerativeModel`` configured with
-    the global system instruction. Used for direct ``generate_content`` and
-    ``generate_content_async(stream=True)`` calls.
+    Return a native ``mistralai.Mistral`` client.
     """
     try:
-        import google.generativeai as genai
+        from mistralai.client import Mistral
     except ImportError as exc:
         raise RuntimeError(
-            "google-generativeai is not installed. "
-            "Run: pip install google-generativeai"
+            "mistralai is not installed. "
+            "Run: pip install mistralai"
         ) from exc
 
-    api_key = settings.GEMINI_API_KEY
+    api_key = settings.MISTRAL_API_KEY
     if not api_key:
-        raise RuntimeError("GEMINI_API_KEY is not configured (see backend/.env).")
+        raise RuntimeError("MISTRAL_API_KEY is not configured (see backend/.env).")
 
-    genai.configure(api_key=api_key)
+    return Mistral(api_key=api_key)
 
-    return genai.GenerativeModel(
-        model_name=model,
-        system_instruction=GLOBAL_SYSTEM_INSTRUCTION,
-        generation_config=genai.GenerationConfig(
-            temperature=temperature,
-        ),
-    )
+
+# Keep legacy name for backward compatibility/graceful exports
+get_gemini_model = get_mistral_client
 
 
 async def generate_text(
@@ -149,9 +196,16 @@ async def generate_text(
     temperature: float = DEFAULT_TEMPERATURE,
 ) -> str:
     """One-shot text generation via the native SDK. Returns the text response."""
-    m = get_gemini_model(model=model, temperature=temperature)
-    response = await m.generate_content_async(prompt)
-    return response.text or ""
+    client = get_mistral_client()
+    response = await client.chat.complete_async(
+        model=model,
+        messages=[
+            {"role": "system", "content": GLOBAL_SYSTEM_INSTRUCTION},
+            {"role": "user", "content": prompt},
+        ],
+        temperature=temperature,
+    )
+    return response.choices[0].message.content or ""
 
 
 # ── Bilingual prompt helpers ─────────────────────────────────────────────────
@@ -269,7 +323,9 @@ __all__ = [
     "Language",
     "DEFAULT_MODEL",
     "FAST_MODEL",
+    "FALLBACK_MODEL",
     "GLOBAL_SYSTEM_INSTRUCTION",
+    "ainvoke_with_retry",
     "safe_extract_text",
     "clean_response",
 ]

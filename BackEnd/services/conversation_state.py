@@ -170,7 +170,8 @@ async def list_user_sessions(user_id: str, limit: int = 30) -> List[Dict[str, An
             data["session_id"] = doc.id
             results.append({
                 "session_id": doc.id,
-                "destination": data.get("destination", ""),
+                "destination": data.get("title") or data.get("destination", ""),
+                "title": data.get("title", ""),
                 "preview": data.get("last_message_preview", ""),
                 "last_active": data.get("last_active", ""),
                 "message_count": data.get("message_count", 0),

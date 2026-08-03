@@ -12,8 +12,8 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "^54",
+    "expo-audio": "~1.1.1",
     "expo-auth-session": "~7.0.11",
-    "expo-av": "~16.0.8",
     "expo-blur": "~15.0.8",
     "expo-constants": "~18.0.13",
     "expo-crypto": "~15.0.9",

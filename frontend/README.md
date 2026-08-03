@@ -1,83 +1,93 @@
-# Touri Mobile (Expo)
+# Touri Frontend Client (Expo)
 
-React Native + Expo Router client for the Touri FastAPI backend. Lives
-alongside the existing Vite web app at `../frontend`.
+This is the React Native + Expo Router client application for Touri. It interfaces with the FastAPI backend to provide discovery, chat streaming, interactive planning checklists, and a trace view of the backend AI agents.
 
-## Setup
+---
+
+## 🚀 Setup & Launch
+
+Ensure you have **Node.js 18+** installed.
 
 ```bash
-cd mobile
-cp .env.example .env             # then fill in OAuth client IDs
-npm install                       # or: pnpm install / bun install
-npm start                         # NOT `npx expo start` — see note below
+# 1. Navigate to the frontend directory
+cd frontend
+
+# 2. Configure environment variables
+cp .env.example .env
+# Fill in your Firebase web config credentials and target backend URL in .env
+
+# 3. Install packages
+npm install
+
+# 4. Start the Metro bundler
+npm start
 ```
 
-Press `i` for iOS simulator, `a` for Android, `w` for web, or scan the QR code with **Expo Go** on your phone.
+Press:
+*   `w` to run in a desktop web browser.
+*   `i` to launch in the iOS Simulator (requires Xcode).
+*   `a` to launch in the Android Emulator.
+*   Or scan the QR code in your terminal with the **Expo Go** app on your physical phone.
 
-> **Why `npm start` and not `npx expo start`?**
-> macOS's default per-process file descriptor limit (often 256) is too small for Metro's
-> file watcher and you'll see `EMFILE: too many open files, watch`. The `start` script
-> in `package.json` runs `ulimit -n 65536` first to raise the limit.
->
-> A more permanent fix is to install [watchman](https://facebook.github.io/watchman/):
+> **⚠️ Note for macOS users:**
+> The default per-process file descriptor limit on macOS can be too small for Metro's file watcher, causing `EMFILE: too many open files` errors.
+> The `npm start` script runs `ulimit -n 65536` first to prevent this. To solve this permanently, install watchman:
 > ```bash
-> brew install watchman              # if you have Homebrew
+> brew install watchman
 > ```
-> Metro picks it up automatically.
 
-### iOS Simulator
-`Press i` requires Xcode + an installed iOS Simulator runtime (Mac App Store → Xcode →
-Settings → Components). If you don't have it, just use `w` (web) or scan the QR with
-Expo Go on your phone.
+---
 
-### Backend on physical phone
-Your iPhone needs to reach the FastAPI server. Set `EXPO_PUBLIC_API_BASE_URL` to your
-Mac's LAN IP (not `localhost`):
+## 🌐 Environment Variables Configuration
 
-```
-EXPO_PUBLIC_API_BASE_URL=http://192.168.1.88:8000
-```
+Create a `.env` file using the keys outlined in `.env.example`:
 
-Run the backend with `--host 0.0.0.0` so it accepts LAN connections:
+| Variable | Purpose |
+|---|---|
+| `EXPO_PUBLIC_FIREBASE_*` | Firebase web config variables used by `config/firebaseConfig.ts` |
+| `EXPO_PUBLIC_GOOGLE_*_CLIENT_ID` | OAuth Client IDs for Web, iOS, and Android Google login flows |
+| `EXPO_PUBLIC_API_BASE_URL` | Base URL of the FastAPI backend (e.g. `http://localhost:8000`) |
 
-```bash
-cd ../BackEnd
-python3 -m uvicorn main:app --host 0.0.0.0 --port 8000
-```
+---
 
-## Environment
-
-All public env vars must be prefixed `EXPO_PUBLIC_` so Expo bundles them
-into the JS payload. See `.env.example`.
-
-| Var | Purpose |
-|-----|---------|
-| `EXPO_PUBLIC_FIREBASE_*` | Firebase web config — used by `config/firebaseConfig.ts` |
-| `EXPO_PUBLIC_GOOGLE_*_CLIENT_ID` | OAuth client IDs from Google Cloud Console (Web, iOS, Android) |
-| `EXPO_PUBLIC_API_BASE_URL` | FastAPI base URL (default `http://localhost:8000`) |
-
-## Structure
+## 📂 Project Structure
 
 ```
-mobile/
-├── app/                # expo-router screens
-│   ├── _layout.tsx     # Stack navigator + Firebase boot
-│   └── index.tsx       # Chat home screen + Google Sign-In gate
-├── config/
-│   └── firebaseConfig.ts   # Firebase init w/ AsyncStorage persistence
-├── hooks/
-│   └── useAuth.ts      # Firebase + expo-auth-session Google flow
-├── services/
-│   └── api.ts          # Typed FastAPI client
-├── app.json
-├── babel.config.js
-├── package.json
-└── tsconfig.json
+frontend/
+├── app/                  # Expo Router filesystem routing
+│   ├── (tabs)/           # Main tab bar routes (Home, Plan, Discover, Chat, Profile)
+│   ├── _layout.tsx       # Root layout, stack routing, and Firebase init
+│   ├── index.tsx         # Initial gate / authentication routing
+│   ├── onboarding.tsx    # 8-step user onboarding wizard
+│   ├── place.tsx         # Place detail modal sheet
+│   └── itinerary.tsx     # Legacy route redirect
+│
+├── components/           # Reusable UI components
+│   ├── AgentTracePanel.tsx  # Interactive visualizer for sub-agent hops
+│   ├── NotionAvatar.tsx  # Deterministic SVG Notion-style avatar generator
+│   ├── ScreenHeader.tsx  # Reusable flat header with RTL options
+│   └── TimelineItinerary.tsx # Day timeline rendering activities
+│
+├── config/               # Firebase setup
+│   └── firebaseConfig.ts # Firebase client and auth init
+│
+├── constants/            # Styling constants
+│   ├── Colors.ts         # Global app colors
+│   └── Governorates.ts   # List of 27 Egyptian governorates
+│
+├── hooks/                # React custom hooks
+│   ├── useAuth.ts        # Wraps Firebase + Google Auth Providers
+│   └── useProfile.ts     # Syncs onboarding flag with local cache & Firestore
+│
+├── i18n/                 # Localization configurations
+│   ├── locales/          # Localization JSON bundles (English and Arabic)
+│   └── index.ts          # i18next setup and soft RTL toggling
+│
+├── services/             # Core API clients
+│   ├── api.ts            # REST and WebSocket streams for chat
+│   ├── secureStore.ts    # Keychain/AsyncStorage wrapper
+│   └── wikipedia.ts      # Fetching destination header images
+│
+└── theme/                # Global styles
+    └── tokens.ts         # Tonal flat iOS-style layout tokens
 ```
-
-## Google Sign-In
-
-1. In Google Cloud Console → Credentials, create OAuth Client IDs for **Web**, **iOS**, **Android**.
-2. Set the iOS Bundle ID to `com.touri.app` and the Android package to `com.touri.app` (matches `app.json`).
-3. Paste the client IDs into `.env`.
-4. The `useAuth` hook in `hooks/useAuth.ts` handles the rest.

@@ -80,11 +80,13 @@ export type BudgetBreakdown = {
   people?: number;
   currency?: string;
   breakdown?: {
-    flights?: number;
     accommodation?: number;
     meals?: number;
     activities?: number;
     local_transport?: number;
+    transport_options?: string[];
+    /** @deprecated flights removed for domestic Egypt travel */
+    flights?: number;
   };
   total_usd?: number;
   per_person_usd?: number;
@@ -167,6 +169,7 @@ export type RequirementsStatus = {
 export type ChatSessionSummary = {
   session_id: string;
   destination: string;
+  title: string;
   preview: string;
   last_active: string;
   message_count: number;
@@ -227,9 +230,9 @@ export type CatalogItemType =
   | 'hotel'
   | 'restaurant'
   | 'transport'
-  | 'flight'
   | 'event'
-  | 'medical';
+  | 'medical'
+  | 'flight';
 
 export type CatalogCard = {
   id: string;
@@ -389,29 +392,64 @@ export async function clearSessionTokens(): Promise<void> {
 }
 
 // ── Fetch helper ──────────────────────────────────────────────────────────────
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+const REQUEST_TIMEOUT_MS = 25_000;
+const RETRY_STATUS = new Set([502, 503, 504]);
+
+async function request<T>(
+  path: string,
+  init?: RequestInit & { signal?: AbortSignal },
+  _retryCount = 0,
+): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...((init?.headers as Record<string, string> | undefined) ?? {}),
   };
 
-  // Attach the access token automatically when one is stored. Cookies are
-  // also honoured server-side via `credentials: 'include'`.
+  // Attach the access token automatically when one is stored.
   const token = await getAccessToken();
   if (token && !headers.Authorization) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    credentials: 'include',
-    ...init,
-    headers,
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`API ${res.status} ${res.statusText}: ${body}`);
+  // Per-request timeout via AbortController (merged with any caller-provided signal).
+  const timeoutCtrl = new AbortController();
+  const timerId = setTimeout(() => timeoutCtrl.abort(), REQUEST_TIMEOUT_MS);
+
+  const combinedSignal = init?.signal
+    ? (AbortSignal as any).any?.([init.signal, timeoutCtrl.signal]) ?? timeoutCtrl.signal
+    : timeoutCtrl.signal;
+
+  try {
+    const res = await fetch(`${API_BASE_URL}${path}`, {
+      credentials: 'include',
+      ...init,
+      headers,
+      signal: combinedSignal,
+    });
+    clearTimeout(timerId);
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      // Retry once on transient server errors
+      if (RETRY_STATUS.has(res.status) && _retryCount < 1) {
+        await new Promise((r) => setTimeout(r, 800));
+        return request<T>(path, init, _retryCount + 1);
+      }
+      throw new Error(`API ${res.status} ${res.statusText}: ${body}`);
+    }
+    return (await res.json()) as T;
+  } catch (err: any) {
+    clearTimeout(timerId);
+    if (err?.name === 'AbortError') {
+      throw new Error('Request timed out. Please check your connection and try again.');
+    }
+    // Retry once on network-level failures
+    if (_retryCount < 1 && !(err?.message?.includes('API '))) {
+      await new Promise((r) => setTimeout(r, 800));
+      return request<T>(path, init, _retryCount + 1);
+    }
+    throw err;
   }
-  return (await res.json()) as T;
 }
 
 export const api = {
@@ -449,6 +487,27 @@ export const api = {
   getSessionMessages: (uid: string, sid: string, limit: number = 50) =>
     request<{ session_id: string; messages: SessionMessage[] }>(
       `/api/user/${encodeURIComponent(uid)}/sessions/${encodeURIComponent(sid)}/messages?limit=${limit}`,
+    ),
+
+  toggleActivity: (uid: string, dayIndex: number, activityIndex: number, done: boolean) =>
+    request<{ updated: boolean; done: boolean; remaining_budget?: number }>(
+      `/api/user/${encodeURIComponent(uid)}/trips/initial/activity`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ day_index: dayIndex, activity_index: activityIndex, done }),
+      },
+    ),
+
+  renameSession: (uid: string, sid: string, title: string) =>
+    request<{ session_id: string; title: string; renamed: boolean }>(
+      `/api/user/${encodeURIComponent(uid)}/sessions/${encodeURIComponent(sid)}`,
+      { method: 'PATCH', body: JSON.stringify({ title }) },
+    ),
+
+  deleteSession: (uid: string, sid: string) =>
+    request<{ session_id: string; deleted: boolean }>(
+      `/api/user/${encodeURIComponent(uid)}/sessions/${encodeURIComponent(sid)}`,
+      { method: 'DELETE' },
     ),
 
   health: () =>
@@ -538,12 +597,19 @@ export type StreamHandlers = {
   onClose?: () => void;
 };
 
+/** Timeout before WS open attempt falls back to REST (ms). */
+const WS_OPEN_TIMEOUT_MS = 8_000;
+
 /**
  * Opens a WebSocket to /api/chat/ws and dispatches typed events to handlers.
- * Returns a small controller with ``send`` and ``close``.
+ * Falls back to REST if the connection does not open within WS_OPEN_TIMEOUT_MS.
+ * Returns a small controller with `send`, `close`, and `cancel`.
  */
 export function openChatStream(handlers: StreamHandlers) {
-  let ws: WebSocket | null = null;
+  let _ws: WebSocket | null = null;
+  let _cancelled = false;
+  let _finalSeen = false;
+
   const wsUrlPromise = (async () => {
     const token = await getAccessToken();
     const qs = token ? `?token=${encodeURIComponent(token)}` : '';
@@ -552,8 +618,11 @@ export function openChatStream(handlers: StreamHandlers) {
 
   const initPromise = (async () => {
     const url = await wsUrlPromise;
-    const activeWs = new WebSocket(url);
-    activeWs.onmessage = (ev) => {
+    const ws = new WebSocket(url);
+    _ws = ws;
+
+    ws.onmessage = (ev) => {
+      if (_cancelled) return;
       try {
         const data: WSEvent = JSON.parse(ev.data as string);
         switch (data.type) {
@@ -567,7 +636,10 @@ export function openChatStream(handlers: StreamHandlers) {
             handlers.onToken?.(data.content);
             break;
           case 'final':
-            handlers.onFinal?.(data);
+            if (!_finalSeen) {
+              _finalSeen = true;
+              handlers.onFinal?.(data);
+            }
             break;
           case 'error':
             handlers.onError?.(data.message);
@@ -577,32 +649,47 @@ export function openChatStream(handlers: StreamHandlers) {
         handlers.onError?.(String(e));
       }
     };
-    activeWs.onerror = () => handlers.onError?.('WebSocket error');
-    activeWs.onclose = () => handlers.onClose?.();
-    return activeWs;
+    ws.onerror = () => { if (!_cancelled) handlers.onError?.('WebSocket error'); };
+    ws.onclose = () => { if (!_cancelled) handlers.onClose?.(); };
+    return ws;
   })();
 
   return {
+    /** Whether a final event has been seen (used to guard REST fallback). */
+    get finalSeen() { return _finalSeen; },
+    /** Mark final as seen externally (REST fallback sets this). */
+    setFinalSeen() { _finalSeen = true; },
+
     send: (payload: ChatRequest) =>
       new Promise<void>((resolve, reject) => {
+        if (_cancelled) { reject(new Error('Stream cancelled')); return; }
+
         initPromise
-          .then((activeWs) => {
+          .then((ws) => {
+            if (_cancelled) { reject(new Error('Stream cancelled')); return; }
+
             const trySend = () => {
-              if (activeWs.readyState === WebSocket.OPEN) {
-                activeWs.send(JSON.stringify(payload));
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(payload));
                 resolve();
-              } else if (activeWs.readyState === WebSocket.CONNECTING) {
-                activeWs.addEventListener(
+              } else if (ws.readyState === WebSocket.CONNECTING) {
+                // WS open timeout — reject so caller falls back to REST
+                const timer = setTimeout(() => {
+                  reject(new Error('WS open timeout'));
+                }, WS_OPEN_TIMEOUT_MS);
+                ws.addEventListener(
                   'open',
                   () => {
-                    activeWs.send(JSON.stringify(payload));
+                    clearTimeout(timer);
+                    if (_cancelled) { reject(new Error('Stream cancelled')); return; }
+                    ws.send(JSON.stringify(payload));
                     resolve();
                   },
                   { once: true },
                 );
-                activeWs.addEventListener(
+                ws.addEventListener(
                   'error',
-                  () => reject(new Error('WS failed')),
+                  () => { clearTimeout(timer); reject(new Error('WS failed')); },
                   { once: true },
                 );
               } else {
@@ -613,8 +700,14 @@ export function openChatStream(handlers: StreamHandlers) {
           })
           .catch(reject);
       }),
+
+    cancel: () => {
+      _cancelled = true;
+      initPromise.then((ws) => { if (ws.readyState !== WebSocket.CLOSED) ws.close(); }).catch(() => {});
+    },
+
     close: () => {
-      initPromise.then((activeWs) => activeWs.close()).catch(() => {});
+      initPromise.then((ws) => { if (ws.readyState !== WebSocket.CLOSED) ws.close(); }).catch(() => {});
     },
   };
 }

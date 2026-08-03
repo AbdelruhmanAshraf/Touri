@@ -1,7 +1,7 @@
 """
-Gemini Function-Calling tools — Phase 4 strategic AI upgrades.
+Touri Function-Calling tools — AI agentic upgrades.
 
-These are the four "first-class" tools Gemini may invoke during a chat turn
+These are the four "first-class" tools agents may invoke during a chat turn
 to fetch real, grounded data instead of hallucinating answers:
 
     1. get_live_weather(city, date)
@@ -9,12 +9,8 @@ to fetch real, grounded data instead of hallucinating answers:
     3. search_live_flights_and_rates(origin, destination)
     4. update_user_persona_record(field, value)
 
-The tool schemas are declared in the Gemini-native ``function_declarations``
-shape and the Python implementations dispatch through ``execute_tool``.
-
-Tool calls only fire on the Gemini multimodal/tool-calling path
-(``backend/agents/gemini_chat.py``) which uses ``gemini-2.5-flash`` — Gemma
-text-only models do not support function calling.
+The tool schemas are declared in standard OpenAPI schema format and
+the Python implementations dispatch through ``execute_tool``.
 """
 
 from __future__ import annotations
@@ -26,7 +22,7 @@ from typing import Any, Awaitable, Callable, Dict, List, Optional
 logger = logging.getLogger(__name__)
 
 
-# ── Tool schemas (Gemini ``function_declarations`` payload) ──────────────────
+# ── Tool schemas (OpenAPI function definitions) ───────────────────────────
 TOOL_DECLARATIONS: List[Dict[str, Any]] = [
     {
         "name": "get_live_weather",

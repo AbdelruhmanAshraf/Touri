@@ -8,24 +8,17 @@
  */
 
 import { initializeApp, getApp, getApps, type FirebaseApp } from 'firebase/app';
-import {
-  initializeAuth,
-  getAuth,
-  getReactNativePersistence, // augmented in types/firebase-auth-rn.d.ts
-  GoogleAuthProvider,
-  signInWithCredential,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signInAnonymously as fbSignInAnonymously,
-  type Auth,
-} from 'firebase/auth';
+import * as fbAuth from 'firebase/auth';
 import {
   getFirestore,
   initializeFirestore,
   type Firestore,
 } from 'firebase/firestore';
+// import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+type Auth = fbAuth.Auth;
 
 // ── Env helpers ──────────────────────────────────────────────────────────────
 const env = (key: string, fallback = ''): string => {
@@ -52,39 +45,32 @@ export const app: FirebaseApp = getApps().length
   : initializeApp(firebaseConfig);
 
 // ── Auth (never throws) ──────────────────────────────────────────────────────
-// `getReactNativePersistence` is only present when the bundler resolves
-// `firebase/auth` via the "react-native" export condition (Metro does this
-// automatically; TypeScript does too thanks to `customConditions` in
-// expo/tsconfig.base). It's typed as defined, but at runtime in non-RN
-// environments (e.g. unit tests under Node) it may be undefined — so we still
-// guard with `typeof`.
 function tryInitAuth(): Auth {
-  const rnPersist: ((s: unknown) => unknown) | undefined =
-    getReactNativePersistence as unknown as
-      | ((s: unknown) => unknown)
-      | undefined;
+  const anyFb = fbAuth as any;
+  const getRNPersistence: ((s: unknown) => unknown) | undefined =
+    anyFb.getReactNativePersistence;
 
-  // Canonical RN path (firebase 12+ on Expo, async-storage v2).
-  if (typeof rnPersist === 'function') {
+  // Try the canonical RN path first (firebase 12+ on Expo).
+  if (typeof getRNPersistence === 'function') {
     try {
-      return initializeAuth(app, {
-        persistence: rnPersist(AsyncStorage) as never,
+      return fbAuth.initializeAuth(app, {
+        persistence: getRNPersistence(AsyncStorage) as never,
       });
     } catch {
-      /* fall through — likely Fast Refresh re-init */
+      /* fall through */
     }
   }
 
-  // Already-initialised (Fast Refresh re-runs the module).
+  // Try plain initializeAuth (memory-only persistence).
   try {
-    return getAuth(app);
+    return fbAuth.initializeAuth(app);
   } catch {
     /* fall through */
   }
 
-  // Memory-only fallback (will warn, but app still renders).
+  // Already-initialised (Fast Refresh).
   try {
-    return initializeAuth(app);
+    return fbAuth.getAuth(app);
   } catch {
     /* fall through */
   }
@@ -106,44 +92,39 @@ function tryInitAuth(): Auth {
 }
 
 export const auth: Auth = tryInitAuth();
+// export const db: Firestore = getFirestore(app);
+// initializeFirestore must only be called once
+// Fast Refresh في Expo ممكن يعيد التهيئة
+let db_: Firestore;
 
-// ── Firestore (RN/Expo-safe long-polling) ────────────────────────────────────
-// React Native's WebSocket implementation is unreliable for Firestore's
-// streaming protocol, which causes:
-//   "Could not reach Cloud Firestore backend. Backend didn't respond within 10 seconds."
-// `experimentalAutoDetectLongPolling` falls back to HTTP long-polling, which
-// works on every Expo target (iOS, Android, web, Expo Go, dev-client).
-function initDb(): Firestore {
-  try {
-    return initializeFirestore(app, {
-      experimentalAutoDetectLongPolling: true,
-    });
-  } catch {
-    // Already initialised (Fast Refresh) — just grab the existing instance.
-    return getFirestore(app);
-  }
+try {
+  db_ = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+  });
+} catch {
+  db_ = getFirestore(app);
 }
 
-export const db: Firestore = initDb();
+export const db: Firestore = db_;
 export const storage: FirebaseStorage = getStorage(app);
 
 // ── Google Sign-In ───────────────────────────────────────────────────────────
 export async function signInWithGoogleIdToken(idToken: string) {
-  const credential = GoogleAuthProvider.credential(idToken);
-  return signInWithCredential(auth, credential);
+  const credential = fbAuth.GoogleAuthProvider.credential(idToken);
+  return fbAuth.signInWithCredential(auth, credential);
 }
 
 // ── Email / Password ─────────────────────────────────────────────────────────
 export async function signInWithEmail(email: string, password: string) {
-  return signInWithEmailAndPassword(auth, email.trim(), password);
+  return fbAuth.signInWithEmailAndPassword(auth, email.trim(), password);
 }
 
 export async function signUpWithEmail(email: string, password: string) {
-  return createUserWithEmailAndPassword(auth, email.trim(), password);
+  return fbAuth.createUserWithEmailAndPassword(auth, email.trim(), password);
 }
 
 export async function signInAnonymously() {
-  return fbSignInAnonymously(auth);
+  return fbAuth.signInAnonymously(auth);
 }
 
 export default app;

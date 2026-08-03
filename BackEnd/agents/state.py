@@ -87,6 +87,10 @@ class AgentState(TypedDict, total=False):
     memory_context: str                # Formatted memory string for LLM prompt injection
     travel_preferences: Dict[str, Any] # Structured travel prefs from Firestore
 
+    # --- Memory enforcement (populated by memory_enforcer node) ---------------
+    known_fields: Dict[str, Any]       # Fields already known — agents MUST NOT re-ask these
+    missing_fields: List[str]          # Fields still unknown — only these may be asked
+
     # --- Structured questions (Phase 3: choice-based UI) ----------------------
     structured_questions: Optional[Dict[str, Any]]  # QuestionSet serialised for frontend
 
@@ -130,6 +134,8 @@ def fresh_state(
         "chat_history": list(chat_history or []),
         "memory_context": "",
         "travel_preferences": {},
+        "known_fields": {},
+        "missing_fields": [],
         "structured_questions": None,
         "conversation_state": None,
         "requirements_status": None,

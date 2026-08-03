@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import '@/config/firebaseConfig'; // ensure Firebase initialises at boot
 import '@/i18n'; // initialise i18next
@@ -27,7 +28,7 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <>
+    <SafeAreaProvider>
       <StatusBar style="auto" />
       <Stack screenOptions={{ headerTitleStyle: { fontWeight: '600' } }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -47,6 +48,6 @@ export default function RootLayout() {
           options={{ headerShown: false }}
         />
       </Stack>
-    </>
+    </SafeAreaProvider>
   );
 }

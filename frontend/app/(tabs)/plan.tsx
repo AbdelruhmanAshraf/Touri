@@ -165,14 +165,16 @@ export default function PlanScreen() {
 
     const updatedTrip = { ...trip, itinerary: newItinerary, budget_breakdown: newBudget };
     setTrip(updatedTrip);
-
     await saveLastTrip(updatedTrip);
+
     try {
       const uid = user?.uid ?? (await getOrCreateUserId());
-      await api.patchInitialTrip(uid, {
-        itinerary: newItinerary,
-        budget_breakdown: newBudget || undefined,
-      });
+      const res = await api.toggleActivity(uid, dayIdx, activityIdx, isDone);
+      if (res.remaining_budget != null && newBudget) {
+        const synced = { ...updatedTrip, budget_breakdown: { ...newBudget, remaining_budget: res.remaining_budget } };
+        setTrip(synced);
+        await saveLastTrip(synced);
+      }
     } catch (e) {
       console.error('Failed to sync checklist', e);
     }

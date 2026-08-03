@@ -27,7 +27,8 @@ from config import settings
 logger = logging.getLogger(__name__)
 
 # ── Type aliases ──────────────────────────────────────────────────────────────
-CatalogType = str  # "attraction" | "hotel" | "restaurant" | "transport" | "flight" | "event" | "medical"
+CatalogType = str  # "attraction" | "hotel" | "restaurant" | "transport" | "event" | "medical"
+_EXCLUDED_TYPES: frozenset[str] = frozenset({"flight"})  # Touri is domestic-only; flights are not surfaced
 
 
 @dataclass
@@ -411,7 +412,9 @@ def load_catalog() -> List[CatalogItem]:
                 logger.warning("[catalog] medical row %d failed: %s", idx, exc)
         logger.info("[catalog] loaded %d items from %s", len(df), medical_path.name)
 
-    logger.info("[catalog] total items: %d", len(items))
+    # Filter out excluded types (e.g. flight — app is domestic Egypt only)
+    items = [it for it in items if it.type not in _EXCLUDED_TYPES]
+    logger.info("[catalog] total items after filtering: %d", len(items))
     return items
 
 
