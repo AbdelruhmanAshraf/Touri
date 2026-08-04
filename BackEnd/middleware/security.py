@@ -127,6 +127,17 @@ class RequestTimeoutMiddleware(BaseHTTPMiddleware):
 def install_security_middleware(app: FastAPI) -> None:
     """Add all security middleware to the FastAPI app in correct order."""
     # Order matters: outermost middleware processes first
+    from fastapi.middleware.trustedhost import TrustedHostMiddleware
+    if IS_PRODUCTION:
+        app.add_middleware(
+            TrustedHostMiddleware,
+            allowed_hosts=["touri.app", "www.touri.app", "api.touri.app"],
+        )
+    else:
+        app.add_middleware(
+            TrustedHostMiddleware,
+            allowed_hosts=["*"],
+        )
     app.add_middleware(RequestTimeoutMiddleware)
     app.add_middleware(RequestSizeLimitMiddleware)
     app.add_middleware(SecurityHeadersMiddleware)

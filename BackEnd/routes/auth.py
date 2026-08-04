@@ -135,7 +135,8 @@ def _set_session_cookies(resp: Response, *, user_id: str, family_id: Optional[st
     # Track the latest token in this family
     _token_families[fid] = refresh_jti
 
-    common = {"httponly": True, "secure": True, "samesite": "lax", "path": "/"}
+    is_prod = (settings.TOURI_ENV or "production").lower() == "production"
+    common = {"httponly": True, "secure": is_prod, "samesite": "lax", "path": "/"}
     resp.set_cookie(ACCESS_COOKIE, access, max_age=ACCESS_TTL_SEC, **common)
     resp.set_cookie(REFRESH_COOKIE, refresh, max_age=REFRESH_TTL_SEC, **common)
     return {"access_token": access, "refresh_token": refresh}

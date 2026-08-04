@@ -28,10 +28,11 @@ from pydantic import BaseModel, Field
 from middleware.rate_limit import AI_CHAT_LIMIT, ONBOARDING_LIMIT, check_rate_limit_or_raise
 from middleware.output_sanitizer import sanitize_output, sanitize_agent_trace
 from middleware.ui_trigger_validator import strip_user_triggers, extract_and_validate_triggers
+from middleware.prompt_firewall import analyze_prompt
 
 from agents.mistral_chat import run_multimodal_chat, stream_mistral_chat
 from agents.graph import run_chat, stream_chat
-from agents.llm import FAST_MODEL, get_llm, lang_directive, clean_response
+from agents.llm import FAST_MODEL, get_llm, lang_directive, clean_response, t
 from agents.state import AgentStep, ChatMessage, fresh_state
 from memory.firebase_client import get_db, is_ready as firebase_ready
 from memory.user_persona import (
@@ -206,6 +207,40 @@ async def chat(
 
     # SECURITY: Strip any UI_TRIGGER injection from user messages
     req.message = strip_user_triggers(req.message)
+
+    # SECURITY: Prompt firewall check at entry point
+    firewall_result = analyze_prompt(req.message)
+    if firewall_result.blocked:
+        logger.warning("[chat] request blocked by prompt firewall: uid=%s", current_user_id)
+        return ChatResponse(
+            session_id=req.session_id or str(uuid.uuid4()),
+            message=t(
+                req.language,
+                "I'm here to help you plan your Egypt trip! Could you rephrase your question about travel, budget, or local recommendations?",
+                "أنا هنا لمساعدتك في التخطيط لرحلتك في مصر! هل يمكنك إعادة صياغة سؤالك حول السفر أو الميزانية أو التوصيات المحلية؟",
+            ),
+            agent="Travel Planner",
+            intent="general",
+            language=req.language,
+            agent_trace=[
+                {
+                    "agent": "Router",
+                    "action": "Input validation",
+                    "tool": "prompt_firewall",
+                    "reasoning": "Input was flagged by security filters. Returning safe travel guidance.",
+                    "result": "blocked",
+                    "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                }
+            ],
+            suggestions=[
+                t(req.language, "Plan a trip to Cairo", "خطط رحلة للقاهرة"),
+                t(req.language, "Best restaurants in Luxor", "أفضل المطاعم في الأقصر"),
+                t(req.language, "Budget for 5 days in Egypt", "ميزانية 5 أيام في مصر"),
+            ],
+        )
+
+    # Use sanitized prompt from firewall
+    req.message = firewall_result.sanitized_text
 
     if req.user_id != current_user_id:
         raise HTTPException(
@@ -757,6 +792,56 @@ async def chat_ws(websocket: WebSocket) -> None:
                 )
                 continue
 
+            # SECURITY: Prompt firewall check on WS incoming messages
+            firewall_result = analyze_prompt(message)
+            if firewall_result.blocked:
+                logger.warning("[ws] request blocked by prompt firewall: uid=%s", user_id)
+                await websocket.send_json(
+                    {"type": "status", "phase": "thinking", "session_id": session_id}
+                )
+                safe_msg = t(
+                    language,
+                    "I'm here to help you plan your Egypt trip! Could you rephrase your question about travel, budget, or local recommendations?",
+                    "أنا هنا لمساعدتك في التخطيط لرحلتك في مصر! هل يمكنك إعادة صياغة سؤالك حول السفر أو الميزانية أو التوصيات المحلية؟",
+                )
+                words = re.split(r"(\s+)", safe_msg)
+                for word in words:
+                    if word:
+                        await websocket.send_json({"type": "token", "content": word})
+                        await asyncio.sleep(0.008)
+                await websocket.send_json(
+                    {
+                        "type": "final",
+                        "session_id": session_id,
+                        "message": safe_msg,
+                        "agent": "Travel Planner",
+                        "intent": "general",
+                        "language": language,
+                        "agent_trace": [
+                            {
+                                "agent": "Router",
+                                "action": "Input validation",
+                                "tool": "prompt_firewall",
+                                "reasoning": "Input was flagged by security filters. Returning safe travel guidance.",
+                                "result": "blocked",
+                                "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                            }
+                        ],
+                        "itinerary": None,
+                        "budget_breakdown": None,
+                        "spots_json": None,
+                        "suggestions": [
+                            t(language, "Plan a trip to Cairo", "خطط رحلة للقاهرة"),
+                            t(language, "Best restaurants in Luxor", "أفضل المطاعم في الأقصر"),
+                            t(language, "Budget for 5 days in Egypt", "ميزانية 5 أيام في مصر"),
+                        ],
+                        "structured_questions": None,
+                    }
+                )
+                continue
+
+            message = firewall_result.sanitized_text
+
             total_attachment_bytes = sum(len(p.get("data") or "") for p in parts_raw)
             if total_attachment_bytes > 20_000_000:
                 await websocket.send_json(
@@ -809,7 +894,16 @@ async def chat_ws(websocket: WebSocket) -> None:
                     await websocket.send_json({"type": "error", "message": "Failed to generate response. Please try again."})
                     continue
 
-                final_text = sanitize_output((final_payload or {}).get("text") or response_text)
+                raw_final = (final_payload or {}).get("text") or response_text
+                visible_text, validated_triggers = extract_and_validate_triggers(raw_final)
+                visible_text = sanitize_output(visible_text)
+                ui_trigger_block = ""
+                if validated_triggers:
+                    import json as _json
+                    trigger_data = validated_triggers[0].model_dump(exclude_none=True)
+                    ui_trigger_block = f"---UI_TRIGGER---\n{_json.dumps(trigger_data)}\n---"
+
+                final_text = f"{visible_text}\n\n{ui_trigger_block}".strip() if ui_trigger_block else visible_text
                 await websocket.send_json(
                     {
                         "type": "final",

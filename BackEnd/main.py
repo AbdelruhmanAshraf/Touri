@@ -191,14 +191,24 @@ else:
         _allowed_origins = _configured
         _allowed_headers = ["Authorization", "Content-Type", "X-Requested-With", "Accept"]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=_allowed_origins,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=_allowed_headers,
-    max_age=600,
-)
+if not IS_PRODUCTION and _allowed_origins == ["*"]:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=r"https?://.*",
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=_allowed_headers,
+        max_age=600,
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_allowed_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=_allowed_headers,
+        max_age=600,
+    )
 
 # ── Security middleware & error handlers ──────────────────────────────────────
 install_security_middleware(app)

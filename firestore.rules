@@ -38,23 +38,18 @@ service cloud.firestore {
             'preferred_destination', 'tourism_type', 'party_size',
             'budget_bracket', 'first_name', 'last_name', 'gender',
             'photo_url', 'extras', 'created_at', 'updated_at'
-          ]);
+          ])
+          && (!('party_size' in request.resource.data.keys()) || (request.resource.data.party_size is int && request.resource.data.party_size >= 1 && request.resource.data.party_size <= 20))
+          && (!('tourism_type' in request.resource.data.keys()) || (request.resource.data.tourism_type in ['leisure', 'medical']))
+          && (!('budget_bracket' in request.resource.data.keys()) || (request.resource.data.budget_bracket in ['economy', 'mid_range', 'luxury']))
+          && (!('first_name' in request.resource.data.keys()) || isValidString(request.resource.data.first_name, 100))
+          && (!('last_name' in request.resource.data.keys()) || isValidString(request.resource.data.last_name, 100));
       }
 
       // ── users/{userId}/trips/{tripId} — trip plans ─────────────────────
       match /trips/{tripId} {
         allow read: if isOwner(userId);
-        allow create: if isOwner(userId);
-        allow update: if isOwner(userId);
-        allow delete: if isOwner(userId);
-      }
-
-      // ── users/{userId}/chats/{chatId} — chat history ───────────────────
-      match /chats/{chatId} {
-        allow read: if isOwner(userId);
-        allow create: if isOwner(userId);
-        allow update: if isOwner(userId);
-        allow delete: if isOwner(userId);
+        allow write: if false; // Backend-only via Admin SDK
       }
 
       // ── users/{userId}/pinned/{pinId} — pinned messages ────────────────
@@ -74,8 +69,8 @@ service cloud.firestore {
       // ── users/{userId}/sessions/{sessionId} — refresh token tracking ───
       match /sessions/{sessionId} {
         allow read: if isOwner(userId);
-        allow write: if isOwner(userId);
-        allow delete: if isOwner(userId);
+        allow write: if false; // Backend-only via Admin SDK
+        allow delete: if false;
       }
 
       // ── users/{userId}/conversation_state/{sid} — workflow state machine ──
